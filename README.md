@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains an open-source snapshot of the Hanafuda AI simulator used in [Battle Hanafuda](https://store.steampowered.com/app/4161340/Battle_Hanafuda/).
+This repository contains an open-source snapshot of the Hanafuda AI simulator used in [Battle Hanafuda](https://store.steampowered.com/app/4161340/Battle_Hanafuda/).
 
 The OSS package focuses on the CPU decision logic and the minimum game-side code required to run AI-vs-AI simulations on macOS or Linux. It is intended for AI behavior inspection, balance tuning, and reproducible local experiments.
 
