@@ -4,7 +4,7 @@
 
 This directory contains an open-source snapshot of the Hanafuda AI simulator used in [Battle Hanafuda](https://store.steampowered.com/app/4161340/Battle_Hanafuda/).
 
-The OSS package focuses on the CPU decision logic and the minimum game-side code required to run AI-vs-AI simulations on macOS. It is intended for AI behavior inspection, balance tuning, and reproducible local experiments.
+The OSS package focuses on the CPU decision logic and the minimum game-side code required to run AI-vs-AI simulations on macOS or Linux. It is intended for AI behavior inspection, balance tuning, and reproducible local experiments.
 
 ## Coding Rules
 
@@ -60,7 +60,7 @@ Of course, implementations produced with the help of a coding agent are also wel
 
 ## Specification Summary
 
-- Target platform: macOS only
+- Target platform: macOS / Linux
 - Output binary: `ai_sym`
 - Entry point: `src/main.c`
 - Included scope:

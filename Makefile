@@ -1,13 +1,7 @@
 CC := cc
 CFLAGS := -std=c11 -O2 -Wall -Wextra -Wno-unused-function -Wno-unused-variable -Isrc/include -Isrc
 LDFLAGS := -lm
-UNAME_S := $(shell uname -s)
-
 BIN := ai_sym
-
-ifneq ($(UNAME_S),Darwin)
-$(error This OSS build supports macOS (Darwin) only)
-endif
 
 SRC := \
 	src/main.c \
