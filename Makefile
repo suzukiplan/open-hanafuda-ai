@@ -1,5 +1,5 @@
 CC := cc
-CFLAGS := -std=c11 -O2 -Wall -Wextra -Wno-unused-function -Wno-unused-variable -Isrc/include -Isrc
+CFLAGS := -std=c11 -O2 -Wall -Wextra -Wno-unused-function -Wno-unused-variable -Isrc/include -Isrc -D_USE_MATH_DEFINES
 LDFLAGS := -lm
 BIN := ai_sym
 

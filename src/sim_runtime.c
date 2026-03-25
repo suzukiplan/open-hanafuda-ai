@@ -4,7 +4,6 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
-#include <math.h>
 
 #include "common.h"
 
