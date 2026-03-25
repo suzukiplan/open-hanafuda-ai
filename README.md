@@ -52,6 +52,12 @@ Per Bias:
 - BALANCED: win=599 (70.6%), lose=226 (26.6%), draw=24 (2.8%)
 ```
 
+If you find room for improvement in Battle Hanafuda's Watch Mode match results, you may be able to improve the win rate by cross-referencing `watch.log` with the source code in this repository and having a coding agent (such as Codex or Claude) analyze it.
+
+If you come up with a fix that improves the win rate, please submit a **Pull Request**.
+
+Of course, implementations produced with the help of a coding agent are also welcome.
+
 ## Specification Summary
 
 - Target platform: macOS only
