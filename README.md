@@ -76,7 +76,7 @@ Of course, implementations produced with the help of a coding agent are also wel
 After exporting the sources, build the OSS simulator with:
 
 ```bash
-make -C oss
+make
 ```
 
 This produces the executable below:
@@ -95,8 +95,8 @@ Example:
 
 Main options:
 
-- `-0 <ai_model>`: player 1 AI model
-- `-1 <ai_model>`: player 2 AI model
+- `-0 <ai_model>`: player 1 (P1) AI model
+- `-1 <ai_model>`: player 2 (CPU) AI model
 - `-r <rounds>`: number of rounds per game
 - `-l <loops>`: number of games to simulate
 - `--seed=<seed>`: fixed random seed for reproducible runs
