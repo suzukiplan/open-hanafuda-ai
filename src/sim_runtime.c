@@ -7,6 +7,10 @@
 
 #include "common.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 static ObjectAttributeMemory g_oam[SP_SIZE + 64];
 static uint32_t g_rng_state = 2463534242u;
 static int g_log_enabled = ON;
