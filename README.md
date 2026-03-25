@@ -8,6 +8,8 @@ The OSS package focuses on the CPU decision logic and the minimum game-side code
 
 ## Coding Rules
 
+As a fundamental principle, the game must be implemented in **full compliance** with the [Nintendo rules for Hanafuda Koi-Koi](https://www.nintendo.com/jp/others/hanafuda_kabufuda/howtoplay/koikoi/index.html) only, and no other local rule variations shall be supported.
+
 AI hidden-info rule for `ai*.{c,h}`:
 
 - **Never read the opponent hand directly via `own[opp]`.**
