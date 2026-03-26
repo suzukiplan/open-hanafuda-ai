@@ -2548,9 +2548,29 @@ static int hand_has_finishing_card_for_wid(int player, int wid, int exclude_card
     return OFF;
 }
 
+static int is_excluded_hand_card_finisher_for_wid(int player, int wid, int exclude_card_no)
+{
+    int secured;
+    int required;
+
+    if (player < 0 || player > 1 || exclude_card_no < 0 || exclude_card_no >= 48) {
+        return OFF;
+    }
+    if (!ai_is_card_critical_for_wid(exclude_card_no, wid) || is_secured_role_card_for_player(player, exclude_card_no)) {
+        return OFF;
+    }
+
+    secured = count_secured_components_for_wid(player, wid);
+    required = required_component_count_for_wid(wid);
+    return secured == required - 1 ? ON : OFF;
+}
+
 static int should_delay_early_five_point_completion(const StrategyData* before, int player, int wid, int exclude_card_no)
 {
     if (!before || player < 0 || player > 1 || !is_delayable_five_point_wid(wid)) {
+        return OFF;
+    }
+    if ((wid != WID_HANAMI && wid != WID_TSUKIMI) || exclude_card_no != 35) {
         return OFF;
     }
     if (g.koikoi[0] == ON || g.koikoi[1] == ON) {
@@ -2559,10 +2579,10 @@ static int should_delay_early_five_point_completion(const StrategyData* before, 
     if (current_round_turn_for_player(player) > DROP_EARLY_FIVE_POINT_DELAY_TURN_MAX) {
         return OFF;
     }
-    if (count_critical_hand_cards_for_wid(player, wid, exclude_card_no) <= 0) {
+    if (count_critical_hand_cards_for_wid(player, wid, exclude_card_no) <= 0 && !is_excluded_hand_card_finisher_for_wid(player, wid, exclude_card_no)) {
         return OFF;
     }
-    return hand_has_finishing_card_for_wid(player, wid, exclude_card_no);
+    return hand_has_finishing_card_for_wid(player, wid, exclude_card_no) || is_excluded_hand_card_finisher_for_wid(player, wid, exclude_card_no);
 }
 
 static int calc_early_five_point_delay_bonus(int player, int drop_card_no, const StrategyData* before, const DropCaptureEval* capture_eval, int completion_wid)
@@ -4547,7 +4567,13 @@ static int calc_drop_completion_combo_bonus(int player, int drop_card_no, const 
     if (best_base > 0 && should_delay_early_five_point_completion(before, player, best_wid, drop_card_no)) {
         ai_putlog("[drop] delay early five-point completion: wid=%s drop=%d delay=%d hand_keys=%d", winning_hands[best_wid].name, drop_card_no,
                   before->delay[best_wid], count_critical_hand_cards_for_wid(player, best_wid, drop_card_no));
-        return best_base * 20000 - DROP_EARLY_FIVE_POINT_DELAY_PENALTY;
+        if (out_best_wid) {
+            *out_best_wid = -1;
+        }
+        if (out_take_card_no) {
+            *out_take_card_no = -1;
+        }
+        return -DROP_EARLY_FIVE_POINT_DELAY_PENALTY;
     }
     return best_base > 0 ? best_base * 20000 : 0;
 }
