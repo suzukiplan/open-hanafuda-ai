@@ -4,10 +4,16 @@
 
 /*
  * AI hidden-info rule for ai*.{c,h}:
- * - Never read the opponent hand directly via own[opp].
- * - Never read unopened draw-pile contents via floor.
- * - Visible cards may be read directly: own[player], deck, invent.
+ * - Never read the opponent hand directly via g.own[opp].
+ * - Never read unopened draw-pile contents via g.floor.
+ * - Visible cards may be read directly: g.own[player], g.deck, g.invent.
  * - Estimation is allowed only by inferring unseen cards from visible cards.
+ *
+ * CardSet仕様:
+ * - g.floor ... 山札: (0 ~ start -1: open済み ※相手手札のみ invisible, start ~ num: まだめくられていない山札 ※invisible)
+ * - g.own[{0|1}] ... 手札 ※自分の手札 = visible, 相手の手札 = invisible
+ * - g.deck ... 場札 (数: 不定<最大48>, 途中に null が含まれることがある) ※visible cards
+ * - g.invent[{0|1}][{0|1|2|3}] ... 取り札 (KASU, TAN, TANE, GOKOU 毎) ※visible cards
  */
 
 enum {

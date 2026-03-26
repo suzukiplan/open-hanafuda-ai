@@ -28,11 +28,15 @@ static void snapshot_card_set48(NativeAiCardSet48Snapshot* dst, const CardSet* s
 static void snapshot_card_set8(NativeAiCardSet8Snapshot* dst, const CardSet* src)
 {
     int i;
+    int count = 0;
     for (i = 0; i < 8; i++) {
         dst->cards[i] = snapshot_card_id(src->cards[i]);
+        if (src->cards[i]) {
+            count++;
+        }
     }
     dst->start = src->start;
-    dst->num = src->num;
+    dst->num = count;
 }
 
 static void snapshot_strategy(NativeAiStrategySnapshot* dst, const StrategyData* src)

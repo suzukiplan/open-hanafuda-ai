@@ -274,7 +274,6 @@ void enemy_turn(void)
         draw_cards();
     }
     log_take_cards("drop", dropCard, takenDrop);
-
     // 手札数を減らす
     for (int i = dropIndex; i < 7; i++) {
         g.own[1].cards[i] = g.own[1].cards[i + 1];
