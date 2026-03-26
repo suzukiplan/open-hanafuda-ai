@@ -1,1 +1,4 @@
-ai_sym
+.DS_Store
+ai_sim
+replay
+build/*

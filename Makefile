@@ -1,10 +1,12 @@
 CC := cc
-CFLAGS := -std=c11 -O2 -Wall -Wextra -Wno-unused-function -Wno-unused-variable -Isrc/include -Isrc -D_USE_MATH_DEFINES
+CFLAGS := -std=c11 -O2 -Wall -Wextra -Wno-unused-function -Wno-unused-variable -Wunused-but-set-variable -Isrc/include -Isrc -D_USE_MATH_DEFINES
+CPPFLAGS := -MMD -MP
 LDFLAGS := -lm
-BIN := ai_sym
 
-SRC := \
-	src/main.c \
+BUILD_DIR := build
+OBJ_DIR := $(BUILD_DIR)/obj
+
+COMMON_SRC := \
 	src/sim_runtime.c \
 	src/sim_result.c \
 	src/cards_cli.c \
@@ -31,15 +33,34 @@ SRC := \
 	src/ai_mcenv_koikoi.c \
 	src/ai_strategy.c
 
-all: $(BIN)
+AI_SIM_SRC := src/main.c
+REPLAY_SRC := src/replay.c
 
-$(BIN): $(SRC)
-	$(CC) $(CFLAGS) -o $@ $(SRC) $(LDFLAGS)
+COMMON_OBJ := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(COMMON_SRC))
+AI_SIM_OBJ := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(AI_SIM_SRC))
+REPLAY_OBJ := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(REPLAY_SRC))
+DEPS := $(COMMON_OBJ:.o=.d) $(AI_SIM_OBJ:.o=.d) $(REPLAY_OBJ:.o=.d)
+
+BINARIES := ai_sim replay
+
+all: $(BINARIES)
+
+ai_sim: $(COMMON_OBJ) $(AI_SIM_OBJ)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+replay: $(COMMON_OBJ) $(REPLAY_OBJ)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+$(OBJ_DIR)/%.o: src/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(BIN)
+	rm -rf $(BUILD_DIR) $(BINARIES)
 
-run1k: $(BIN)
-	./$(BIN) -0 0 -1 1 -r 12 -l 1000 --seed=1772851247
+run1k: ai_sim
+	./ai_sim -0 0 -1 1 -r 12 -l 1000 --seed=1772851247
 
-.PHONY: all clean
+.PHONY: all clean run1k
+
+-include $(DEPS)
