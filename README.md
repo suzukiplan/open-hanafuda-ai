@@ -8,7 +8,11 @@ The OSS package focuses on the CPU decision logic and the minimum game-side code
 
 ## Coding Rules
 
+### KoiKoi Rules
+
 As a fundamental principle, the game must be implemented in **full compliance** with the [Nintendo rules for Hanafuda Koi-Koi](https://www.nintendo.com/jp/others/hanafuda_kabufuda/howtoplay/koikoi/index.html) only, and no other local rule variations shall be supported.
+
+### Hidden Info
 
 AI hidden-info rule for `ai*.{c,h}`:
 
@@ -16,6 +20,13 @@ AI hidden-info rule for `ai*.{c,h}`:
 - **Never read unopened draw-pile contents via `floor`.**
 - **Visible cards may be read directly: `own[player]`, `deck`, `invent`.**
 - **Estimation is allowed only by inferring unseen cards from visible cards.**
+
+### Standard Library Usage
+
+Use of the C standard library is prohibited, except in the following files, which contain host-simulator-specific implementations (a constraint of VGS-X):
+
+- `main.c`: Entry point for the host simulator only
+- `sim_*.c`: Submodules for the host simulator only
 
 ## Requirements
 
