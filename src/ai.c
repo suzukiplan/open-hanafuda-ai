@@ -392,6 +392,8 @@ void ai_putlog_env(const char* fmt, ...)
 
 void ai_watch_log_begin(void)
 {
+    const int seed = ai_debug_current_seed();
+
     if (!g.auto_play) {
         return;
     }
@@ -412,7 +414,11 @@ void ai_watch_log_begin(void)
 #endif
     }
 
-    ai_putlog("Watch Start: P1=%s CPU=%s rounds=%d", ai_model_name(g.ai_model[0]), ai_model_name(g.ai_model[1]), g.round_max);
+    if (seed) {
+        ai_putlog("Watch Start: P1=%s CPU=%s rounds=%d seed=%d", ai_model_name(g.ai_model[0]), ai_model_name(g.ai_model[1]), g.round_max, seed);
+    } else {
+        ai_putlog("Watch Start: P1=%s CPU=%s rounds=%d", ai_model_name(g.ai_model[0]), ai_model_name(g.ai_model[1]), g.round_max);
+    }
     ai_watch_log_card_index_legend();
 }
 
