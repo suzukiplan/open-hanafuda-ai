@@ -989,6 +989,44 @@ static int choose_greedy_drop_candidate(int player, const StrategyData* before, 
     return choose_greedy_drop_candidate_from_pool(player, before, pool, pool_count, value_mode, NULL);
 }
 
+static int has_live_sake_line(const StrategyData* s, int reach_hanami, int delay_hanami, int reach_tsukimi, int delay_tsukimi)
+{
+    if (!s) {
+        return OFF;
+    }
+    if ((reach_hanami >= 10 && delay_hanami <= 4) || (reach_tsukimi >= 10 && delay_tsukimi <= 4)) {
+        return ON;
+    }
+    return (s->reach[WID_ISC] >= 20 && s->delay[WID_ISC] <= 4) ? ON : OFF;
+}
+
+static int should_preserve_sake_cup_in_greedy_fallback(const StrategyData* before, const DropCandidateScore* candidate)
+{
+    Card* card;
+    int self_live;
+    int opp_live;
+
+    if (!before || !candidate || candidate->card_no != 35 || candidate->taken_card_no >= 0) {
+        return OFF;
+    }
+    if (before->left_own < DROP_EARLY_SAKE_LEFT_OWN_MIN || before->left_rounds < DROP_EARLY_SAKE_LEFT_ROUNDS_MIN) {
+        return OFF;
+    }
+    if (before->koikoi_opp == ON || before->opponent_win_x2 == ON) {
+        return OFF;
+    }
+
+    card = &g.cards[candidate->card_no];
+    if (card->type != CARD_TYPE_TANE || card->month != 8) {
+        return OFF;
+    }
+
+    self_live = has_live_sake_line(before, before->reach[WID_HANAMI], before->delay[WID_HANAMI], before->reach[WID_TSUKIMI], before->delay[WID_TSUKIMI]);
+    opp_live = has_live_sake_line(before, before->risk_reach_estimate[WID_HANAMI], before->risk_delay[WID_HANAMI],
+                                  before->risk_reach_estimate[WID_TSUKIMI], before->risk_delay[WID_TSUKIMI]);
+    return (self_live || opp_live) ? ON : OFF;
+}
+
 static int calc_fallback_take_priority(const DropCandidateScore* candidate)
 {
     Card* taken;
@@ -1105,6 +1143,9 @@ static int choose_greedy_drop_candidate_from_pool(
         int value = drop_candidate_value(&pool[i], value_mode);
         int best_value = greedy_best_pool_idx >= 0 ? drop_candidate_value(&pool[greedy_best_pool_idx], value_mode) : INT_MIN;
         score += calc_fallback_take_priority(&pool[i]);
+        if (should_preserve_sake_cup_in_greedy_fallback(before, &pool[i])) {
+            score -= 5000;
+        }
         if (top_value_pool_idx < 0 || value > top_value) {
             top_value_pool_idx = i;
             top_value = value;
