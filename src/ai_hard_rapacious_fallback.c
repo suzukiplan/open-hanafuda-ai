@@ -1,6 +1,12 @@
 #include "ai.h"
 #include <limits.h>
 
+typedef struct {
+    int env_gain;
+    int immediate_gain;
+    int immediate_base;
+} RapaciousFallbackEval;
+
 static int hard_rapacious_fallback_find_hand_index(int player, Card* card)
 {
     int i;
@@ -24,16 +30,28 @@ static void hard_rapacious_fallback_capture_card(int player, Card* card)
     g.invent[player][card->type].cards[g.invent[player][card->type].num++] = card;
 }
 
-static int hard_rapacious_fallback_eval_target(int player, int hand_index, Card* hand_card, int deck_index, int remove_from_hand)
+static int hard_rapacious_fallback_eval_target(int player, int hand_index, Card* hand_card, int deck_index, int remove_from_hand,
+                                               RapaciousFallbackEval* out_eval)
 {
     CardSet own_backup;
     CardSet deck_backup;
     CardSet invent_backup[4];
     int score;
+    int current_score;
+    int taken_card_no = -1;
+    int immediate_gain = 0;
+    int immediate_wid = -1;
+
+    if (out_eval) {
+        out_eval->env_gain = INT_MIN;
+        out_eval->immediate_gain = 0;
+        out_eval->immediate_base = 0;
+    }
 
     vgs_memcpy(&own_backup, &g.own[player], sizeof(CardSet));
     vgs_memcpy(&deck_backup, &g.deck, sizeof(CardSet));
     vgs_memcpy(invent_backup, g.invent[player], sizeof(CardSet) * 4);
+    current_score = ai_env_score(player);
 
     if (remove_from_hand && 0 <= hand_index && hand_index < g.own[player].num && g.own[player].cards[hand_index] == hand_card) {
         g.own[player].cards[hand_index] = NULL;
@@ -44,6 +62,7 @@ static int hard_rapacious_fallback_eval_target(int player, int hand_index, Card*
 
     if (0 <= deck_index && deck_index < 48 && g.deck.cards[deck_index]) {
         Card* taken = g.deck.cards[deck_index];
+        taken_card_no = taken->id;
         hard_rapacious_fallback_capture_card(player, hand_card);
         hard_rapacious_fallback_capture_card(player, taken);
         g.deck.cards[deck_index] = NULL;
@@ -56,11 +75,42 @@ static int hard_rapacious_fallback_eval_target(int player, int hand_index, Card*
     }
 
     score = ai_env_score(player);
+    if (taken_card_no >= 0) {
+        int cards[2];
+        cards[0] = hand_card ? hand_card->id : -1;
+        cards[1] = taken_card_no;
+        immediate_gain = analyze_score_gain_with_card_ids(player, cards, 2, &immediate_wid);
+    }
+    if (out_eval) {
+        out_eval->env_gain = score - current_score;
+        out_eval->immediate_gain = immediate_gain;
+        out_eval->immediate_base = immediate_wid >= 0 ? winning_hands[immediate_wid].base_score : 0;
+    }
 
     vgs_memcpy(&g.own[player], &own_backup, sizeof(CardSet));
     vgs_memcpy(&g.deck, &deck_backup, sizeof(CardSet));
     vgs_memcpy(g.invent[player], invent_backup, sizeof(CardSet) * 4);
-    return score;
+    return score - current_score;
+}
+
+static int rapacious_fallback_eval_better(const RapaciousFallbackEval* lhs, const RapaciousFallbackEval* rhs)
+{
+    if (!lhs) {
+        return OFF;
+    }
+    if (!rhs) {
+        return ON;
+    }
+    if (lhs->immediate_gain != rhs->immediate_gain) {
+        return lhs->immediate_gain > rhs->immediate_gain ? ON : OFF;
+    }
+    if (lhs->immediate_base != rhs->immediate_base) {
+        return lhs->immediate_base > rhs->immediate_base ? ON : OFF;
+    }
+    if (lhs->env_gain != rhs->env_gain) {
+        return lhs->env_gain > rhs->env_gain ? ON : OFF;
+    }
+    return OFF;
 }
 
 int ai_hard_rapacious_fallback_koikoi(int player, int round_score)
@@ -70,9 +120,8 @@ int ai_hard_rapacious_fallback_koikoi(int player, int round_score)
 
 int ai_hard_rapacious_fallback_drop(int player)
 {
-    int current_score = ai_env_score(player);
     int best_hand_index = 0;
-    int best_gain = INT_MIN;
+    RapaciousFallbackEval best_eval = {INT_MIN, 0, 0};
     int found = OFF;
     int i;
 
@@ -88,14 +137,15 @@ int ai_hard_rapacious_fallback_drop(int player)
         target_count = collect_target_deck_indexes(hand_card, targets);
         if (target_count <= 0) {
             int deck_index = find_empty_deck_slot();
-            int gain;
+            RapaciousFallbackEval eval;
 
             if (deck_index < 0) {
                 continue;
             }
-            gain = hard_rapacious_fallback_eval_target(player, i, hand_card, deck_index, ON) - current_score;
-            if (!found || gain > best_gain || (gain == best_gain && i < best_hand_index)) {
-                best_gain = gain;
+            hard_rapacious_fallback_eval_target(player, i, hand_card, deck_index, ON, &eval);
+            if (!found || rapacious_fallback_eval_better(&eval, &best_eval) ||
+                (!rapacious_fallback_eval_better(&best_eval, &eval) && i < best_hand_index)) {
+                best_eval = eval;
                 best_hand_index = i;
                 found = ON;
             }
@@ -103,9 +153,11 @@ int ai_hard_rapacious_fallback_drop(int player)
         }
 
         for (int ti = 0; ti < target_count; ti++) {
-            int gain = hard_rapacious_fallback_eval_target(player, i, hand_card, targets[ti], ON) - current_score;
-            if (!found || gain > best_gain || (gain == best_gain && i < best_hand_index)) {
-                best_gain = gain;
+            RapaciousFallbackEval eval;
+            hard_rapacious_fallback_eval_target(player, i, hand_card, targets[ti], ON, &eval);
+            if (!found || rapacious_fallback_eval_better(&eval, &best_eval) ||
+                (!rapacious_fallback_eval_better(&best_eval, &eval) && i < best_hand_index)) {
+                best_eval = eval;
                 best_hand_index = i;
                 found = ON;
             }
@@ -124,12 +176,11 @@ int ai_hard_rapacious_fallback_drop(int player)
 
 int ai_hard_rapacious_fallback_select(int player, Card* card)
 {
-    int current_score;
     int hand_index;
     int targets[48];
     int target_count;
     int best_deck;
-    int best_gain;
+    RapaciousFallbackEval best_eval = {INT_MIN, 0, 0};
     int found;
     int ti;
 
@@ -146,16 +197,16 @@ int ai_hard_rapacious_fallback_select(int player, Card* card)
     }
 
     hand_index = hard_rapacious_fallback_find_hand_index(player, card);
-    current_score = ai_env_score(player);
     best_deck = targets[0];
-    best_gain = INT_MIN;
     found = OFF;
 
     for (ti = 0; ti < target_count; ti++) {
         int deck_index = targets[ti];
-        int gain = hard_rapacious_fallback_eval_target(player, hand_index, card, deck_index, ON) - current_score;
-        if (!found || gain > best_gain || (gain == best_gain && deck_index < best_deck)) {
-            best_gain = gain;
+        RapaciousFallbackEval eval;
+        hard_rapacious_fallback_eval_target(player, hand_index, card, deck_index, ON, &eval);
+        if (!found || rapacious_fallback_eval_better(&eval, &best_eval) ||
+            (!rapacious_fallback_eval_better(&best_eval, &eval) && deck_index < best_deck)) {
+            best_eval = eval;
             best_deck = deck_index;
             found = ON;
         }

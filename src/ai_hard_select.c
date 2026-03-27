@@ -2637,7 +2637,7 @@ int ai_hard_select(int player, Card* card)
         int better = OFF;
         if (best_index < 0) {
             better = ON;
-        } else if (before->koikoi_opp == ON && (immediate_points_gain > 0 || best_immediate_gain > 0)) {
+        } else if ((g.koikoi[player] == ON || before->koikoi_opp == ON) && (immediate_points_gain > 0 || best_immediate_gain > 0)) {
             if (immediate_points_gain > best_immediate_gain) {
                 better = ON;
             } else if (immediate_points_gain == best_immediate_gain) {

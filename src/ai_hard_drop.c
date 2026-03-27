@@ -4215,6 +4215,22 @@ static int calc_leave_quality(int player, int left_card_no, const StrategyData* 
     return penalty;
 }
 
+static int calc_drop_take_immediate_gain(int player, int drop_card_no, int take_card_no, int* out_best_wid)
+{
+    int cards[2];
+
+    if (out_best_wid) {
+        *out_best_wid = -1;
+    }
+    if (player < 0 || player > 1 || drop_card_no < 0 || drop_card_no >= 48 || take_card_no < 0 || take_card_no >= 48) {
+        return 0;
+    }
+
+    cards[0] = drop_card_no;
+    cards[1] = take_card_no;
+    return analyze_score_gain_with_card_ids(player, cards, 2, out_best_wid);
+}
+
 static void evaluate_drop_capture(int player, int drop_card_no, const StrategyData* before, DropCaptureEval* out_eval)
 {
     int takeable[48];
@@ -4244,16 +4260,28 @@ static void evaluate_drop_capture(int player, int drop_card_no, const StrategyDa
 
     {
         int best_total = INT_MIN;
+        int best_immediate_gain = INT_MIN;
+        int best_immediate_base = -1;
         for (int i = 0; i < takeable_count; i++) {
             int capture_quality = calc_capture_quality(player, takeable[i], before);
             int leave_quality = 0;
+            int immediate_wid = -1;
+            int immediate_gain = calc_drop_take_immediate_gain(player, drop_card_no, takeable[i], &immediate_wid);
+            int immediate_base = immediate_wid >= 0 ? winning_hands[immediate_wid].base_score : 0;
             for (int j = 0; j < takeable_count; j++) {
                 if (i == j) {
                     continue;
                 }
                 leave_quality += calc_leave_quality(player, takeable[j], before);
             }
-            if (capture_quality + leave_quality > best_total) {
+            if (immediate_gain > best_immediate_gain ||
+                (immediate_gain == best_immediate_gain &&
+                 (immediate_base > best_immediate_base ||
+                  (immediate_base == best_immediate_base &&
+                   (capture_quality + leave_quality > best_total ||
+                    (capture_quality + leave_quality == best_total && takeable[i] < out_eval->chosen_take_card_no)))))) {
+                best_immediate_gain = immediate_gain;
+                best_immediate_base = immediate_base;
                 best_total = capture_quality + leave_quality;
                 out_eval->capture_quality = capture_quality;
                 out_eval->leave_quality = leave_quality;
@@ -5098,7 +5126,7 @@ int ai_hard_drop(int player)
         int best_fallback_distance = best_index < 0 ? INT_MAX : (best_index - fallback_index < 0 ? fallback_index - best_index : best_index - fallback_index);
 
         int better = OFF;
-        if (str.koikoi_opp == ON && (immediate_gain > 0 || best_immediate_gain > 0)) {
+        if ((g.koikoi[player] == ON || str.koikoi_opp == ON) && (immediate_gain > 0 || best_immediate_gain > 0)) {
             if (immediate_gain > best_immediate_gain) {
                 better = ON;
             } else if (immediate_gain == best_immediate_gain) {
