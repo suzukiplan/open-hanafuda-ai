@@ -2,3 +2,5 @@
 ai_sim
 replay
 build/*
+run100.log/*
+

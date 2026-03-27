@@ -1,5 +1,5 @@
 CC := cc
-CFLAGS := -std=c11 -O2 -Wall -Wextra -Wno-unused-function -Wno-unused-variable -Wunused-but-set-variable -Isrc/include -Isrc -D_USE_MATH_DEFINES
+CFLAGS := -std=c11 -O2 -Wall -Wextra -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable -Isrc/include -Isrc -D_USE_MATH_DEFINES
 CPPFLAGS := -MMD -MP
 LDFLAGS := -lm
 
@@ -60,6 +60,12 @@ clean:
 
 run1k: ai_sim
 	./ai_sim -0 0 -1 1 -r 12 -l 1000 --seed=1772851247
+
+run100: ai_sim
+	rm -rf run100.log
+	mkdir run100.log
+	./ai_sim -0 0 -1 1 -r 12 -l 100 --seed=1772851247 --log run100.log/watch.log
+	python3 extract_watch_csv.py run100.log >run100.csv
 
 .PHONY: all clean run1k
 
