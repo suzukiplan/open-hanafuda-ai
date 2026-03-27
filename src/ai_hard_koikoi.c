@@ -100,6 +100,14 @@
 #define KOIKOI_BASE5_BEHIND_THIN_PUSH_SELF_REACH_MAX 15
 // 上記専用 stop 条件で使う危険役 score 上限。
 #define KOIKOI_BASE5_BEHIND_THIN_PUSH_RISK_SCORE_MAX 2
+// 酒役の片割れが相手に見えている時、follow-up 劣勢とみなす差分閾値。
+#define KOIKOI_BASE5_BLOCKED_SAKE_FOLLOWUP_MARGIN 140
+// 上記専用 stop 条件で使う残り手札上限。
+#define KOIKOI_BASE5_BLOCKED_SAKE_LEFT_OWN_MAX 5
+// 上記専用 stop 条件で使う live-out 到達率上限。
+#define KOIKOI_BASE5_BLOCKED_SAKE_LIVE_OUT_REACH_MAX 30
+// 上記専用 stop 条件で使う live-out 最短 delay 下限。
+#define KOIKOI_BASE5_BLOCKED_SAKE_LIVE_OUT_DELAY_MIN 4
 static int strategy_overpay_possible(const StrategyData* s);
 static int count_known_month_cards_for_player(int player, int month);
 static int count_owned_month_cards(int player, int month);
@@ -108,6 +116,8 @@ static int has_floor_same_month_card(int month);
 static int is_secured_threshold_followup_card(int player, Card* card);
 static int secured_followup_single_card_gain(int player, Card* card, int* out_best_wid);
 static int estimate_secured_followup_gain(int player, int* out_ready_cards, int* out_best_high_value_gain);
+static int has_current_winning_hand(int player, int wid);
+static int player_has_captured_month_type(int player, int month, int type);
 
 static int should_loosen_close_match_koikoi(const StrategyData* s, int max_risk_score)
 {
@@ -257,6 +267,92 @@ static int hard_should_force_rapacious_fallback_sake_koikoi(int player, const St
     return ON;
 }
 #endif
+
+static int calc_followup_pressure_value(const int* reach, const int* delay)
+{
+    static const int target_wids[] = {WID_ISC, WID_AKATAN, WID_AOTAN, WID_TANE, WID_TAN, WID_KASU};
+    int top_values[3] = {0, 0, 0};
+
+    if (!reach || !delay) {
+        return 0;
+    }
+
+    for (int i = 0; i < (int)(sizeof(target_wids) / sizeof(target_wids[0])); i++) {
+        int wid = target_wids[i];
+        int base = winning_hands[wid].base_score;
+        int value;
+
+        if (reach[wid] <= 0 || delay[wid] >= 99) {
+            continue;
+        }
+
+        value = (reach[wid] * base * 10) / (delay[wid] + 1);
+        if (wid == WID_ISC || wid == WID_AKATAN || wid == WID_AOTAN) {
+            value += 20;
+        }
+        if (value > top_values[0]) {
+            top_values[2] = top_values[1];
+            top_values[1] = top_values[0];
+            top_values[0] = value;
+        } else if (value > top_values[1]) {
+            top_values[2] = top_values[1];
+            top_values[1] = value;
+        } else if (value > top_values[2]) {
+            top_values[2] = value;
+        }
+    }
+
+    return top_values[0] + top_values[1] + top_values[2];
+}
+
+static int find_blocked_sake_wid(int player)
+{
+    int opp = 1 - player;
+
+    if (player < 0 || player > 1) {
+        return -1;
+    }
+    if (has_current_winning_hand(player, WID_HANAMI) && player_has_captured_month_type(opp, 7, CARD_TYPE_GOKOU)) {
+        return WID_HANAMI;
+    }
+    if (has_current_winning_hand(player, WID_TSUKIMI) && player_has_captured_month_type(opp, 2, CARD_TYPE_GOKOU)) {
+        return WID_TSUKIMI;
+    }
+    return -1;
+}
+
+static int should_stop_base5_blocked_sake_koikoi(int player, const StrategyData* s, int round_score, int live_out_est, int live_out_delay,
+                                                 int best_seven_plus_delay, int best_seven_plus_reach)
+{
+    int self_followup_pressure;
+    int opp_followup_pressure;
+
+    if (player < 0 || player > 1 || !s) {
+        return OFF;
+    }
+    if (round_score != 5) {
+        return OFF;
+    }
+    if (find_blocked_sake_wid(player) < 0) {
+        return OFF;
+    }
+    if (s->left_own > KOIKOI_BASE5_BLOCKED_SAKE_LEFT_OWN_MAX) {
+        return OFF;
+    }
+    if (s->match_score_diff <= -35) {
+        return OFF;
+    }
+    if (live_out_est > KOIKOI_BASE5_BLOCKED_SAKE_LIVE_OUT_REACH_MAX || live_out_delay < KOIKOI_BASE5_BLOCKED_SAKE_LIVE_OUT_DELAY_MIN) {
+        return OFF;
+    }
+    if (best_seven_plus_delay <= 3 && best_seven_plus_reach >= KOIKOI_SEVEN_PLUS_MIN_REACH) {
+        return OFF;
+    }
+
+    self_followup_pressure = calc_followup_pressure_value(s->reach, s->delay);
+    opp_followup_pressure = calc_followup_pressure_value(s->risk_reach_estimate, s->risk_delay);
+    return (opp_followup_pressure >= self_followup_pressure + KOIKOI_BASE5_BLOCKED_SAKE_FOLLOWUP_MARGIN) ? ON : OFF;
+}
 
 static const char* strategy_mode_name(int mode)
 {
@@ -1380,6 +1476,11 @@ int ai_hard_koikoi(int player, int round_score)
         continue_value_without_push -= KOIKOI_BASE5_BEHIND_THIN_PUSH_STOP_BONUS / 3;
         if (!forced_stop_reason) {
             forced_stop_reason = "BASE5_BEHIND_THIN_PUSH";
+        }
+    }
+    if (should_stop_base5_blocked_sake_koikoi(player, s, round_score, live_out_est, live_out_delay, best_seven_plus_delay, best_seven_plus_reach)) {
+        if (!forced_stop_reason) {
+            forced_stop_reason = "BASE5_BLOCKED_SAKE";
         }
     }
 
