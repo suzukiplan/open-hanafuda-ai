@@ -116,6 +116,7 @@ static int has_floor_same_month_card(int month);
 static int is_secured_threshold_followup_card(int player, Card* card);
 static int secured_followup_single_card_gain(int player, Card* card, int* out_best_wid);
 static int estimate_secured_followup_gain(int player, int* out_ready_cards, int* out_best_high_value_gain);
+static int estimate_visible_threshold_followup_gain(int player, int* out_ready_cards, int* out_best_high_value_gain);
 static int has_current_winning_hand(int player, int wid);
 static int player_has_captured_month_type(int player, int month, int type);
 
@@ -578,6 +579,51 @@ static int estimate_secured_followup_gain(int player, int* out_ready_cards, int*
     return analyze_score_gain_with_card_ids(player, card_ids, card_count, NULL);
 }
 
+static int estimate_visible_threshold_followup_gain(int player, int* out_ready_cards, int* out_best_high_value_gain)
+{
+    int card_ids[8];
+    int card_count = 0;
+
+    if (out_ready_cards) {
+        *out_ready_cards = 0;
+    }
+    if (out_best_high_value_gain) {
+        *out_best_high_value_gain = 0;
+    }
+    if (player < 0 || player > 1) {
+        return 0;
+    }
+
+    for (int i = 0; i < g.own[player].num; i++) {
+        Card* card = g.own[player].cards[i];
+        if (!card) {
+            continue;
+        }
+        if (card->type != CARD_TYPE_KASU && card->type != CARD_TYPE_TAN && card->type != CARD_TYPE_TANE) {
+            continue;
+        }
+        if (!has_floor_same_month_card(card->month)) {
+            continue;
+        }
+        card_ids[card_count++] = card->id;
+        if (out_best_high_value_gain) {
+            int best_wid = -1;
+            int gain = secured_followup_single_card_gain(player, card, &best_wid);
+            if (*out_best_high_value_gain < gain) {
+                *out_best_high_value_gain = gain;
+            }
+        }
+    }
+
+    if (out_ready_cards) {
+        *out_ready_cards = card_count;
+    }
+    if (card_count <= 0) {
+        return 0;
+    }
+    return analyze_score_gain_with_card_ids(player, card_ids, card_count, NULL);
+}
+
 static int strategy_overpay_possible(const StrategyData* s)
 {
     if (!s) {
@@ -813,12 +859,12 @@ static int strategy_best_seven_plus_line(const StrategyData* s, int round_score,
     }
     if (round_score >= 7) {
         if (best_delay) {
-            *best_delay = 0;
+            *best_delay = 99;
         }
         if (best_reach) {
-            *best_reach = 100;
+            *best_reach = 0;
         }
-        return 700;
+        return 0;
     }
 
     for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
@@ -1207,6 +1253,9 @@ int ai_hard_koikoi(int player, int round_score)
     int secured_followup_gain = 0;
     int secured_followup_cards = 0;
     int secured_high_value_followup_gain = 0;
+    int visible_threshold_followup_gain = 0;
+    int visible_threshold_followup_cards = 0;
+    int visible_threshold_high_gain = 0;
     int continue_live_out_bonus;
     int continue_value;
     int continue_value_without_push;
@@ -1239,6 +1288,7 @@ int ai_hard_koikoi(int player, int round_score)
     base6_seven_push = has_live_out_to_seven_push(s, round_score);
     overpay_possible = strategy_overpay_possible(s);
     secured_followup_gain = estimate_secured_followup_gain(player, &secured_followup_cards, &secured_high_value_followup_gain);
+    visible_threshold_followup_gain = estimate_visible_threshold_followup_gain(player, &visible_threshold_followup_cards, &visible_threshold_high_gain);
     continue_live_out_bonus = calc_continue_live_out_bonus(s, round_score);
     continue_value = strategy_calc_koikoi_continue_value(s, round_score);
     continue_value_without_push = continue_value;
@@ -1338,6 +1388,14 @@ int ai_hard_koikoi(int player, int round_score)
     if (visible_five_point_followup_reason && s->opponent_win_x2 == OFF && s->opp_coarse_threat < KOIKOI_SMALL_BASE_THREAT_THRESHOLD &&
         !(min_risk_delay <= 1 && max_risk_score >= 2)) {
         forced_continue_reason = visible_five_point_followup_reason;
+        forced_result = ON;
+        forced_result_without_push = ON;
+        goto finalize;
+    }
+
+    if (round_score <= KOIKOI_SMALL_BASE_MAX && visible_threshold_followup_cards > 0 && visible_threshold_followup_gain >= 2 && s->opponent_win_x2 == OFF &&
+        s->opp_coarse_threat < 40 && s->opp_exact_7plus_threat <= 0 && min_risk_delay >= 3 && max_risk_score <= 1) {
+        forced_continue_reason = "VISIBLE_THRESHOLD_PLUS2";
         forced_result = ON;
         forced_result_without_push = ON;
         goto finalize;
@@ -1484,6 +1542,13 @@ int ai_hard_koikoi(int player, int round_score)
         }
     }
 
+    if (round_score >= 7 && s->left_own <= 1 && s->match_score_diff >= -10 && !visible_five_point_followup_reason && visible_threshold_followup_gain < 2 &&
+        secured_high_value_followup_gain < 5) {
+        if (!forced_stop_reason) {
+            forced_stop_reason = "SEVEN_PLUS_LAST_CARD";
+        }
+    }
+
     if (forced_stop_reason) {
         forced_result = OFF;
         forced_result_without_push = OFF;
@@ -1538,6 +1603,9 @@ finalize:
     ai_putlog("- continue_base=%d live_out=%d", calc_continue_base(s, round_score), continue_live_out_bonus);
     ai_putlog("- base_now=%d best_additional_1pt=%d/%d base6_push=%d overpay_possible=%d", s->base_now, s->best_additional_1pt_reach,
               s->best_additional_1pt_delay, base6_seven_push, overpay_possible);
+    ai_putlog("- visible_threshold_followup=%d/%d secured_followup=%d/%d high=%d", visible_threshold_followup_cards, visible_threshold_followup_gain,
+              secured_followup_cards, secured_followup_gain, secured_high_value_followup_gain > visible_threshold_high_gain ? secured_high_value_followup_gain
+                                                                                                                           : visible_threshold_high_gain);
     ai_putlog("- best_self_delay=%d best_self_reach=%d", best_self_delay, best_self_reach);
     ai_putlog("- best_7plus_delay=%d best_7plus_reach=%d", best_seven_plus_delay, best_seven_plus_reach);
     ai_putlog("- min_risk_delay=%d max_risk_score=%d", min_risk_delay, max_risk_score);
