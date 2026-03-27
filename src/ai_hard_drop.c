@@ -102,6 +102,7 @@
 #define DROP_7LINE_D3_BONUS 35000
 #define DROP_7LINE_D4P_BONUS 0
 #define DROP_7LINE_MARGIN2_BONUS 24000
+#define DROP_VISIBLE_LIGHT_FINISH_BONUS 70000
 static int count_known_month_cards_for_player(int player, int month);
 static int count_owned_month_cards(int player, int month);
 #define DROP_7LINE_MARGIN1_BONUS 12000
@@ -270,6 +271,8 @@ typedef struct {
     int self_min_delay;
     int completion_base;
     int completion_unrevealed;
+    int visible_light_finish_bonus;
+    int visible_light_finish_gain;
     int immediate_gain;
     int endgame_clinch_score;
     int endgame_needed;
@@ -432,6 +435,8 @@ static int find_drop_candidate_pos_by_index(const DropCandidateScore* candidates
 static int candidate_value_gap_by_index(const DropCandidateScore* candidates, int count, int idx_a, int idx_b);
 static int choose_best_drop_candidate_from_sevenline_d1(const DropCandidateScore* candidates, const AiSevenLine* sevenlines, int count, int fallback_index,
                                                         int* out_d1_count);
+static int calc_visible_light_finish_bonus(int player, const StrategyData* before, const StrategyData* after, int immediate_gain, int completion_base,
+                                           int* out_wid, int* out_gain, int* out_hand_card_no, int* out_floor_card_no);
 static int collect_drop_choice_order_indices_from_sevenline_d1(const DropCandidateScore* candidates, const AiSevenLine* sevenlines, int count, int fallback_index,
                                                                int* out_indices, int cap);
 static void evaluate_drop_env_mc_compare(
@@ -1543,6 +1548,66 @@ static int choose_best_drop_candidate_from_sevenline_d1(const DropCandidateScore
         *out_d1_count = d1_count;
     }
     return choose_best_drop_candidate(temp, count, DROP_GREEDY_VALUE_NORMAL, fallback_index);
+}
+
+static int calc_visible_light_finish_bonus(int player, const StrategyData* before, const StrategyData* after, int immediate_gain, int completion_base,
+                                           int* out_wid, int* out_gain, int* out_hand_card_no, int* out_floor_card_no)
+{
+    AiCombo7Eval eval;
+    int best_gain = 0;
+    int best_wid = -1;
+
+    if (out_wid) {
+        *out_wid = -1;
+    }
+    if (out_gain) {
+        *out_gain = 0;
+    }
+    if (out_hand_card_no) {
+        *out_hand_card_no = -1;
+    }
+    if (out_floor_card_no) {
+        *out_floor_card_no = -1;
+    }
+    if (player < 0 || player > 1 || !before || !after) {
+        return 0;
+    }
+    if (before->koikoi_opp == ON || before->opponent_win_x2 == ON) {
+        return 0;
+    }
+    if (before->left_own > 3 || before->match_score_diff < 0) {
+        return 0;
+    }
+    if (immediate_gain > 0 || completion_base > 0) {
+        return 0;
+    }
+    ai_eval_combo7(player, g.stats[player].score + completion_base, after, &eval);
+    if (eval.combo_reach < 100 || eval.combo_delay > 1 || eval.combo_score_sum < 7) {
+        return 0;
+    }
+    for (int i = 0; i < eval.combo_count; i++) {
+        int wid = eval.wids[i];
+        int gain;
+        if (wid != WID_AME_SHIKOU && wid != WID_SHIKOU && wid != WID_GOKOU) {
+            continue;
+        }
+        gain = winning_hands[wid].base_score;
+        if (gain > best_gain) {
+            best_gain = gain;
+            best_wid = wid;
+        }
+    }
+
+    if (best_gain <= 0) {
+        return 0;
+    }
+    if (out_wid) {
+        *out_wid = best_wid;
+    }
+    if (out_gain) {
+        *out_gain = best_gain;
+    }
+    return DROP_VISIBLE_LIGHT_FINISH_BONUS;
 }
 
 static int drop_candidate_has_priority_stop_value(const DropCandidateScore* candidate)
@@ -4693,6 +4758,7 @@ int ai_hard_drop(int player)
     int best_overpay_bonus = 0;
     int best_hidden_key_trigger = OFF;
     int best_hidden_deny_trigger = OFF;
+    int best_visible_light_finish_gain = 0;
     DropCandidateScore greedy_candidates[8];
     DropCandidateScore all_candidates[8];
     AiSevenLine candidate_sevenline[8];
@@ -4779,6 +4845,11 @@ int ai_hard_drop(int player)
         int seven_plus_pressure_bonus = 0;
         int emergency_one_point_bonus = 0;
         int combo7_bonus = 0;
+        int visible_light_finish_bonus = 0;
+        int visible_light_finish_wid = -1;
+        int visible_light_finish_gain = 0;
+        int visible_light_finish_hand = -1;
+        int visible_light_finish_floor = -1;
         AiSevenLine seven_line;
         AiSevenLineBonus seven_line_bonus;
 #if PHASE2A_PLAN_DOMAIN_SCALING_ENABLE
@@ -4874,6 +4945,8 @@ int ai_hard_drop(int player)
 #endif
         seven_plus_pressure_bonus = calc_near_seven_plus_pressure_bonus(&str, &after);
         emergency_one_point_bonus = calc_emergency_one_point_block_bonus(player, &str, &after);
+        visible_light_finish_bonus = calc_visible_light_finish_bonus(player, &str, &after, immediate_gain, completion_base, &visible_light_finish_wid,
+                                                                     &visible_light_finish_gain, &visible_light_finish_hand, &visible_light_finish_floor);
         if (opp_koikoi_win_bonus <= 0 &&
             is_exposing_keycard_capture_target(player, card->id, &str, &keytarget_expose_wid, &keytarget_expose_month, &keytarget_expose_penalty)) {
             any_keytarget_expose_triggered = ON;
@@ -4923,14 +4996,15 @@ int ai_hard_drop(int player)
         int value = self_score_term * offence_weight + self_speed_term * speed_weight + opp_deny_term * defence_weight +
                     safety_term * safety_weight + keep_term + completion_combo_bonus + capture_term * capture_weight + opp_koikoi_win_bonus +
                     greedy_seven_plus_bonus + hot_material_bonus + five_point_block_bonus + overpay_bonus + early_delay_bonus + month_lock_bonus +
-                    seven_plus_pressure_bonus + emergency_one_point_bonus + combo7_bonus +
+                    seven_plus_pressure_bonus + emergency_one_point_bonus + combo7_bonus + visible_light_finish_bonus +
                     endgame_clinch_score -
                     keytarget_expose_penalty - no_take_gokou_penalty + danger_drop_penalty;
 #if PHASE2A_PLAN_DOMAIN_SCALING_ENABLE
         int value_base = self_score_term * offence_weight + self_speed_term * speed_weight + opp_deny_term * defence_weight +
                          safety_term * safety_weight + keep_term + completion_combo_bonus + capture_term * capture_weight + opp_koikoi_win_bonus +
                          greedy_seven_plus_bonus_base + hot_material_bonus_base + five_point_block_bonus + overpay_bonus + early_delay_bonus + month_lock_bonus +
-                         seven_plus_pressure_bonus_base + combo7_bonus_base - keytarget_expose_penalty - no_take_gokou_penalty + danger_drop_penalty;
+                         seven_plus_pressure_bonus_base + combo7_bonus_base + visible_light_finish_bonus - keytarget_expose_penalty - no_take_gokou_penalty +
+                         danger_drop_penalty;
 #endif
 
         int risk_sum = sum_risk_score(&after);
@@ -5027,6 +5101,24 @@ int ai_hard_drop(int player)
                     }
                 }
             }
+        } else if (visible_light_finish_bonus > 0 && best_completion_base > 0 && visible_light_finish_gain > best_completion_base) {
+            if (visible_light_finish_gain > best_visible_light_finish_gain) {
+                better = ON;
+            } else if (visible_light_finish_gain == best_visible_light_finish_gain) {
+                if (best_index < 0 || best_value < value) {
+                    better = ON;
+                } else if (best_value == value) {
+                    if (risk_sum < best_risk_sum) {
+                        better = ON;
+                    } else if (risk_sum == best_risk_sum) {
+                        if (self_min_delay < best_self_min_delay) {
+                            better = ON;
+                        } else if (self_min_delay == best_self_min_delay && fallback_distance < best_fallback_distance) {
+                            better = ON;
+                        }
+                    }
+                }
+            }
         } else if (completion_priority_bonus > 0) {
             if (best_completion_base < 0 || completion_base > best_completion_base) {
                 better = ON;
@@ -5086,6 +5178,10 @@ int ai_hard_drop(int player)
             ai_putlog("[overpay] wid=%s setup=%s reason=%s", winning_hands[overpay_wid].name, overpay_setup ? "ON" : "OFF",
                       overpay_setup ? "hold_for_base6plus" : "deprioritize_base5_completion");
         }
+        if (visible_light_finish_bonus > 0) {
+            ai_putlog("[drop] visible light finish: wid=%s gain=%d hand=%d floor=%d", winning_hands[visible_light_finish_wid].name,
+                      visible_light_finish_gain, visible_light_finish_hand, visible_light_finish_floor);
+        }
         ai_putlog("drop[%d] card=%d value=%d (score=%d speed=%d deny=%d danger=%d safe=%d%s keep=%d:%s combo=%d cap=%d/%d/%d take=%d koikoi_win=%d atk7=%d emg1=%d hot=%d block5=%d overpay=%d delay5=%d monthlock=%d combo7=%d[%s reach=%d delay=%d sum=%d] end=%d need=%d k=%d imm=%d deny7=%d opp2ply=%d/%d)",
                   i,
                   card->id, value,
@@ -5121,6 +5217,8 @@ int ai_hard_drop(int player)
         candidate_score.self_min_delay = self_min_delay;
         candidate_score.completion_base = completion_base;
         candidate_score.completion_unrevealed = completion_unrevealed;
+        candidate_score.visible_light_finish_bonus = visible_light_finish_bonus;
+        candidate_score.visible_light_finish_gain = visible_light_finish_gain;
         candidate_score.immediate_gain = immediate_gain;
         candidate_score.endgame_clinch_score = endgame_clinch_score;
         candidate_score.endgame_needed = endgame_needed;
@@ -5238,6 +5336,7 @@ int ai_hard_drop(int player)
             best_overpay_bonus = overpay_bonus;
             best_hidden_key_trigger = hidden_key_trigger;
             best_hidden_deny_trigger = hidden_deny_trigger;
+            best_visible_light_finish_gain = visible_light_finish_gain;
             if (completion_combo_bonus > 0) {
                 best_completion_base = completion_base;
                 best_completion_unrevealed = completion_unrevealed;
@@ -5456,6 +5555,30 @@ int ai_hard_drop(int player)
     }
     if (any_overpay_delay_triggered) {
         ai_debug_note_overpay_delay(player, best_overpay_bonus < 0 && best_index != fallback_index ? ON : OFF);
+    }
+    if (best_completion_base > 0 && best_completion_base <= 5 && all_candidate_count > 0) {
+        int override_pos = -1;
+        for (int i = 0; i < all_candidate_count; i++) {
+            if (all_candidates[i].completion_base > 0) {
+                continue;
+            }
+            if (all_candidates[i].value <= best_value) {
+                continue;
+            }
+            if (override_pos < 0 || all_candidates[i].value > all_candidates[override_pos].value) {
+                override_pos = i;
+            }
+        }
+        if (override_pos >= 0) {
+            best_index = all_candidates[override_pos].index;
+            best_value = all_candidates[override_pos].value;
+            best_immediate_gain = all_candidates[override_pos].immediate_gain;
+            best_risk_sum = all_candidates[override_pos].risk_sum;
+            best_risk_min_delay = all_candidates[override_pos].risk_min_delay;
+            best_self_min_delay = all_candidates[override_pos].self_min_delay;
+            best_visible_light_finish_gain = all_candidates[override_pos].visible_light_finish_gain;
+            ai_putlog("[drop] override visible light finish: idx=%d gain=%d value=%d", best_index, best_visible_light_finish_gain, best_value);
+        }
     }
 
     DropEnvMcCompareResult env_mc_result;
