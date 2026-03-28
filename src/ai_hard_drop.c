@@ -489,6 +489,8 @@ static int calc_visible_opp_role_feed_penalty(int player, int drop_card_no, cons
 static int has_public_same_month_role_followup(int player, int opp, int month, int wid, int exclude_card_no);
 static int should_press_domain_capture(int player, int taken_card_no, const StrategyData* s);
 static const char* trace_plan_short(AiPlan plan);
+static int count_owned_type(int player, int type);
+static int count_owned_kasu_total(int player);
 static void calc_drop_top2_feed(int player, int card_no, int taken_card_no, int* out_flag, int* out_month, int* out_recap);
 static void emit_drop_trace(int player, const StrategyData* before, const DropCandidateScore* candidates, const AiSevenLine* sevenlines,
                             const AiSevenLineBonus* sevenline_bonuses, int count, int fallback_index, const DropTraceDecision* decision);
@@ -4102,6 +4104,75 @@ static int threshold_gain_bonus(int before, int after, int threshold)
     return 0;
 }
 
+static int pre_completion_progress_bonus(int before, int after, int threshold, int unit)
+{
+    int capped_before;
+    int capped_after;
+
+    if (unit <= 0) {
+        return 0;
+    }
+    capped_before = before >= threshold ? threshold - 1 : before;
+    capped_after = after >= threshold ? threshold - 1 : after;
+    if (capped_after <= capped_before) {
+        return 0;
+    }
+    return (capped_after - capped_before) * unit;
+}
+
+static int calc_plain_role_progress_bonus_for_capture(int player, int first_card_no, int second_card_no)
+{
+    int before_tane;
+    int before_tan;
+    int before_kasu;
+    int after_tane;
+    int after_tan;
+    int after_kasu;
+    int bonus = 0;
+
+    if (player < 0 || player > 1) {
+        return 0;
+    }
+
+    before_tane = count_owned_type(player, CARD_TYPE_TANE);
+    before_tan = count_owned_type(player, CARD_TYPE_TAN);
+    before_kasu = count_owned_kasu_total(player);
+
+    after_tane = before_tane;
+    after_tan = before_tan;
+    after_kasu = before_kasu;
+
+    if (first_card_no >= 0 && first_card_no < 48) {
+        Card* first = &g.cards[first_card_no];
+        if (first->type == CARD_TYPE_TANE) {
+            after_tane++;
+        }
+        if (first->type == CARD_TYPE_TAN) {
+            after_tan++;
+        }
+        if (first->type == CARD_TYPE_KASU || (first->type == CARD_TYPE_TANE && first->month == 8)) {
+            after_kasu++;
+        }
+    }
+    if (second_card_no >= 0 && second_card_no < 48) {
+        Card* second = &g.cards[second_card_no];
+        if (second->type == CARD_TYPE_TANE) {
+            after_tane++;
+        }
+        if (second->type == CARD_TYPE_TAN) {
+            after_tan++;
+        }
+        if (second->type == CARD_TYPE_KASU || (second->type == CARD_TYPE_TANE && second->month == 8)) {
+            after_kasu++;
+        }
+    }
+
+    bonus += pre_completion_progress_bonus(before_tane, after_tane, 5, 120);
+    bonus += pre_completion_progress_bonus(before_tan, after_tan, 5, 120);
+    bonus += pre_completion_progress_bonus(before_kasu, after_kasu, 10, 60);
+    return bonus;
+}
+
 static int is_three_card_five_point_wid(int wid)
 {
     switch (wid) {
@@ -4185,7 +4256,7 @@ static int count_owned_kasu_total(int player)
     return total;
 }
 
-static int calc_capture_quality(int player, int taken_card_no, const StrategyData* before)
+static int calc_capture_quality(int player, int drop_card_no, int taken_card_no, const StrategyData* before)
 {
     Card* taken;
     int quality;
@@ -4292,6 +4363,7 @@ static int calc_capture_quality(int player, int taken_card_no, const StrategyDat
         quality += threshold_gain_bonus(before_kasu, before_kasu + 1, 10) * 2;
     }
 
+    quality += calc_plain_role_progress_bonus_for_capture(player, drop_card_no, taken_card_no);
     quality += calc_month_lock_bonus(player, taken->month);
 
     return quality;
@@ -4438,7 +4510,7 @@ static void evaluate_drop_capture(int player, int drop_card_no, const StrategyDa
     if (takeable_count >= 3) {
         int total_quality = 0;
         for (int i = 0; i < takeable_count; i++) {
-            total_quality += calc_capture_quality(player, takeable[i], before);
+            total_quality += calc_capture_quality(player, drop_card_no, takeable[i], before);
         }
         out_eval->capture_quality = total_quality;
         out_eval->chosen_take_card_no = takeable[0];
@@ -4450,7 +4522,7 @@ static void evaluate_drop_capture(int player, int drop_card_no, const StrategyDa
         int best_immediate_gain = INT_MIN;
         int best_immediate_base = -1;
         for (int i = 0; i < takeable_count; i++) {
-            int capture_quality = calc_capture_quality(player, takeable[i], before);
+            int capture_quality = calc_capture_quality(player, drop_card_no, takeable[i], before);
             int leave_quality = 0;
             int immediate_wid = -1;
             int immediate_gain = calc_drop_take_immediate_gain(player, drop_card_no, takeable[i], &immediate_wid);
