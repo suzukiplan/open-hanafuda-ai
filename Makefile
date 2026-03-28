@@ -59,7 +59,8 @@ clean:
 	rm -rf $(BUILD_DIR) $(BINARIES)
 
 run1k: ai_sim
-	./ai_sim -0 0 -1 1 -r 12 -l 1000 --seed=1772851247
+	./ai_sim -0 0 -1 1 -r 12 -l 1000 --seed=1772851247 >run1k.log
+	@cat run1k.log
 
 run100: ai_sim
 	rm -rf run100.log
