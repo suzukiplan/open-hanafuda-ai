@@ -524,11 +524,11 @@ Think End
 Thinking...
 drop[0] card=41 value=169149 (score=500 speed=250 deny=-40 danger=-115 safe=0 keep=0:none combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=116064[Sankou+Tsukimi-Sake reach=42 delay=2 sum=10] end=0 need=0 k=0 imm=0 deny7=0 opp2ply=0/0)
 [drop] completion combo: wid=Tsukimi-Sake base=5 drop=30 take=31
-drop[1] card=30 value=242115 (score=100 speed=33 deny=3541 danger=0 safe=0 keep=-45:caution combo=100000 cap=1/5520/0 take=31 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=36288[Sankou+Kasu reach=42 delay=2 sum=6] end=0 need=0 k=0 imm=5 deny7=0 opp2ply=0/0)
+drop[1] card=30 value=332115 (score=100 speed=33 deny=3541 danger=0 safe=0 keep=-45:caution combo=100000 cap=1/28020/0 take=31 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=36288[Sankou+Kasu reach=42 delay=2 sum=6] end=0 need=0 k=0 imm=5 deny7=0 opp2ply=0/0)
 drop[2] card=40 value=168853 (score=500 speed=250 deny=-49 danger=-171 safe=0 keep=-60:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=116064[Sankou+Tsukimi-Sake reach=42 delay=2 sum=10] end=0 need=0 k=0 imm=0 deny7=0 opp2ply=0/0)
 [drop] greedy fallback: top_k=3 chosen_index=1
-[drop-fallback-debug] seed=1772851286 game=39 round=2 turn=6 player=1 mode=G plan=P top_k=3 pool_count=3 pool={p0:orig=1 card=30 v=242115 take=30,31 keep=-45 safe=0 deny=70820 feed=0/8/0 | p1:orig=0 card=41 v=169149 take=n/a keep=0 safe=0 deny=-800 feed=1/11/1 | p2:orig=2 card=40 v=168853 take=n/a keep=-60 safe=0 deny=-980 feed=1/11/1} chosen_pool_idx=0 chosen_orig_idx=1 final_best_idx_pre_fb=1 final_best_idx_post_fb=1
-[DROP-TOP2] best_idx=1 best_card=30 best_value=242115 second_idx=0 second_card=41 second_value=169149 gap=72966 best_take=30,31 best_feed=win=OFF opp7=dist4+/th40/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th40/c0 final_pick=best why=fallback aim=IMMEDIATE(wid=Tsukimi-Sake)
+[drop-fallback-debug] seed=1772851286 game=39 round=2 turn=6 player=1 mode=G plan=P top_k=3 pool_count=3 pool={p0:orig=1 card=30 v=332115 take=30,31 keep=-45 safe=0 deny=70820 feed=0/8/0 | p1:orig=0 card=41 v=169149 take=n/a keep=0 safe=0 deny=-800 feed=1/11/1 | p2:orig=2 card=40 v=168853 take=n/a keep=-60 safe=0 deny=-980 feed=1/11/1} chosen_pool_idx=0 chosen_orig_idx=1 final_best_idx_pre_fb=1 final_best_idx_post_fb=1
+[DROP-TOP2] best_idx=1 best_card=30 best_value=332115 second_idx=0 second_card=41 second_value=169149 gap=162966 best_take=30,31 best_feed=win=OFF opp7=dist4+/th40/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th40/c0 final_pick=best why=fallback aim=IMMEDIATE(wid=Tsukimi-Sake)
 Priority-Speed:
 - Tsukimi-Sake: reach=100, delay=1, score=5
 - Kasu: reach=100, delay=2, score=1
@@ -560,7 +560,7 @@ Env:
 - cat_sum: CAT1=99 CAT2=500 CAT3=350 CAT4=0 CAT5=0 CAT6=-125 CAT7=0 CAT11=0 CAT12=0 NA=0
 - cat_top: CAT2=500 CAT3=350 CAT6=-125 CAT1=99 CAT10=10
 Think End
-[CPU] think drop: 30 seed=1772851286 round=2/12 turn=6 dealer=CPU is_parent=1 left_rounds=11 left_hand=3 score_total_p1=0 score_total_cpu=5 round_score_p1=0 round_score_cpu=0 koikoi_p1=0 koikoi_cpu=0 opponent_win_x2=0 match_diff=5 needed=0 k_end=0 imm=5/0 clinch=0/0 <M pre_best=1/242115 pre_2nd=0/169149 gap=72966 opp:0/0/0/40 imm:5/Tsukimi-Sake final=1/242115 by=HARD best_take=30,31 best_feed=0/8/0 second_take=n/a second_feed=1/11/1> (Env: P1=-251, CPU=822)
+[CPU] think drop: 30 seed=1772851286 round=2/12 turn=6 dealer=CPU is_parent=1 left_rounds=11 left_hand=3 score_total_p1=0 score_total_cpu=5 round_score_p1=0 round_score_cpu=0 koikoi_p1=0 koikoi_cpu=0 opponent_win_x2=0 match_diff=5 needed=0 k_end=0 imm=5/0 clinch=0/0 <M pre_best=1/332115 pre_2nd=0/169149 gap=162966 opp:0/0/0/40 imm:5/Tsukimi-Sake final=1/332115 by=HARD best_take=30,31 best_feed=0/8/0 second_take=n/a second_feed=1/11/1> (Env: P1=-251, CPU=822)
 [CPU] drop take: 30,31 (Env: P1=-146, CPU=1224)
 [CPU] floor open: 23 (Env: P1=-146, CPU=1224)
 [CPU] floor take: 23,21 (Env: P1=-162, CPU=1238)

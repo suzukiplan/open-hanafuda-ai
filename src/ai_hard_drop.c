@@ -33,6 +33,10 @@
 #define DROP_OPP_KOIKOI_WIN_BONUS 100000
 // 相手 KOIKOI 中の勝ち筋を見逃す drop への減点。
 #define DROP_OPP_KOIKOI_MISS_PENALTY 40000
+// 盃所持時に可視の月/桜光を早取りして酒リーチを作る独立加点。
+#define DROP_VISIBLE_SAKE_LIGHT_SETUP_BONUS 72000
+// その光札が相手の光系危険役にも絡む場合の追加加点。
+#define DROP_VISIBLE_SAKE_LIGHT_DENY_BONUS 18000
 // 相手 KOIKOI 中に即死筋の受け皿を新規開通する drop を強く抑止する減点。
 // 回帰防止: 条件を広げたら tools/ai の fixed-seed run1k を回し、Hard 勝率 40.6% 未満なら条件か値を絞ること。
 #define DROP_OPP_KOIKOI_KEYTARGET_EXPOSE_PENALTY 180000
@@ -108,6 +112,7 @@ static int count_known_month_cards_for_player(int player, int month);
 static int count_owned_month_cards(int player, int month);
 static int player_has_hand_card(int player, int card_no);
 static int count_floor_month_cards(int month);
+static int hard_player_has_sake_cup(int player);
 #define DROP_7LINE_MARGIN1_BONUS 12000
 #define DROP_7LINE_MIN_REACH 10
 #define DROP_7LINE_LOW_REACH_MULT 50
@@ -159,6 +164,11 @@ static int hard_player_invent_has_card_id(int player, int card_id)
         }
     }
     return OFF;
+}
+
+static int hard_player_has_sake_cup(int player)
+{
+    return player_has_hand_card(player, 35) || hard_player_invent_has_card_id(player, 35);
 }
 
 #if HARD_RAPACIOUS_FALLBACK_ENABLE == 1
@@ -1700,6 +1710,54 @@ static int calc_visible_sake_followup_bonus(int player, int drop_card_no, const 
         return DROP_VISIBLE_SAKE_FOLLOWUP_BONUS;
     }
     return 0;
+}
+
+static int calc_visible_sake_light_setup_bonus(int player, int drop_card_no, const StrategyData* before, const DropCaptureEval* capture_eval, int* out_wid)
+{
+    int bonus = 0;
+    int wid = -1;
+
+    if (out_wid) {
+        *out_wid = -1;
+    }
+    if (player < 0 || player > 1 || drop_card_no < 0 || drop_card_no >= 48 || !before || !capture_eval || !capture_eval->capture_possible) {
+        return 0;
+    }
+    if (!hard_player_has_sake_cup(player)) {
+        return 0;
+    }
+    if (before->koikoi_opp == ON || before->opponent_win_x2 == ON) {
+        return 0;
+    }
+
+    if (drop_card_no == 30 && capture_eval->chosen_take_card_no == 31 && !hard_player_invent_has_card_id(player, 31)) {
+        wid = WID_TSUKIMI;
+    } else if (drop_card_no == 10 && capture_eval->chosen_take_card_no == 11 && !hard_player_invent_has_card_id(player, 11)) {
+        wid = WID_HANAMI;
+    } else {
+        return 0;
+    }
+
+    bonus += DROP_VISIBLE_SAKE_LIGHT_SETUP_BONUS;
+    bonus += before->reach[wid] * 120;
+    if (before->delay[wid] <= 3) {
+        bonus += 6000;
+    }
+
+    for (int risk_wid = 0; risk_wid < WINNING_HAND_MAX; risk_wid++) {
+        if (!is_dangerous_risk_wid(before, risk_wid)) {
+            continue;
+        }
+        if (ai_is_card_critical_for_wid(capture_eval->chosen_take_card_no, risk_wid)) {
+            bonus += DROP_VISIBLE_SAKE_LIGHT_DENY_BONUS;
+            break;
+        }
+    }
+
+    if (out_wid) {
+        *out_wid = wid;
+    }
+    return bonus;
 }
 
 static int find_forced_visible_sake_setup_drop(int player, const StrategyData* before)
@@ -4151,6 +4209,25 @@ static int calc_capture_quality(int player, int taken_card_no, const StrategyDat
     if (taken->type == CARD_TYPE_TANE && taken->month == 8) {
         quality += 180; // 盃は花見酒/月見酒/カスの起点になりやすい。
     }
+    if (hard_player_has_sake_cup(player)) {
+        if (taken->id == 31 && !hard_player_invent_has_card_id(player, 31) && player_has_hand_card(player, 30)) {
+            quality += DROP_VISIBLE_SAKE_LIGHT_SETUP_BONUS / 4;
+            for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
+                if (is_dangerous_risk_wid(before, wid) && ai_is_card_critical_for_wid(31, wid)) {
+                    quality += DROP_VISIBLE_SAKE_LIGHT_DENY_BONUS / 4;
+                    break;
+                }
+            }
+        } else if (taken->id == 11 && !hard_player_invent_has_card_id(player, 11) && player_has_hand_card(player, 10)) {
+            quality += DROP_VISIBLE_SAKE_LIGHT_SETUP_BONUS / 4;
+            for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
+                if (is_dangerous_risk_wid(before, wid) && ai_is_card_critical_for_wid(11, wid)) {
+                    quality += DROP_VISIBLE_SAKE_LIGHT_DENY_BONUS / 4;
+                    break;
+                }
+            }
+        }
+    }
     if (should_press_domain_capture(player, taken_card_no, before)) {
         quality += calc_domain_capture_bonus(player, taken_card_no, before);
     } else if (taken->type == CARD_TYPE_GOKOU) {
@@ -5037,6 +5114,8 @@ int ai_hard_drop(int player)
         int visible_light_finish_gain = 0;
         int visible_light_finish_hand = -1;
         int visible_light_finish_floor = -1;
+        int visible_sake_light_setup_bonus = 0;
+        int visible_sake_light_setup_wid = -1;
         int visible_sake_followup_bonus = 0;
         int visible_sake_followup_wid = -1;
         AiSevenLine seven_line;
@@ -5137,6 +5216,7 @@ int ai_hard_drop(int player)
         emergency_one_point_bonus = calc_emergency_one_point_block_bonus(player, &str, &after);
         visible_light_finish_bonus = calc_visible_light_finish_bonus(player, &str, &after, immediate_gain, completion_base, &visible_light_finish_wid,
                                                                      &visible_light_finish_gain, &visible_light_finish_hand, &visible_light_finish_floor);
+        visible_sake_light_setup_bonus = calc_visible_sake_light_setup_bonus(player, card->id, &str, &capture_eval, &visible_sake_light_setup_wid);
         visible_sake_followup_bonus =
             calc_visible_sake_followup_bonus(player, card->id, &str, &after, immediate_gain, completion_base, &visible_sake_followup_wid);
         if (opp_koikoi_win_bonus <= 0 &&
@@ -5189,6 +5269,7 @@ int ai_hard_drop(int player)
                     safety_term * safety_weight + keep_term + completion_combo_bonus + capture_term * capture_weight + opp_koikoi_win_bonus +
                     greedy_seven_plus_bonus + hot_material_bonus + five_point_block_bonus + overpay_bonus + early_delay_bonus + month_lock_bonus +
                     dead_month_release_bonus + seven_plus_pressure_bonus + emergency_one_point_bonus + combo7_bonus + visible_light_finish_bonus +
+                    visible_sake_light_setup_bonus +
                     visible_sake_followup_bonus +
                     endgame_clinch_score -
                     keytarget_expose_penalty - no_take_gokou_penalty + danger_drop_penalty;
@@ -5375,6 +5456,10 @@ int ai_hard_drop(int player)
         if (visible_light_finish_bonus > 0) {
             ai_putlog("[drop] visible light finish: wid=%s gain=%d hand=%d floor=%d", winning_hands[visible_light_finish_wid].name,
                       visible_light_finish_gain, visible_light_finish_hand, visible_light_finish_floor);
+        }
+        if (visible_sake_light_setup_bonus > 0) {
+            ai_putlog("[drop] visible sake light setup: wid=%s drop=%d take=%d", winning_hands[visible_sake_light_setup_wid].name, card->id,
+                      capture_eval.chosen_take_card_no);
         }
         if (visible_sake_followup_bonus > 0) {
             ai_putlog("[drop] visible sake followup: wid=%s drop=%d delay=%d reach=%d", winning_hands[visible_sake_followup_wid].name, card->id,

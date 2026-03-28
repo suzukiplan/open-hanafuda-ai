@@ -749,12 +749,12 @@ Think End
 [AFTER-OPP] seed=1772851311 side=CPU round=4/12 turn=2 after_opp_action=none(base=0,x2=0,wid=NONE) after_opp_base_delta=+0
 Thinking...
 drop[0] card=15 value=-139316 (score=500 speed=125 deny=-80 danger=-316 safe=0 keep=-180:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=11 k=0 imm=0 deny7=-35200 opp2ply=1/12)
-drop[1] card=10 value=207778 (score=500 speed=166 deny=3337 danger=-25 safe=0 keep=-320:caution combo=0 cap=1/2520/0 take=11 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=3222 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=11 k=0 imm=0 deny7=-4400 opp2ply=1/12)
+drop[1] card=10 value=252778 (score=500 speed=166 deny=3337 danger=-25 safe=0 keep=-320:caution combo=0 cap=1/25020/0 take=11 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=3222 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=11 k=0 imm=0 deny7=-4400 opp2ply=1/12)
 drop[2] card=34 value=-616443 (score=500 speed=166 deny=-5243 danger=-104 safe=0 keep=-180:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=11 k=0 imm=0 deny7=-55000 opp2ply=1/16)
 drop[3] card=35 value=-830932 (score=400 speed=133 deny=-7820 danger=-316 safe=0 keep=-320:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=11 k=0 imm=0 deny7=-35200 opp2ply=1/12)
 drop[4] card=32 value=-129732 (score=500 speed=166 deny=0 danger=0 safe=0 keep=0:none combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=11 k=0 imm=0 deny7=-35200 opp2ply=1/12)
 drop[5] card=26 value=-131905 (score=500 speed=125 deny=0 danger=-25 safe=0 keep=-180:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=11 k=0 imm=0 deny7=-35200 opp2ply=1/12)
-[DROP-TOP2] best_idx=1 best_card=10 best_value=207778 second_idx=4 second_card=32 second_value=-129732 gap=337510 best_take=10,11 best_feed=win=ON(wid=Ino-shika-cho,base=12,x2=1) opp7=dist4+/th85/c0 second_take=n/a second_feed=win=ON(wid=Ino-shika-cho,base=12,x2=1) opp7=dist4+/th85/c0 final_pick=best why=comparator aim=DEFENCE7(wid=Ino-shika-cho)
+[DROP-TOP2] best_idx=1 best_card=10 best_value=252778 second_idx=4 second_card=32 second_value=-129732 gap=382510 best_take=10,11 best_feed=win=ON(wid=Ino-shika-cho,base=12,x2=1) opp7=dist4+/th85/c0 second_take=n/a second_feed=win=ON(wid=Ino-shika-cho,base=12,x2=1) opp7=dist4+/th85/c0 final_pick=best why=comparator aim=DEFENCE7(wid=Ino-shika-cho)
 Priority-Speed:
 - Hanami-Sake: reach=100, delay=3, score=5
 - Tan: reach=42, delay=5, score=1
@@ -798,7 +798,7 @@ Env:
 - cat_sum: CAT1=198 CAT2=200 CAT3=0 CAT4=350 CAT5=0 CAT6=25 CAT7=0 CAT11=0 CAT12=0 NA=0
 - cat_top: CAT4=350 CAT2=200 CAT1=198 CAT6=25 CAT8=-12
 Think End
-[CPU] think drop: 10 seed=1772851311 round=4/12 turn=3 dealer=CPU is_parent=1 left_rounds=9 left_hand=6 score_total_p1=30 score_total_cpu=20 round_score_p1=0 round_score_cpu=0 koikoi_p1=0 koikoi_cpu=0 opponent_win_x2=0 match_diff=-10 needed=11 k_end=0 imm=0/0 clinch=0/0 <M pre_best=1/207778 pre_2nd=4/-129732 gap=337510 opp:0/0/0/85 imm:0/NONE final=1/207778 by=HARD best_take=10,11 best_feed=0/3/0 second_take=n/a second_feed=1/9/1> (Env: P1=1318, CPU=760)
+[CPU] think drop: 10 seed=1772851311 round=4/12 turn=3 dealer=CPU is_parent=1 left_rounds=9 left_hand=6 score_total_p1=30 score_total_cpu=20 round_score_p1=0 round_score_cpu=0 koikoi_p1=0 koikoi_cpu=0 opponent_win_x2=0 match_diff=-10 needed=11 k_end=0 imm=0/0 clinch=0/0 <M pre_best=1/252778 pre_2nd=4/-129732 gap=382510 opp:0/0/0/85 imm:0/NONE final=1/252778 by=HARD best_take=10,11 best_feed=0/3/0 second_take=n/a second_feed=1/9/1> (Env: P1=1318, CPU=760)
 [CPU] drop take: 10,11 (Env: P1=714, CPU=1306)
 [CPU] floor open: 42 (Env: P1=714, CPU=1306)
 [month-lock] month=11 own=2 known=3 hidden=1 hidden_card=41 reason=take_control
