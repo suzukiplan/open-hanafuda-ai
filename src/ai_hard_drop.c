@@ -3028,6 +3028,52 @@ static int calc_hidden_month_card_bonus(int hidden_card_no, const StrategyData* 
     return bonus;
 }
 
+static int calc_dead_month_kasu_release_bonus(int player, int card_no, int capture_possible)
+{
+    int month;
+    int hidden_card_no;
+    int public_high_count = 0;
+    int opp_high_count = 0;
+
+    if (player < 0 || player > 1 || card_no < 0 || card_no >= 48 || capture_possible) {
+        return 0;
+    }
+    if (g.cards[card_no].type != CARD_TYPE_KASU) {
+        return 0;
+    }
+
+    month = g.cards[card_no].month;
+    if (count_known_month_cards_for_player(player, month) != 3) {
+        return 0;
+    }
+
+    hidden_card_no = find_hidden_month_card_no(player, month);
+    if (hidden_card_no < 0 || g.cards[hidden_card_no].type != CARD_TYPE_KASU) {
+        return 0;
+    }
+
+    for (int candidate = month * 4; candidate < month * 4 + 4; candidate++) {
+        if (candidate == card_no || g.cards[candidate].type == CARD_TYPE_KASU) {
+            continue;
+        }
+        if (card_exists_in_hand(player, candidate)) {
+            return 0;
+        }
+        if (card_exists_in_invent(player, candidate) || card_exists_in_invent(1 - player, candidate) || card_exists_on_floor(candidate)) {
+            public_high_count++;
+            if (card_exists_in_invent(1 - player, candidate)) {
+                opp_high_count++;
+            }
+        }
+    }
+
+    if (public_high_count < 2) {
+        return 0;
+    }
+
+    return 180 + opp_high_count * 60;
+}
+
 static int is_overpay_setup_card_for_wid(int card_no, int wid)
 {
     Card* card;
@@ -5043,6 +5089,7 @@ int ai_hard_drop(int player)
         int hidden_deny_trigger = OFF;
         int overpay_wid = -1;
         int overpay_setup = OFF;
+        int dead_month_release_bonus = calc_dead_month_kasu_release_bonus(player, card->id, capture_eval.capture_possible);
         int overpay_bonus = calc_drop_overpay_bonus(player, card->id, &str, &after, completion_wid, completion_take, completion_base,
                                                     &capture_eval, &overpay_wid, &overpay_setup);
         int early_delay_bonus = calc_early_five_point_delay_bonus(player, card->id, &str, &capture_eval, completion_wid);
@@ -5167,14 +5214,16 @@ int ai_hard_drop(int player)
         int value = self_score_term * offence_weight + self_speed_term * speed_weight + opp_deny_term * defence_weight +
                     safety_term * safety_weight + keep_term + completion_combo_bonus + capture_term * capture_weight + opp_koikoi_win_bonus +
                     greedy_seven_plus_bonus + hot_material_bonus + five_point_block_bonus + overpay_bonus + early_delay_bonus + month_lock_bonus +
-                    seven_plus_pressure_bonus + emergency_one_point_bonus + combo7_bonus + visible_light_finish_bonus + visible_sake_followup_bonus +
+                    dead_month_release_bonus + seven_plus_pressure_bonus + emergency_one_point_bonus + combo7_bonus + visible_light_finish_bonus +
+                    visible_sake_followup_bonus +
                     endgame_clinch_score -
                     keytarget_expose_penalty - no_take_gokou_penalty + danger_drop_penalty;
 #if PHASE2A_PLAN_DOMAIN_SCALING_ENABLE
         int value_base = self_score_term * offence_weight + self_speed_term * speed_weight + opp_deny_term * defence_weight +
                          safety_term * safety_weight + keep_term + completion_combo_bonus + capture_term * capture_weight + opp_koikoi_win_bonus +
                          greedy_seven_plus_bonus_base + hot_material_bonus_base + five_point_block_bonus + overpay_bonus + early_delay_bonus + month_lock_bonus +
-                         seven_plus_pressure_bonus_base + combo7_bonus_base + visible_light_finish_bonus - keytarget_expose_penalty - no_take_gokou_penalty +
+                         dead_month_release_bonus + seven_plus_pressure_bonus_base + combo7_bonus_base + visible_light_finish_bonus -
+                         keytarget_expose_penalty - no_take_gokou_penalty +
                          danger_drop_penalty;
 #endif
 
@@ -5357,13 +5406,14 @@ int ai_hard_drop(int player)
             ai_putlog("[drop] visible sake followup: wid=%s drop=%d delay=%d reach=%d", winning_hands[visible_sake_followup_wid].name, card->id,
                       after.delay[visible_sake_followup_wid], after.reach[visible_sake_followup_wid]);
         }
-        ai_putlog("drop[%d] card=%d value=%d (score=%d speed=%d deny=%d danger=%d safe=%d%s keep=%d:%s combo=%d cap=%d/%d/%d take=%d koikoi_win=%d atk7=%d emg1=%d hot=%d block5=%d overpay=%d delay5=%d monthlock=%d combo7=%d[%s reach=%d delay=%d sum=%d] end=%d need=%d k=%d imm=%d deny7=%d opp2ply=%d/%d)",
+        ai_putlog("drop[%d] card=%d value=%d (score=%d speed=%d deny=%d danger=%d safe=%d%s keep=%d:%s combo=%d cap=%d/%d/%d take=%d koikoi_win=%d atk7=%d emg1=%d hot=%d block5=%d overpay=%d delay5=%d monthlock=%d deadmonth=%d combo7=%d[%s reach=%d delay=%d sum=%d] end=%d need=%d k=%d imm=%d deny7=%d opp2ply=%d/%d)",
                   i,
                   card->id, value,
                   self_score_term, self_speed_term, opp_deny_term, danger_drop_penalty, safety_term, safety_fatal ? ":fatal" : "", keep_term,
                   keep_fatal ? "fatal" : (keep_term < 0 ? "caution" : "none"), completion_combo_bonus, capture_possible,
                   capture_eval.capture_quality, capture_eval.leave_quality, capture_eval.chosen_take_card_no, opp_koikoi_win_bonus,
                   greedy_seven_plus_bonus, emergency_one_point_bonus, hot_material_bonus, five_point_block_bonus, overpay_bonus, early_delay_bonus, month_lock_bonus,
+                  dead_month_release_bonus,
                   combo7_bonus, combo7_label,
                   combo7_eval.combo_reach, combo7_eval.combo_delay, combo7_eval.combo_score_sum, endgame_clinch_score, endgame_needed, endgame_k, immediate_gain,
                   seven_plus_pressure_bonus,
