@@ -2,6 +2,5 @@
 ai_sim
 replay
 build/*
-run100.log/*
 __pycache__/*
 
