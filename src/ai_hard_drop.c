@@ -2763,57 +2763,34 @@ static int is_excluded_hand_card_finisher_for_wid(int player, int wid, int exclu
 
 static int should_delay_early_five_point_completion(const StrategyData* before, int player, int wid, int exclude_card_no)
 {
+    int allow_excluded_finisher;
+
     if (!before || player < 0 || player > 1 || !is_delayable_five_point_wid(wid)) {
         return OFF;
     }
-    if ((wid != WID_HANAMI && wid != WID_TSUKIMI) || exclude_card_no != 35) {
-        return OFF;
-    }
+    allow_excluded_finisher = ((wid == WID_HANAMI || wid == WID_TSUKIMI) &&
+                               is_excluded_hand_card_finisher_for_wid(player, wid, exclude_card_no)) ? ON : OFF;
     if (g.koikoi[0] == ON || g.koikoi[1] == ON) {
         return OFF;
     }
     if (current_round_turn_for_player(player) > DROP_EARLY_FIVE_POINT_DELAY_TURN_MAX) {
         return OFF;
     }
-    if (count_critical_hand_cards_for_wid(player, wid, exclude_card_no) <= 0 && !is_excluded_hand_card_finisher_for_wid(player, wid, exclude_card_no)) {
+    if (count_critical_hand_cards_for_wid(player, wid, exclude_card_no) <= 0 && !allow_excluded_finisher) {
         return OFF;
     }
-    return hand_has_finishing_card_for_wid(player, wid, exclude_card_no) || is_excluded_hand_card_finisher_for_wid(player, wid, exclude_card_no);
+    return hand_has_finishing_card_for_wid(player, wid, exclude_card_no) || allow_excluded_finisher;
 }
 
 static int calc_early_five_point_delay_bonus(int player, int drop_card_no, const StrategyData* before, const DropCaptureEval* capture_eval, int completion_wid)
 {
-    int chosen_take = (capture_eval && capture_eval->capture_possible) ? capture_eval->chosen_take_card_no : -1;
-    int best_bonus = 0;
-
     if (!before || player < 0 || player > 1) {
         return 0;
     }
-
-    for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
-        int bonus;
-
-        if (wid == completion_wid || !should_delay_early_five_point_completion(before, player, wid, drop_card_no)) {
-            continue;
-        }
-        if (ai_is_card_critical_for_wid(drop_card_no, wid)) {
-            continue;
-        }
-        if (chosen_take >= 0 && ai_would_complete_wid_by_taking_card(player, wid, chosen_take)) {
-            continue;
-        }
-
-        bonus = DROP_EARLY_FIVE_POINT_DELAY_SETUP_BONUS;
-        bonus += before->reach[wid] * 40;
-        if (before->delay[wid] <= 2) {
-            bonus += 2000;
-        }
-        if (best_bonus < bonus) {
-            best_bonus = bonus;
-        }
-    }
-
-    return best_bonus;
+    (void)drop_card_no;
+    (void)capture_eval;
+    (void)completion_wid;
+    return 0;
 }
 
 static int count_known_month_cards_for_player(int player, int month)
@@ -4831,7 +4808,7 @@ static int calc_drop_completion_combo_bonus(int player, int drop_card_no, const 
         }
         return 0;
     }
-    if (best_base > 0 && should_delay_early_five_point_completion(before, player, best_wid, drop_card_no)) {
+    if (best_base > 0 && before->match_score_diff >= 0 && should_delay_early_five_point_completion(before, player, best_wid, drop_card_no)) {
         ai_putlog("[drop] delay early five-point completion: wid=%s drop=%d delay=%d hand_keys=%d", winning_hands[best_wid].name, drop_card_no,
                   before->delay[best_wid], count_critical_hand_cards_for_wid(player, best_wid, drop_card_no));
         if (out_best_wid) {

@@ -3259,14 +3259,12 @@ Thinking...
 drop[0] card=1 value=-30350 (score=500 speed=250 deny=35 danger=0 safe=0 keep=-40:caution combo=0 cap=1/1105/0 take=2 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=79500 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-320 need=0 k=40 imm=0 deny7=-35200 opp2ply=1/12)
 drop[1] card=34 value=-692025 (score=500 speed=250 deny=-4782 danger=-125 safe=0 keep=-40:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-320 need=0 k=40 imm=0 deny7=-35200 opp2ply=1/12)
 drop[2] card=23 value=-116065 (score=500 speed=250 deny=0 danger=-25 safe=0 keep=-180:caution combo=0 cap=1/180/0 take=21 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-320 need=0 k=40 imm=0 deny7=-35200 opp2ply=1/12)
-[drop] completion combo: wid=Tsukimi-Sake base=5 drop=31 take=31
-drop[3] card=31 value=-101987 (score=21 speed=3 deny=-450 danger=-947 safe=0 keep=-100:caution combo=100000 cap=1/180/0 take=29 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=2880 need=0 k=40 imm=5 deny7=-35200 opp2ply=1/12)
+[drop] delay early five-point completion: wid=Tsukimi-Sake drop=31 delay=1 hand_keys=0
+drop[3] card=31 value=-276087 (score=21 speed=3 deny=-450 danger=-947 safe=0 keep=-400:fatal combo=-72000 cap=1/180/0 take=29 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=2880 need=0 k=40 imm=5 deny7=-35200 opp2ply=1/12)
 drop[4] card=45 value=-120220 (score=500 speed=250 deny=-18 danger=0 safe=0 keep=-40:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-320 need=0 k=40 imm=0 deny7=-35200 opp2ply=1/12)
 [month-lock] month=1 own=3 known=3 hidden=1 hidden_card=3 reason=take_control
 drop[5] card=0 value=-30350 (score=500 speed=250 deny=35 danger=0 safe=0 keep=-40:caution combo=0 cap=1/1105/0 take=2 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=79500 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-320 need=0 k=40 imm=0 deny7=-35200 opp2ply=1/12)
-[drop] override visible light finish: idx=0 gain=0 value=-30350
-[phase2a] seed=1772851296 round=10 turn=3 plan=SURVIVE domain=NONE before=3 after=0 reason=defence
-[DROP-TOP2] best_idx=3 best_card=31 best_value=-101987 second_idx=0 second_card=1 second_value=-30350 gap=-71637 best_take=31,29 best_feed=win=ON(wid=Sankou,base=12,x2=1) opp7=dist4+/th90/c0 second_take=1,2 second_feed=win=ON(wid=Sankou,base=12,x2=1) opp7=dist4+/th90/c0 final_pick=second why=comparator aim=DEFENCE7(wid=Sankou)
+[DROP-TOP2] best_idx=0 best_card=1 best_value=-30350 second_idx=5 second_card=0 second_value=-30350 gap=0 best_take=1,2 best_feed=win=ON(wid=Sankou,base=12,x2=1) opp7=dist4+/th90/c0 second_take=0,2 second_feed=win=ON(wid=Sankou,base=12,x2=1) opp7=dist4+/th90/c0 final_pick=best why=comparator aim=DEFENCE7(wid=Sankou)
 Priority-Speed:
 - Tsukimi-Sake: reach=100, delay=1, score=5
 - Kasu: reach=44, delay=6, score=1
@@ -3299,7 +3297,7 @@ Env:
 - cat_sum: CAT1=0 CAT2=0 CAT3=0 CAT4=0 CAT5=0 CAT6=0 CAT7=0 CAT11=400 CAT12=0 NA=0
 - cat_top: CAT11=400 CAT8=-14 CAT10=11 CAT9=-6 CAT1=0
 Think End
-[CPU] think drop: 1 seed=1772851296 round=10/12 turn=3 dealer=P1 is_parent=0 left_rounds=3 left_hand=6 score_total_p1=27 score_total_cpu=33 round_score_p1=0 round_score_cpu=0 koikoi_p1=0 koikoi_cpu=0 opponent_win_x2=1 match_diff=6 needed=0 k_end=40 imm=0/0 clinch=-320/-320 <M pre_best=3/-101987 pre_2nd=0/-30350 gap=-71637 opp:0/0/1/90 imm:5/Tsukimi-Sake final=0/-30350 by=OTHER best_take=31,29 best_feed=0/8/0 second_take=1,2 second_feed=0/1/0> (Env: P1=779, CPU=391)
+[CPU] think drop: 1 seed=1772851296 round=10/12 turn=3 dealer=P1 is_parent=0 left_rounds=3 left_hand=6 score_total_p1=27 score_total_cpu=33 round_score_p1=0 round_score_cpu=0 koikoi_p1=0 koikoi_cpu=0 opponent_win_x2=1 match_diff=6 needed=0 k_end=40 imm=0/0 clinch=-320/-320 <M pre_best=0/-30350 pre_2nd=5/-30350 gap=0 opp:0/0/1/90 imm:5/Tsukimi-Sake final=0/-30350 by=HARD best_take=1,2 best_feed=0/1/0 second_take=0,2 second_feed=0/1/0> (Env: P1=779, CPU=391)
 [CPU] drop take: 1,2 (Env: P1=762, CPU=402)
 [CPU] floor open: 20 (Env: P1=762, CPU=402)
 [CPU] floor take: 20,21 (Env: P1=751, CPU=411)
