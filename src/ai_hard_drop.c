@@ -3032,7 +3032,6 @@ static int calc_dead_month_kasu_release_bonus(int player, int card_no, int captu
 {
     int month;
     int hidden_card_no;
-    int public_high_count = 0;
     int opp_high_count = 0;
 
     if (player < 0 || player > 1 || card_no < 0 || card_no >= 48 || capture_possible) {
@@ -3059,15 +3058,13 @@ static int calc_dead_month_kasu_release_bonus(int player, int card_no, int captu
         if (card_exists_in_hand(player, candidate)) {
             return 0;
         }
-        if (card_exists_in_invent(player, candidate) || card_exists_in_invent(1 - player, candidate) || card_exists_on_floor(candidate)) {
-            public_high_count++;
-            if (card_exists_in_invent(1 - player, candidate)) {
-                opp_high_count++;
-            }
+        if (!card_exists_in_invent(1 - player, candidate)) {
+            return 0;
         }
+        opp_high_count++;
     }
 
-    if (public_high_count < 2) {
+    if (opp_high_count < 2) {
         return 0;
     }
 
