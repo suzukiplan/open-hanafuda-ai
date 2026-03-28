@@ -103,8 +103,11 @@
 #define DROP_7LINE_D4P_BONUS 0
 #define DROP_7LINE_MARGIN2_BONUS 24000
 #define DROP_VISIBLE_LIGHT_FINISH_BONUS 70000
+#define DROP_VISIBLE_SAKE_FOLLOWUP_BONUS 250000
 static int count_known_month_cards_for_player(int player, int month);
 static int count_owned_month_cards(int player, int month);
+static int player_has_hand_card(int player, int card_no);
+static int count_floor_month_cards(int month);
 #define DROP_7LINE_MARGIN1_BONUS 12000
 #define DROP_7LINE_MIN_REACH 10
 #define DROP_7LINE_LOW_REACH_MULT 50
@@ -1649,6 +1652,93 @@ static int calc_visible_light_finish_bonus(int player, const StrategyData* befor
         *out_gain = best_gain;
     }
     return DROP_VISIBLE_LIGHT_FINISH_BONUS;
+}
+
+static int calc_visible_sake_followup_bonus(int player, int drop_card_no, const StrategyData* before, const StrategyData* after, int immediate_gain,
+                                            int completion_base, int* out_wid)
+{
+    Card* drop;
+
+    if (out_wid) {
+        *out_wid = -1;
+    }
+    if (player < 0 || player > 1 || drop_card_no < 0 || drop_card_no >= 48 || !before || !after) {
+        return 0;
+    }
+    if (g.koikoi[player] != ON) {
+        return 0;
+    }
+    if (before->koikoi_opp == ON || before->opponent_win_x2 == ON) {
+        return 0;
+    }
+    if (!hard_player_invent_has_card_id(player, 35)) {
+        return 0;
+    }
+    if (immediate_gain > 0 || completion_base > 0) {
+        return 0;
+    }
+
+    drop = &g.cards[drop_card_no];
+    if (drop->type == CARD_TYPE_GOKOU) {
+        return 0;
+    }
+
+    if (before->match_score_diff > -15) {
+        return 0;
+    }
+
+    if (drop->month == 7 && drop->type != CARD_TYPE_GOKOU && player_has_hand_card(player, 31)) {
+        if (out_wid) {
+            *out_wid = WID_TSUKIMI;
+        }
+        return DROP_VISIBLE_SAKE_FOLLOWUP_BONUS;
+    }
+    if (drop->month == 2 && drop->type != CARD_TYPE_GOKOU && player_has_hand_card(player, 11)) {
+        if (out_wid) {
+            *out_wid = WID_HANAMI;
+        }
+        return DROP_VISIBLE_SAKE_FOLLOWUP_BONUS;
+    }
+    return 0;
+}
+
+static int find_forced_visible_sake_setup_drop(int player, const StrategyData* before)
+{
+    if (player < 0 || player > 1 || !before) {
+        return -1;
+    }
+    if (g.koikoi[player] != ON || before->koikoi_opp == ON || before->opponent_win_x2 == ON) {
+        return -1;
+    }
+    if (before->match_score_diff > -15 || before->left_rounds > 5) {
+        return -1;
+    }
+    if (!hard_player_invent_has_card_id(player, 35)) {
+        return -1;
+    }
+    if (count_floor_month_cards(7) == 0 && player_has_hand_card(player, 31)) {
+        for (int i = 0; i < g.own[player].num; i++) {
+            Card* card = g.own[player].cards[i];
+            if (!card) {
+                continue;
+            }
+            if (card->month == 7 && card->type != CARD_TYPE_GOKOU) {
+                return i;
+            }
+        }
+    }
+    if (count_floor_month_cards(2) == 0 && player_has_hand_card(player, 11)) {
+        for (int i = 0; i < g.own[player].num; i++) {
+            Card* card = g.own[player].cards[i];
+            if (!card) {
+                continue;
+            }
+            if (card->month == 2 && card->type != CARD_TYPE_GOKOU) {
+                return i;
+            }
+        }
+    }
+    return -1;
 }
 
 static int drop_candidate_has_priority_stop_value(const DropCandidateScore* candidate)
@@ -4778,6 +4868,14 @@ int ai_hard_drop(int player)
     ai_think_strategy(player, &str);
     vgs_memcpy(&g.strategy[player], &str, sizeof(StrategyData));
 
+    {
+        int forced_visible_sake_setup = find_forced_visible_sake_setup_drop(player, &str);
+        if (forced_visible_sake_setup >= 0) {
+            ai_think_end();
+            return forced_visible_sake_setup;
+        }
+    }
+
 #if HARD_RAPACIOUS_FALLBACK_ENABLE == 1
     if (hard_should_force_rapacious_fallback_behind(&str) ||
         (hard_should_force_rapacious_fallback_sake_select_drop(player, &str) &&
@@ -4919,6 +5017,8 @@ int ai_hard_drop(int player)
         int visible_light_finish_gain = 0;
         int visible_light_finish_hand = -1;
         int visible_light_finish_floor = -1;
+        int visible_sake_followup_bonus = 0;
+        int visible_sake_followup_wid = -1;
         AiSevenLine seven_line;
         AiSevenLineBonus seven_line_bonus;
 #if PHASE2A_PLAN_DOMAIN_SCALING_ENABLE
@@ -5016,6 +5116,8 @@ int ai_hard_drop(int player)
         emergency_one_point_bonus = calc_emergency_one_point_block_bonus(player, &str, &after);
         visible_light_finish_bonus = calc_visible_light_finish_bonus(player, &str, &after, immediate_gain, completion_base, &visible_light_finish_wid,
                                                                      &visible_light_finish_gain, &visible_light_finish_hand, &visible_light_finish_floor);
+        visible_sake_followup_bonus =
+            calc_visible_sake_followup_bonus(player, card->id, &str, &after, immediate_gain, completion_base, &visible_sake_followup_wid);
         if (opp_koikoi_win_bonus <= 0 &&
             is_exposing_keycard_capture_target(player, card->id, &str, &keytarget_expose_wid, &keytarget_expose_month, &keytarget_expose_penalty)) {
             any_keytarget_expose_triggered = ON;
@@ -5065,7 +5167,7 @@ int ai_hard_drop(int player)
         int value = self_score_term * offence_weight + self_speed_term * speed_weight + opp_deny_term * defence_weight +
                     safety_term * safety_weight + keep_term + completion_combo_bonus + capture_term * capture_weight + opp_koikoi_win_bonus +
                     greedy_seven_plus_bonus + hot_material_bonus + five_point_block_bonus + overpay_bonus + early_delay_bonus + month_lock_bonus +
-                    seven_plus_pressure_bonus + emergency_one_point_bonus + combo7_bonus + visible_light_finish_bonus +
+                    seven_plus_pressure_bonus + emergency_one_point_bonus + combo7_bonus + visible_light_finish_bonus + visible_sake_followup_bonus +
                     endgame_clinch_score -
                     keytarget_expose_penalty - no_take_gokou_penalty + danger_drop_penalty;
 #if PHASE2A_PLAN_DOMAIN_SCALING_ENABLE
@@ -5250,6 +5352,10 @@ int ai_hard_drop(int player)
         if (visible_light_finish_bonus > 0) {
             ai_putlog("[drop] visible light finish: wid=%s gain=%d hand=%d floor=%d", winning_hands[visible_light_finish_wid].name,
                       visible_light_finish_gain, visible_light_finish_hand, visible_light_finish_floor);
+        }
+        if (visible_sake_followup_bonus > 0) {
+            ai_putlog("[drop] visible sake followup: wid=%s drop=%d delay=%d reach=%d", winning_hands[visible_sake_followup_wid].name, card->id,
+                      after.delay[visible_sake_followup_wid], after.reach[visible_sake_followup_wid]);
         }
         ai_putlog("drop[%d] card=%d value=%d (score=%d speed=%d deny=%d danger=%d safe=%d%s keep=%d:%s combo=%d cap=%d/%d/%d take=%d koikoi_win=%d atk7=%d emg1=%d hot=%d block5=%d overpay=%d delay5=%d monthlock=%d combo7=%d[%s reach=%d delay=%d sum=%d] end=%d need=%d k=%d imm=%d deny7=%d opp2ply=%d/%d)",
                   i,
