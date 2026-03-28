@@ -68,6 +68,11 @@ run100: ai_sim
 	./ai_sim -0 0 -1 1 -r 12 -l 100 --seed=1772851247 --log run100.log/watch.log
 	python3 extract_watch_csv.py run100.log >run100.csv
 
+test:
+	make all
+	make run100
+	make run1k
+
 .PHONY: all clean run1k
 
 -include $(DEPS)
