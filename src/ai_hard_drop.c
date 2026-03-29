@@ -2902,7 +2902,9 @@ static int should_delay_early_five_point_completion(const StrategyData* before, 
         return OFF;
     }
     allow_excluded_finisher = ((wid == WID_HANAMI || wid == WID_TSUKIMI) &&
-                               is_excluded_hand_card_finisher_for_wid(player, wid, exclude_card_no)) ? ON : OFF;
+                               is_excluded_hand_card_finisher_for_wid(player, wid, exclude_card_no))
+                                  ? ON
+                                  : OFF;
     if (g.koikoi[0] == ON || g.koikoi[1] == ON) {
         return OFF;
     }
@@ -4264,7 +4266,7 @@ static int calc_drop_three_card_five_point_setup_bonus(int player, int first_car
     if (!before || player < 0 || player > 1) {
         return 0;
     }
-    if (before->mode == MODE_BALANCED) {
+    if (before->mode == MODE_DEFENSIVE || before->mode == MODE_BALANCED) {
         return 0;
     }
 
@@ -6316,28 +6318,28 @@ int ai_hard_drop(int player)
                 int phase2a_final_pos = find_drop_candidate_pos_by_index(greedy_candidates, greedy_candidate_count, final_best_index_pre_d1);
                 if (phase2a_final_pos >= 0 && phase2a_candidate_reason[phase2a_final_pos] != AI_PHASE2A_REASON_NONE &&
                     final_best_index_phase2a_off >= 0 && final_best_index_pre_d1 != final_best_index_phase2a_off) {
-                trace_decision.phase2a_trigger = ON;
-                trace_decision.phase2a_changed = ON;
-                for (int i = 0; i < greedy_candidate_count; i++) {
-                    if (greedy_candidates[i].index == final_best_index_pre_d1) {
-                        ai_debug_note_phase2a_changed_choice(player, str.plan, phase2a_candidate_reason[i]);
-                        if (phase2a_candidate_reason[i] == AI_PHASE2A_REASON_7PLUS && phase2a_candidate_sevenline[i].ok) {
-                            ai_debug_note_sevenline_changed(player, phase2a_candidate_sevenline[i].margin, phase2a_candidate_sevenline[i].delay);
-                            ai_putlog("[sevenline] seed=%d round=%d turn=%d plan=%s best_wid=%d delay=%d reach=%d margin=%d base=%d mb=%d mult=%d bonus=%d before=%d after=%d",
-                                      ai_debug_current_seed(), g.round + 1, 9 - g.own[player].num, env_plan_name(str.plan),
-                                      phase2a_candidate_sevenline[i].wid, phase2a_candidate_sevenline[i].delay,
-                                      phase2a_candidate_sevenline[i].reach, phase2a_candidate_sevenline[i].margin,
-                                      phase2a_candidate_sevenline_bonus[i].base_bonus, phase2a_candidate_sevenline_bonus[i].margin_bonus,
-                                      phase2a_candidate_sevenline_bonus[i].mult, phase2a_candidate_sevenline_bonus[i].bonus,
-                                      final_best_index_phase2a_off, final_best_index_pre_d1);
+                    trace_decision.phase2a_trigger = ON;
+                    trace_decision.phase2a_changed = ON;
+                    for (int i = 0; i < greedy_candidate_count; i++) {
+                        if (greedy_candidates[i].index == final_best_index_pre_d1) {
+                            ai_debug_note_phase2a_changed_choice(player, str.plan, phase2a_candidate_reason[i]);
+                            if (phase2a_candidate_reason[i] == AI_PHASE2A_REASON_7PLUS && phase2a_candidate_sevenline[i].ok) {
+                                ai_debug_note_sevenline_changed(player, phase2a_candidate_sevenline[i].margin, phase2a_candidate_sevenline[i].delay);
+                                ai_putlog("[sevenline] seed=%d round=%d turn=%d plan=%s best_wid=%d delay=%d reach=%d margin=%d base=%d mb=%d mult=%d bonus=%d before=%d after=%d",
+                                          ai_debug_current_seed(), g.round + 1, 9 - g.own[player].num, env_plan_name(str.plan),
+                                          phase2a_candidate_sevenline[i].wid, phase2a_candidate_sevenline[i].delay,
+                                          phase2a_candidate_sevenline[i].reach, phase2a_candidate_sevenline[i].margin,
+                                          phase2a_candidate_sevenline_bonus[i].base_bonus, phase2a_candidate_sevenline_bonus[i].margin_bonus,
+                                          phase2a_candidate_sevenline_bonus[i].mult, phase2a_candidate_sevenline_bonus[i].bonus,
+                                          final_best_index_phase2a_off, final_best_index_pre_d1);
+                            }
+                            ai_putlog("[phase2a] seed=%d round=%d turn=%d plan=%s domain=%s before=%d after=%d reason=%s",
+                                      ai_debug_current_seed(), g.round + 1, 9 - g.own[player].num, env_plan_name(str.plan), env_domain_name(str.domain),
+                                      final_best_index_phase2a_off, final_best_index_pre_d1, phase2a_reason_name(phase2a_candidate_reason[i]));
+                            break;
                         }
-                        ai_putlog("[phase2a] seed=%d round=%d turn=%d plan=%s domain=%s before=%d after=%d reason=%s",
-                                  ai_debug_current_seed(), g.round + 1, 9 - g.own[player].num, env_plan_name(str.plan), env_domain_name(str.domain),
-                                  final_best_index_phase2a_off, final_best_index_pre_d1, phase2a_reason_name(phase2a_candidate_reason[i]));
-                        break;
                     }
                 }
-            }
             }
             {
                 int choice_order[2];

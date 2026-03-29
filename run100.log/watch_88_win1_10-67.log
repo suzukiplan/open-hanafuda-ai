@@ -1194,7 +1194,7 @@ Think End
 [AFTER-OPP] seed=1772851334 side=CPU round=3/12 turn=6 after_opp_action=none(base=0,x2=0,wid=NONE) after_opp_base_delta=+0
 Thinking...
 [month-lock] month=2 own=2 known=3 hidden=1 hidden_card=7 reason=take_control
-drop[0] card=6 value=-184550 (score=75 speed=37 deny=-160 danger=-586 safe=0 keep=-400:fatal combo=0 cap=1/882/-18065 take=4 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=14750 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=0 k=0 imm=0 deny7=-35200 opp2ply=1/12)
+drop[0] card=6 value=-185594 (score=75 speed=37 deny=-160 danger=-586 safe=0 keep=-400:fatal combo=0 cap=1/360/-18065 take=4 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=14750 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=0 k=0 imm=0 deny7=-35200 opp2ply=1/12)
 drop[1] card=18 value=-167614 (score=75 speed=37 deny=-160 danger=-586 safe=0 keep=-180:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=0 k=0 imm=0 deny7=-35200 opp2ply=1/12)
 [DROP-TOP2] best_idx=1 best_card=18 best_value=-167614 second_idx=-1 second_card=-1 second_value=0 gap=0 best_take=n/a best_feed=win=ON(wid=Aotan,base=12,x2=2) opp7=dist4+/th85/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th0/c0 final_pick=best why=comparator aim=DEFENCE7(wid=Aotan)
 Priority-Speed:
@@ -1240,7 +1240,7 @@ Think End
 [AFTER-OPP] seed=1772851334 side=CPU round=3/12 turn=7 after_opp_action=none(base=0,x2=0,wid=NONE) after_opp_base_delta=+0
 Thinking...
 [month-lock] month=2 own=2 known=3 hidden=1 hidden_card=7 reason=take_control
-drop[0] card=6 value=-188358 (score=0 speed=0 deny=-151 danger=-586 safe=0 keep=-400:fatal combo=0 cap=1/1009/-18110 take=4 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=14750 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=0 k=0 imm=0 deny7=-35200 opp2ply=1/12)
+drop[0] card=6 value=-189466 (score=0 speed=0 deny=-151 danger=-586 safe=0 keep=-400:fatal combo=0 cap=1/455/-18110 take=4 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=14750 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=0 k=0 imm=0 deny7=-35200 opp2ply=1/12)
 Priority-Speed:
 - Akatan: reach=18, delay=1, score=5
 - Kasu: reach=9, delay=1, score=1
@@ -3160,7 +3160,7 @@ drop[1] card=20 value=-9022 (score=160 speed=53 deny=0 danger=0 safe=0 keep=0:no
 [month-lock] month=4 own=2 known=3 hidden=1 hidden_card=14 reason=take_control
 drop[2] card=15 value=-49875 (score=180 speed=60 deny=-80 danger=-235 safe=0 keep=-60:caution combo=0 cap=1/280/-18065 take=12 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=750 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-320 need=0 k=40 imm=0 deny7=-15400 opp2ply=1/0)
 [month-lock] month=10 own=2 known=3 hidden=1 hidden_card=36 reason=take_control
-drop[3] card=39 value=-25857 (score=180 speed=60 deny=-80 danger=-235 safe=0 keep=-60:caution combo=0 cap=1/1639/-18065 take=38 koikoi_win=0 atk7=0 emg1=0 hot=18000 block5=0 overpay=0 delay5=0 monthlock=750 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-320 need=0 k=40 imm=0 deny7=-15400 opp2ply=1/0)
+drop[3] card=39 value=-27365 (score=180 speed=60 deny=-80 danger=-235 safe=0 keep=-60:caution combo=0 cap=1/885/-18065 take=38 koikoi_win=0 atk7=0 emg1=0 hot=18000 block5=0 overpay=0 delay5=0 monthlock=750 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-320 need=0 k=40 imm=0 deny7=-15400 opp2ply=1/0)
 drop[4] card=47 value=-869798 (score=180 speed=45 deny=-7839 danger=-473 safe=0 keep=0:none combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-320 need=0 k=40 imm=0 deny7=-46200 opp2ply=1/0)
 [DROP-TOP2] best_idx=1 best_card=20 best_value=-9022 second_idx=0 second_card=42 second_value=-17845 gap=8823 best_take=n/a best_feed=win=ON(wid=Tsukimi-Sake,base=5,x2=0) opp7=dist4+/th70/c0 second_take=n/a second_feed=win=ON(wid=Tsukimi-Sake,base=5,x2=0) opp7=dist4+/th70/c0 final_pick=best why=comparator aim=NONE(wid=NONE)
 Priority-Speed:

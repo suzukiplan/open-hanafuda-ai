@@ -1610,7 +1610,7 @@ Thinking...
 [month-lock] month=6 own=3 known=3 hidden=1 hidden_card=20 reason=take_control
 drop[0] card=22 value=332142 (score=70 speed=11 deny=3756 danger=0 safe=0 keep=-60:caution combo=0 cap=1/1730/0 take=23 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=4386 overpay=0 delay5=0 monthlock=1500 deadmonth=0 combo7=0[Hanami-Sake+Kasu+Tan reach=21 delay=5 sum=7] end=0 need=0 k=0 imm=0 deny7=0 opp2ply=0/0)
 [month-lock] month=3 own=3 known=3 hidden=1 hidden_card=8 reason=take_control
-drop[1] card=10 value=10128 (score=36 speed=7 deny=0 danger=0 safe=0 keep=-60:caution combo=0 cap=1/1508/0 take=9 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=1500 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=0 k=0 imm=0 deny7=0 opp2ply=0/0)
+drop[1] card=10 value=9332 (score=36 speed=7 deny=0 danger=0 safe=0 keep=-60:caution combo=0 cap=1/1110/0 take=9 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=1500 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=0 k=0 imm=0 deny7=0 opp2ply=0/0)
 drop[2] card=7 value=224 (score=55 speed=9 deny=-40 danger=-140 safe=0 keep=-180:caution combo=0 cap=1/360/0 take=5 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=0 k=0 imm=0 deny7=0 opp2ply=0/0)
 [month-lock] month=6 own=3 known=3 hidden=1 hidden_card=20 reason=take_control
 drop[3] card=21 value=331670 (score=55 speed=9 deny=3756 danger=0 safe=0 keep=-40:caution combo=0 cap=1/1670/0 take=23 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=4386 overpay=0 delay5=0 monthlock=1500 deadmonth=0 combo7=0[Hanami-Sake+Kasu+Tan reach=16 delay=5 sum=7] end=0 need=0 k=0 imm=0 deny7=0 opp2ply=0/0)

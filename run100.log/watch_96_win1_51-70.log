@@ -1268,7 +1268,7 @@ Think End
 Thinking...
 drop[0] card=2 value=-67380 (score=100 speed=50 deny=0 danger=0 safe=0 keep=-180:caution combo=0 cap=0/0/0 take=0 koikoi_win=-40000 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=14 k=0 imm=0 deny7=-35200 opp2ply=0/0)
 drop[1] card=7 value=65512 (score=100 speed=50 deny=-80 danger=-348 safe=0 keep=0:none combo=0 cap=1/430/0 take=4 koikoi_win=100000 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=14 k=0 imm=0 deny7=-35200 opp2ply=0/0)
-drop[2] card=22 value=76948 (score=100 speed=50 deny=0 danger=0 safe=0 keep=-400:fatal combo=0 cap=1/824/0 take=20 koikoi_win=100000 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=14 k=0 imm=1 deny7=-35200 opp2ply=0/0)
+drop[2] card=22 value=75920 (score=100 speed=50 deny=0 danger=0 safe=0 keep=-400:fatal combo=0 cap=1/310/0 take=20 koikoi_win=100000 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=14 k=0 imm=1 deny7=-35200 opp2ply=0/0)
 [DROP-TOP2] best_idx=1 best_card=7 best_value=65512 second_idx=0 second_card=2 second_value=-67380 gap=132892 best_take=7,4 best_feed=win=OFF opp7=dist3/th85/c0 second_take=n/a second_feed=win=OFF opp7=dist3/th85/c0 final_pick=override why=comparator aim=NONE(wid=NONE)
 Priority-Speed:
 - Tan: reach=100, delay=1, score=1
@@ -1299,7 +1299,7 @@ Env:
 - cat_sum: CAT1=0 CAT2=0 CAT3=0 CAT4=100 CAT5=350 CAT6=0 CAT7=0 CAT11=0 CAT12=15 NA=0
 - cat_top: CAT5=350 CAT4=100 CAT8=20 CAT12=15 CAT9=-12
 Think End
-[CPU] think drop: 22 seed=1772851342 round=4/12 turn=6 dealer=P1 is_parent=0 left_rounds=9 left_hand=3 score_total_p1=19 score_total_cpu=6 round_score_p1=5 round_score_cpu=0 koikoi_p1=1 koikoi_cpu=0 opponent_win_x2=1 match_diff=-13 needed=14 k_end=0 imm=1/0 clinch=0/0 <M pre_best=1/65512 pre_2nd=0/-67380 gap=132892 opp:1/5/1/85 imm:1/Tan final=2/76948 by=OTHER best_take=7,4 best_feed=0/2/0 second_take=n/a second_feed=1/1/1> (Env: P1=360, CPU=480)
+[CPU] think drop: 22 seed=1772851342 round=4/12 turn=6 dealer=P1 is_parent=0 left_rounds=9 left_hand=3 score_total_p1=19 score_total_cpu=6 round_score_p1=5 round_score_cpu=0 koikoi_p1=1 koikoi_cpu=0 opponent_win_x2=1 match_diff=-13 needed=14 k_end=0 imm=1/0 clinch=0/0 <M pre_best=1/65512 pre_2nd=0/-67380 gap=132892 opp:1/5/1/85 imm:1/Tan final=2/75920 by=OTHER best_take=7,4 best_feed=0/2/0 second_take=n/a second_feed=1/1/1> (Env: P1=360, CPU=480)
 [CPU] drop take: 22,20 (Env: P1=344, CPU=634)
 [CPU] floor open: 6 (Env: P1=344, CPU=634)
 [CPU] floor take: 6,4 (Env: P1=328, CPU=888)
