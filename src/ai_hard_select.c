@@ -38,6 +38,8 @@ typedef struct {
 #define SELECT_OPP_KOIKOI_MISS_PENALTY 40000
 // 相手 KOIKOI 中に次手即負けを招く候補を実質除外する大減点。
 #define SELECT_2PLY_KOIKOI_OPP_PRUNE_PENALTY 3000000
+// 最終ラウンドで逆転不能な即時あがりを避ける大減点。
+#define SELECT_FINAL_NON_CLINCH_IMMEDIATE_PENALTY 3000000
 // 相手の次手 7+ を許す候補を tie-break レベルで落とす減点。
 #define SELECT_2PLY_SEVEN_PLUS_TIEBREAK_PENALTY 117500
 // 相手の次手 7+ が確定級の候補を強く弾く減点。
@@ -332,6 +334,17 @@ static int calc_endgame_clinch_score(const StrategyData* s, int immediate_gain, 
            (ENDGAME_CLINCH_BONUS * (immediate_gain >= threshold) - ENDGAME_EXCESS_PENALTY_UNIT * excess -
             ENDGAME_SHORTFALL_PENALTY_UNIT * shortfall);
 #endif
+}
+
+static int is_final_round_non_clinch_immediate(const StrategyData* s, int immediate_gain)
+{
+    if (!s || immediate_gain <= 0) {
+        return OFF;
+    }
+    if (s->left_rounds != 1 || s->match_score_diff >= 0) {
+        return OFF;
+    }
+    return immediate_gain < calc_endgame_needed(s) ? ON : OFF;
 }
 
 static const char* trace_aim_type_name(int aim_type)
@@ -2489,6 +2502,7 @@ int ai_hard_select(int player, Card* card)
         tactical_term += calc_left_completion_penalty(player, deckIndex, targetDecks, targetDeckCount);
         int immediate_wid = -1;
         int immediate_points_gain = calc_immediate_points_gain(player, card->id, taken_card_no, &immediate_wid);
+        int final_non_clinch_immediate = is_final_round_non_clinch_immediate(before, immediate_points_gain);
         int endgame_needed = 0;
         int endgame_k = 0;
         int endgame_clinch_score = calc_endgame_clinch_score(before, immediate_points_gain, &endgame_needed, &endgame_k);
@@ -2537,6 +2551,12 @@ int ai_hard_select(int player, Card* card)
         int seven_margin = -99;
         int seven_reach = 0;
         int seven_wid = -1;
+        if (final_non_clinch_immediate) {
+            immediate_points_gain = 0;
+            immediate_wid = -1;
+            endgame_clinch_score -= SELECT_FINAL_NON_CLINCH_IMMEDIATE_PENALTY;
+            prune_reason_code = "FINAL_NON_CLINCH";
+        }
         if (before->koikoi_opp == ON) {
             if (secures_want_card_on_capture(player, card->id, taken_card_no) || immediate_points_gain > 0) {
                 opp_koikoi_win_bonus += SELECT_OPP_KOIKOI_WIN_BONUS;

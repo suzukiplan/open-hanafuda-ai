@@ -1,13 +1,13 @@
 SUMMARY games=1000 seed=1772851247 rounds=12
-P1 model=Normal wins=397 avg_diff=-7.410 reason_7plus=1509 reason_opponent_koikoi=873 koikoi=4173 koikoi_success=2638 koikoi_success_rate=63.22%
-CPU model=Hard wins=596 avg_diff=7.410 reason_7plus=1637 reason_opponent_koikoi=1341 koikoi=2834 koikoi_success=1857 koikoi_success_rate=65.53%
-DRAW draws=7
+P1 model=Normal wins=397 avg_diff=-7.371 reason_7plus=1512 reason_opponent_koikoi=867 koikoi=4173 koikoi_success=2638 koikoi_success_rate=63.22%
+CPU model=Hard wins=597 avg_diff=7.371 reason_7plus=1636 reason_opponent_koikoi=1341 koikoi=2820 koikoi_success=1850 koikoi_success_rate=65.60%
+DRAW draws=6
 Sake round summary: 1P=2020, CPU=2006
  - 1P detail: win=1015 (50.25%), average=9.68pts koikoi-cnt=1004 koikoi-win=651 koikoi-up=8.06pts
- - CPU detail: win=1229 (61.27%), average=10.25pts koikoi-cnt=917 koikoi-win=629 koikoi-up=9.87pts
+ - CPU detail: win=1228 (61.22%), average=10.26pts koikoi-cnt=913 koikoi-win=628 koikoi-up=9.88pts
 KOIKOI_BASE6_PUSH P1=0/0/0 CPU=124/124/9
 KOIKOI_LOCKED_THRESHOLD P1=0/0 CPU=12/1
-WIN_RATE P1=39.70%(60.43pts) CPU=59.60%(61.48pts)
+WIN_RATE P1=39.70%(60.60pts) CPU=59.70%(61.41pts)
 - Round 1: P1=43.70%(7.80pts) CPU=52.60%(7.80pts)
 - Round 2: P1=42.40%(8.16pts) CPU=53.40%(7.28pts)
 - Round 3: P1=42.10%(8.45pts) CPU=53.80%(7.49pts)
@@ -19,8 +19,8 @@ WIN_RATE P1=39.70%(60.43pts) CPU=59.60%(61.48pts)
 - Round 9: P1=46.40%(7.19pts) CPU=50.20%(8.16pts)
 - Round 10: P1=42.50%(7.96pts) CPU=52.70%(7.60pts)
 - Round 11: P1=46.00%(8.13pts) CPU=50.40%(8.62pts)
-- Round 12: P1=45.30%(6.78pts) CPU=50.80%(6.82pts)
+- Round 12: P1=45.80%(6.79pts) CPU=50.40%(6.87pts)
 Per Bias:
-- GREEDY: win=1795 (61.4%), lose=1048 (35.8%), draw=81 (2.8%)
-- DEFENSIVE: win=3851 (47.1%), lose=3938 (48.2%), draw=385 (4.7%)
+- GREEDY: win=1790 (61.2%), lose=1052 (36.0%), draw=81 (2.8%)
+- DEFENSIVE: win=3852 (47.1%), lose=3939 (48.2%), draw=384 (4.7%)
 - BALANCED: win=635 (70.5%), lose=246 (27.3%), draw=20 (2.2%)

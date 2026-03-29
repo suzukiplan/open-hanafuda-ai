@@ -42,6 +42,8 @@
 #define DROP_OPP_KOIKOI_KEYTARGET_EXPOSE_PENALTY 180000
 // 相手 KOIKOI 中に次手即負けを招く候補を実質除外する大減点。
 #define DROP_2PLY_KOIKOI_OPP_PRUNE_PENALTY 3000000
+// 最終ラウンドで逆転不能な即時あがりを避ける大減点。
+#define DROP_FINAL_NON_CLINCH_IMMEDIATE_PENALTY 3000000
 // 相手の次手 7+ を許す候補を tie-break レベルで落とす減点。
 #define DROP_2PLY_SEVEN_PLUS_TIEBREAK_PENALTY 117500
 // 相手の次手 7+ が確定級の候補を強く弾く減点。
@@ -580,6 +582,17 @@ static int calc_endgame_clinch_score(const StrategyData* s, int immediate_gain, 
            (ENDGAME_CLINCH_BONUS * (immediate_gain >= threshold) - ENDGAME_EXCESS_PENALTY_UNIT * excess -
             ENDGAME_SHORTFALL_PENALTY_UNIT * shortfall);
 #endif
+}
+
+static int is_final_round_non_clinch_immediate(const StrategyData* s, int immediate_gain)
+{
+    if (!s || immediate_gain <= 0) {
+        return OFF;
+    }
+    if (s->left_rounds != 1 || s->match_score_diff >= 0) {
+        return OFF;
+    }
+    return immediate_gain < calc_endgame_needed(s) ? ON : OFF;
 }
 
 static int trace_min_risk_delay(const StrategyData* s)
@@ -4696,6 +4709,10 @@ static void evaluate_drop_capture(int player, int drop_card_no, const StrategyDa
             int immediate_wid = -1;
             int immediate_gain = calc_drop_take_immediate_gain(player, drop_card_no, takeable[i], &immediate_wid);
             int immediate_base = immediate_wid >= 0 ? winning_hands[immediate_wid].base_score : 0;
+            if (is_final_round_non_clinch_immediate(before, immediate_gain)) {
+                immediate_gain = -1;
+                immediate_base = -1;
+            }
             for (int j = 0; j < takeable_count; j++) {
                 if (i == j) {
                     continue;
@@ -5542,6 +5559,16 @@ int ai_hard_drop(int player)
         int certain_seven_plus_penalty = 0;
         const char* prune_reason_code = "NONE";
         int completion_priority_bonus = completion_combo_bonus;
+        if (is_final_round_non_clinch_immediate(&str, immediate_gain)) {
+            immediate_gain = 0;
+            immediate_wid = -1;
+            endgame_clinch_score -= DROP_FINAL_NON_CLINCH_IMMEDIATE_PENALTY;
+            value -= DROP_FINAL_NON_CLINCH_IMMEDIATE_PENALTY;
+#if PHASE2A_PLAN_DOMAIN_SCALING_ENABLE
+            value_base -= DROP_FINAL_NON_CLINCH_IMMEDIATE_PENALTY;
+#endif
+            prune_reason_code = "FINAL_NON_CLINCH";
+        }
         if (str.koikoi_opp == ON || str.opp_coarse_threat >= DROP_2PLY_SEVEN_PLUS_GATE_THREAT ||
             str.risk_7plus_distance <= DROP_2PLY_SEVEN_PLUS_GATE_DISTANCE) {
             opp_immediate_win = simulate_opponent_normal_turn_loss(player, &opp_immediate_score, &opp_immediate_seven_plus, &opp_immediate_wid);
