@@ -65,7 +65,8 @@ run1k: ai_sim
 run100: ai_sim
 	rm -rf run100.log
 	mkdir run100.log
-	./ai_sim -0 0 -1 1 -r 12 -l 100 --seed=1772851247 --log run100.log/watch.log
+	./ai_sim -0 0 -1 1 -r 12 -l 100 --seed=1772851247 --log run100.log/watch.log > run100.txt
+	cat run100.txt
 	python3 extract_watch_csv.py run100.log >run100.csv
 
 test:
