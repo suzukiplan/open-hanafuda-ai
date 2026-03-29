@@ -3717,7 +3717,7 @@ Think End
 [AFTER-OPP] seed=1772851283 side=CPU round=12/12 turn=6 after_opp_action=koikoi(base=5,x2=0,wid=Sankou) after_opp_base_delta=+5
 Deck: 1,4,13,20,41,18,33,24 (Env: P1=1740, CPU=645)
 Thinking...
-drop[0] card=35 value=-3036995 (score=165 speed=82 deny=-80 danger=-395 safe=0 keep=-400:fatal combo=0 cap=1/450/0 take=33 koikoi_win=100000 atk7=0 emg1=0 hot=18000 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-800 need=0 k=100 imm=0 deny7=-156200 opp2ply=1/26)
+drop[0] card=35 value=-3023195 (score=165 speed=82 deny=-80 danger=-395 safe=0 keep=-400:fatal combo=0 cap=1/7350/0 take=33 koikoi_win=100000 atk7=0 emg1=0 hot=18000 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-800 need=0 k=100 imm=0 deny7=-156200 opp2ply=1/26)
 drop[1] card=11 value=-4773983 (score=165 speed=82 deny=-13177 danger=-843 safe=0 keep=-400:fatal combo=0 cap=0/0/0 take=0 koikoi_win=-40000 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-800 need=0 k=100 imm=0 deny7=-156200 opp2ply=1/36)
 Priority-Speed:
 - Hanami-Sake: reach=31, delay=2, score=5

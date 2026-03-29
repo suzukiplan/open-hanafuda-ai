@@ -1,26 +1,26 @@
 SUMMARY games=1000 seed=1772851247 rounds=12
-P1 model=Normal wins=399 avg_diff=-6.740 reason_7plus=1532 reason_opponent_koikoi=831 koikoi=4181 koikoi_success=2659 koikoi_success_rate=63.60%
-CPU model=Hard wins=594 avg_diff=6.740 reason_7plus=1634 reason_opponent_koikoi=1326 koikoi=2795 koikoi_success=1859 koikoi_success_rate=66.51%
-DRAW draws=7
-Sake round summary: 1P=2019, CPU=2007
- - 1P detail: win=1023 (50.67%), average=9.70pts koikoi-cnt=1013 koikoi-win=655 koikoi-up=8.16pts
- - CPU detail: win=1225 (61.04%), average=10.09pts koikoi-cnt=910 koikoi-win=630 koikoi-up=9.71pts
-KOIKOI_BASE6_PUSH P1=0/0/0 CPU=132/132/11
-KOIKOI_LOCKED_THRESHOLD P1=0/0 CPU=14/2
-WIN_RATE P1=39.90%(59.85pts) CPU=59.40%(60.70pts)
-- Round 1: P1=43.60%(7.71pts) CPU=52.80%(7.76pts)
-- Round 2: P1=42.50%(8.08pts) CPU=53.40%(7.23pts)
-- Round 3: P1=42.30%(8.85pts) CPU=53.50%(7.38pts)
-- Round 4: P1=43.00%(8.94pts) CPU=53.00%(7.63pts)
-- Round 5: P1=44.90%(7.38pts) CPU=50.10%(7.77pts)
-- Round 6: P1=42.40%(7.72pts) CPU=53.10%(8.38pts)
-- Round 7: P1=41.80%(8.22pts) CPU=54.30%(7.73pts)
-- Round 8: P1=42.40%(8.13pts) CPU=53.90%(7.37pts)
-- Round 9: P1=47.20%(7.55pts) CPU=49.10%(8.12pts)
-- Round 10: P1=42.90%(7.64pts) CPU=51.70%(7.77pts)
-- Round 11: P1=46.00%(8.08pts) CPU=50.80%(8.17pts)
-- Round 12: P1=44.00%(6.86pts) CPU=51.60%(6.89pts)
+P1 model=Normal wins=398 avg_diff=-7.357 reason_7plus=1510 reason_opponent_koikoi=873 koikoi=4170 koikoi_success=2638 koikoi_success_rate=63.26%
+CPU model=Hard wins=596 avg_diff=7.357 reason_7plus=1635 reason_opponent_koikoi=1339 koikoi=2835 koikoi_success=1859 koikoi_success_rate=65.57%
+DRAW draws=6
+Sake round summary: 1P=2020, CPU=2005
+ - 1P detail: win=1016 (50.30%), average=9.70pts koikoi-cnt=1006 koikoi-win=651 koikoi-up=8.06pts
+ - CPU detail: win=1228 (61.25%), average=10.25pts koikoi-cnt=916 koikoi-win=628 koikoi-up=9.87pts
+KOIKOI_BASE6_PUSH P1=0/0/0 CPU=124/124/9
+KOIKOI_LOCKED_THRESHOLD P1=0/0 CPU=12/1
+WIN_RATE P1=39.80%(60.43pts) CPU=59.60%(61.44pts)
+- Round 1: P1=43.90%(7.71pts) CPU=52.40%(7.80pts)
+- Round 2: P1=42.50%(8.14pts) CPU=53.30%(7.24pts)
+- Round 3: P1=42.10%(8.45pts) CPU=53.80%(7.45pts)
+- Round 4: P1=44.20%(8.88pts) CPU=51.70%(7.77pts)
+- Round 5: P1=44.50%(7.21pts) CPU=50.60%(8.04pts)
+- Round 6: P1=42.80%(7.68pts) CPU=53.20%(8.22pts)
+- Round 7: P1=41.50%(8.07pts) CPU=55.20%(7.88pts)
+- Round 8: P1=41.90%(8.17pts) CPU=53.80%(7.25pts)
+- Round 9: P1=46.50%(7.21pts) CPU=50.10%(8.16pts)
+- Round 10: P1=42.40%(7.99pts) CPU=52.80%(7.58pts)
+- Round 11: P1=46.00%(8.17pts) CPU=50.40%(8.62pts)
+- Round 12: P1=45.40%(6.85pts) CPU=50.70%(6.83pts)
 Per Bias:
-- GREEDY: win=1820 (62.3%), lose=1018 (34.8%), draw=85 (2.9%)
-- DEFENSIVE: win=3821 (46.7%), lose=3965 (48.5%), draw=392 (4.8%)
-- BALANCED: win=632 (70.4%), lose=246 (27.4%), draw=20 (2.2%)
+- GREEDY: win=1798 (61.3%), lose=1054 (35.9%), draw=81 (2.8%)
+- DEFENSIVE: win=3843 (47.1%), lose=3935 (48.2%), draw=382 (4.7%)
+- BALANCED: win=639 (70.5%), lose=247 (27.3%), draw=20 (2.2%)

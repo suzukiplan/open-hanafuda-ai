@@ -203,6 +203,14 @@ static int hard_should_cancel_rapacious_fallback_sake_drop(int player, const Str
 #define DROP_THREE_CARD_FIVE_POINT_FIRST_SETUP_BONUS 350
 #define DROP_THREE_CARD_FIVE_POINT_FIRST_REACH_UNIT 8
 #define DROP_THREE_CARD_FIVE_POINT_FAST_DELAY_BONUS 120
+// 手札の役札を「今この公開情報で secure 化する」価値。
+#define DROP_PUBLIC_ACCESS_SECURE_HIGH_BONUS 5200
+#define DROP_PUBLIC_ACCESS_SECURE_MID_BONUS 2400
+#define DROP_PUBLIC_ACCESS_SECURE_LAST_VISIBLE_BONUS 700
+#define DROP_PUBLIC_ACCESS_SECURE_NO_LOCK_BONUS 700
+#define DROP_PUBLIC_ACCESS_SECURE_NO_BACKUP_BONUS 500
+#define DROP_PUBLIC_ACCESS_SECURE_FRAGILE_ROUTE_BONUS 2200
+#define DROP_PUBLIC_ACCESS_SECURE_REDUNDANT_PENALTY 1800
 // 同月4枚のうち3枚を把握している「月ロック」を取る加点。
 #define DROP_MONTH_LOCK_BONUS 1500
 // 月ロックを取り逃がす減点。
@@ -4256,6 +4264,97 @@ static int count_owned_kasu_total(int player)
     return total;
 }
 
+static int count_owned_month_cards_excluding_card(int player, int month, int exclude_card_no)
+{
+    int count = 0;
+
+    if (player < 0 || player > 1 || month < 0 || month >= 12) {
+        return 0;
+    }
+
+    for (int i = 0; i < 8; i++) {
+        Card* card = g.own[player].cards[i];
+        if (card && card->id != exclude_card_no && card->month == month) {
+            count++;
+        }
+    }
+    for (int t = 0; t < 4; t++) {
+        CardSet* inv = &g.invent[player][t];
+        for (int i = 0; i < inv->num; i++) {
+            Card* card = inv->cards[i];
+            if (card && card->id != exclude_card_no && card->month == month) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+static int calc_public_access_secure_bonus(int player, int drop_card_no, const StrategyData* before)
+{
+    int best_bonus = 0;
+    int month;
+    int known_same_month;
+    int floor_same_month;
+    int owned_same_month_without_drop;
+    int already_secured;
+
+    if (player < 0 || player > 1 || drop_card_no < 0 || drop_card_no >= 48 || !before) {
+        return 0;
+    }
+    month = g.cards[drop_card_no].month;
+    known_same_month = count_known_month_cards_for_player(player, month);
+    floor_same_month = count_floor_month_cards(month);
+    owned_same_month_without_drop = count_owned_month_cards_excluding_card(player, month, drop_card_no);
+    already_secured = is_secured_role_card_for_player(player, drop_card_no);
+
+    for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
+        int bonus = 0;
+
+        if (!ai_is_card_critical_for_wid(drop_card_no, wid)) {
+            continue;
+        }
+
+        switch (wid) {
+            case WID_HANAMI:
+            case WID_TSUKIMI:
+                break;
+            default:
+                continue;
+        }
+
+        if (already_secured) {
+            bonus -= DROP_PUBLIC_ACCESS_SECURE_REDUNDANT_PENALTY;
+        } else {
+            bonus += DROP_PUBLIC_ACCESS_SECURE_HIGH_BONUS;
+            if (floor_same_month <= 1) {
+                bonus += DROP_PUBLIC_ACCESS_SECURE_LAST_VISIBLE_BONUS;
+            }
+            if (known_same_month < 3) {
+                bonus += DROP_PUBLIC_ACCESS_SECURE_NO_LOCK_BONUS;
+            }
+            if (owned_same_month_without_drop == 0) {
+                bonus += DROP_PUBLIC_ACCESS_SECURE_NO_BACKUP_BONUS;
+            }
+            if (floor_same_month <= 1 && known_same_month < 3 && owned_same_month_without_drop == 0) {
+                bonus += DROP_PUBLIC_ACCESS_SECURE_FRAGILE_ROUTE_BONUS;
+            }
+            if (before->delay[wid] <= 3) {
+                bonus += 500;
+            }
+            if (before->reach[wid] >= 35) {
+                bonus += 700;
+            }
+        }
+
+        if (best_bonus < bonus) {
+            best_bonus = bonus;
+        }
+    }
+
+    return best_bonus;
+}
+
 static int calc_capture_quality(int player, int drop_card_no, int taken_card_no, const StrategyData* before)
 {
     Card* taken;
@@ -4364,6 +4463,7 @@ static int calc_capture_quality(int player, int drop_card_no, int taken_card_no,
     }
 
     quality += calc_plain_role_progress_bonus_for_capture(player, drop_card_no, taken_card_no);
+    quality += calc_public_access_secure_bonus(player, drop_card_no, before);
     quality += calc_month_lock_bonus(player, taken->month);
 
     return quality;

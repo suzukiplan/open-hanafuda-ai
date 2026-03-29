@@ -1492,7 +1492,7 @@ P1 (DOWN-SIDE) own: 26,39,4,5,28,17,46,24
 CPU (UP-SIDE) own: 31,37,22,21,1,47,44,41
 Deck: 16,30,23,10,12,38,20,33 (Env: P1=272, CPU=606)
 Thinking...
-drop[0] card=31 value=91459 (score=95 speed=23 deny=0 danger=0 safe=0 keep=-320:caution combo=0 cap=1/460/0 take=30 koikoi_win=0 atk7=0 emg1=0 hot=13800 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=56534[Sankou+Tsukimi-Sake reach=17 delay=4 sum=10] end=0 need=15 k=0 imm=0 deny7=0 opp2ply=0/0)
+drop[0] card=31 value=128659 (score=95 speed=23 deny=0 danger=0 safe=0 keep=-320:caution combo=0 cap=1/9760/0 take=30 koikoi_win=0 atk7=0 emg1=0 hot=13800 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=56534[Sankou+Tsukimi-Sake reach=17 delay=4 sum=10] end=0 need=15 k=0 imm=0 deny7=0 opp2ply=0/0)
 drop[1] card=37 value=14175 (score=110 speed=23 deny=0 danger=0 safe=0 keep=-60:caution combo=0 cap=1/480/0 take=38 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[Tsukimi-Sake+Tan+Kasu reach=24 delay=6 sum=7] end=0 need=15 k=0 imm=0 deny7=0 opp2ply=0/0)
 drop[2] card=22 value=15155 (score=110 speed=23 deny=0 danger=0 safe=0 keep=-40:caution combo=0 cap=1/720/0 take=23 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[Tsukimi-Sake+Tan+Kasu reach=24 delay=6 sum=7] end=0 need=15 k=0 imm=0 deny7=0 opp2ply=0/0)
 drop[3] card=21 value=14895 (score=110 speed=23 deny=0 danger=0 safe=0 keep=-60:caution combo=0 cap=1/660/0 take=23 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[Tsukimi-Sake+Tan+Kasu reach=24 delay=6 sum=7] end=0 need=15 k=0 imm=0 deny7=0 opp2ply=0/0)
@@ -1501,8 +1501,8 @@ drop[5] card=47 value=45593 (score=125 speed=25 deny=0 danger=0 safe=0 keep=-320
 drop[6] card=44 value=51882 (score=110 speed=23 deny=0 danger=0 safe=0 keep=-60:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=43227[Sankou+Tsukimi-Sake reach=21 delay=4 sum=10] end=0 need=15 k=0 imm=0 deny7=0 opp2ply=0/0)
 drop[7] card=41 value=48455 (score=110 speed=23 deny=0 danger=0 safe=0 keep=-40:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=39780[Sankou+Aotan reach=20 delay=5 sum=10] end=0 need=15 k=0 imm=0 deny7=0 opp2ply=0/0)
 [drop] greedy fallback: top_k=7 chosen_index=0
-[drop-fallback-debug] seed=1772851281 game=34 round=5 turn=1 player=1 mode=G plan=S top_k=7 pool_count=7 pool={p0:orig=0 card=31 v=91459 take=31,30 keep=-320 safe=0 deny=0 feed=0/8/0 | p1:orig=6 card=44 v=51882 take=n/a keep=-60 safe=0 deny=0 feed=1/12/1 | p2:orig=7 card=41 v=48455 take=n/a keep=-40 safe=0 deny=0 feed=1/11/1 | p3:orig=4 card=1 v=48435 take=n/a keep=-60 safe=0 deny=0 feed=1/1/1 | p4:orig=5 card=47 v=45593 take=n/a keep=-9100 safe=0 deny=0 feed=1/12/1 | p5:orig=2 card=22 v=15155 take=22,23 keep=-40 safe=0 deny=0 feed=0/6/0 | p6:orig=3 card=21 v=14895 take=21,23 keep=-60 safe=0 deny=0 feed=0/6/0} chosen_pool_idx=0 chosen_orig_idx=0 final_best_idx_pre_fb=0 final_best_idx_post_fb=0
-[DROP-TOP2] best_idx=0 best_card=31 best_value=91459 second_idx=6 second_card=44 second_value=51882 gap=39577 best_take=31,30 best_feed=win=OFF opp7=dist4+/th0/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th0/c0 final_pick=best why=fallback aim=COMBO7(wid=Sankou)
+[drop-fallback-debug] seed=1772851281 game=34 round=5 turn=1 player=1 mode=G plan=S top_k=7 pool_count=7 pool={p0:orig=0 card=31 v=128659 take=31,30 keep=-320 safe=0 deny=0 feed=0/8/0 | p1:orig=6 card=44 v=51882 take=n/a keep=-60 safe=0 deny=0 feed=1/12/1 | p2:orig=7 card=41 v=48455 take=n/a keep=-40 safe=0 deny=0 feed=1/11/1 | p3:orig=4 card=1 v=48435 take=n/a keep=-60 safe=0 deny=0 feed=1/1/1 | p4:orig=5 card=47 v=45593 take=n/a keep=-9100 safe=0 deny=0 feed=1/12/1 | p5:orig=2 card=22 v=15155 take=22,23 keep=-40 safe=0 deny=0 feed=0/6/0 | p6:orig=3 card=21 v=14895 take=21,23 keep=-60 safe=0 deny=0 feed=0/6/0} chosen_pool_idx=0 chosen_orig_idx=0 final_best_idx_pre_fb=0 final_best_idx_post_fb=0
+[DROP-TOP2] best_idx=0 best_card=31 best_value=128659 second_idx=6 second_card=44 second_value=51882 gap=76777 best_take=31,30 best_feed=win=OFF opp7=dist4+/th0/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th0/c0 final_pick=best why=fallback aim=COMBO7(wid=Sankou)
 Priority-Speed:
 - Kasu: reach=53, delay=7, score=1
 - Sankou: reach=34, delay=7, score=5
@@ -1543,7 +1543,7 @@ Env:
 - cat_sum: CAT1=198 CAT2=0 CAT3=140 CAT4=50 CAT5=150 CAT6=0 CAT7=50 CAT11=0 CAT12=0 NA=0
 - cat_top: CAT1=198 CAT5=150 CAT3=140 CAT4=50 CAT7=50
 Think End
-[CPU] think drop: 31 seed=1772851281 round=5/12 turn=1 dealer=CPU is_parent=1 left_rounds=8 left_hand=8 score_total_p1=16 score_total_cpu=2 round_score_p1=0 round_score_cpu=0 koikoi_p1=0 koikoi_cpu=0 opponent_win_x2=0 match_diff=-14 needed=15 k_end=0 imm=0/0 clinch=0/0 <M pre_best=0/91459 pre_2nd=6/51882 gap=39577 opp:0/0/0/0 imm:0/NONE final=0/91459 by=HARD best_take=31,30 best_feed=0/8/0 second_take=n/a second_feed=1/12/1> (Env: P1=272, CPU=606)
+[CPU] think drop: 31 seed=1772851281 round=5/12 turn=1 dealer=CPU is_parent=1 left_rounds=8 left_hand=8 score_total_p1=16 score_total_cpu=2 round_score_p1=0 round_score_cpu=0 koikoi_p1=0 koikoi_cpu=0 opponent_win_x2=0 match_diff=-14 needed=15 k_end=0 imm=0/0 clinch=0/0 <M pre_best=0/128659 pre_2nd=6/51882 gap=76777 opp:0/0/0/0 imm:0/NONE final=0/128659 by=HARD best_take=31,30 best_feed=0/8/0 second_take=n/a second_feed=1/12/1> (Env: P1=272, CPU=606)
 [CPU] drop take: 31,30 (Env: P1=-235, CPU=911)
 [CPU] floor open: 45 (Env: P1=-235, CPU=911)
 [CPU] floor take: n/a (Env: P1=-234, CPU=912)
@@ -3130,10 +3130,10 @@ Think End
 [AFTER-OPP] seed=1772851281 side=CPU round=11/12 turn=4 after_opp_action=none(base=0,x2=0,wid=NONE) after_opp_base_delta=+0
 Thinking...
 drop[0] card=1 value=-156134 (score=68 speed=17 deny=0 danger=0 safe=0 keep=-60:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-6400 need=10 k=80 imm=0 deny7=-35200 opp2ply=1/12)
-drop[1] card=31 value=-162050 (score=68 speed=17 deny=-80 danger=-256 safe=0 keep=-320:caution combo=0 cap=1/240/0 take=29 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-6400 need=10 k=80 imm=0 deny7=-35200 opp2ply=1/12)
+drop[1] card=31 value=-143450 (score=68 speed=17 deny=-80 danger=-256 safe=0 keep=-320:caution combo=0 cap=1/9540/0 take=29 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-6400 need=10 k=80 imm=0 deny7=-35200 opp2ply=1/12)
 drop[2] card=36 value=-156318 (score=58 speed=19 deny=0 danger=0 safe=0 keep=-60:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-6400 need=10 k=80 imm=0 deny7=-35200 opp2ply=1/12)
 drop[3] card=37 value=-156318 (score=58 speed=19 deny=0 danger=0 safe=0 keep=-60:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-6400 need=10 k=80 imm=0 deny7=-35200 opp2ply=1/12)
-[DROP-TOP2] best_idx=0 best_card=1 best_value=-156134 second_idx=2 second_card=36 second_value=-156318 gap=184 best_take=n/a best_feed=win=ON(wid=Aotan,base=12,x2=1) opp7=dist4+/th85/c0 second_take=n/a second_feed=win=ON(wid=Aotan,base=12,x2=1) opp7=dist4+/th85/c0 final_pick=best why=comparator aim=DEFENCE7(wid=Aotan)
+[DROP-TOP2] best_idx=1 best_card=31 best_value=-143450 second_idx=0 second_card=1 second_value=-156134 gap=12684 best_take=31,29 best_feed=win=ON(wid=Aotan,base=12,x2=1) opp7=dist4+/th85/c0 second_take=n/a second_feed=win=ON(wid=Aotan,base=12,x2=1) opp7=dist4+/th85/c0 final_pick=best why=comparator aim=DEFENCE7(wid=Aotan)
 Priority-Speed:
 - Kasu: reach=90, delay=4, score=1
 - Akatan: reach=15, delay=3, score=5
@@ -3170,15 +3170,15 @@ Env:
 - cat_sum: CAT1=-297 CAT2=0 CAT3=350 CAT4=500 CAT5=0 CAT6=125 CAT7=0 CAT11=0 CAT12=0 NA=0
 - cat_top: CAT4=500 CAT3=350 CAT1=-297 CAT6=125 CAT8=-30
 Think End
-[CPU] think drop: 1 seed=1772851281 round=11/12 turn=5 dealer=CPU is_parent=1 left_rounds=2 left_hand=4 score_total_p1=32 score_total_cpu=23 round_score_p1=0 round_score_cpu=0 koikoi_p1=0 koikoi_cpu=0 opponent_win_x2=0 match_diff=-9 needed=10 k_end=80 imm=0/0 clinch=-6400/-6400 <M pre_best=0/-156134 pre_2nd=2/-156318 gap=184 opp:0/0/0/85 imm:0/NONE final=0/-156134 by=HARD best_take=n/a best_feed=1/1/1 second_take=n/a second_feed=1/10/1> (Env: P1=1144, CPU=666)
-[CPU] drop take: n/a (Env: P1=1145, CPU=665)
-[CPU] floor open: 18 (Env: P1=1145, CPU=665)
-[CPU] floor take: n/a (Env: P1=1147, CPU=667)
+[CPU] think drop: 31 seed=1772851281 round=11/12 turn=5 dealer=CPU is_parent=1 left_rounds=2 left_hand=4 score_total_p1=32 score_total_cpu=23 round_score_p1=0 round_score_cpu=0 koikoi_p1=0 koikoi_cpu=0 opponent_win_x2=0 match_diff=-9 needed=10 k_end=80 imm=0/0 clinch=-6400/-6400 <M pre_best=1/-143450 pre_2nd=0/-156134 gap=12684 opp:0/0/0/85 imm:0/NONE final=1/-143450 by=HARD best_take=31,29 best_feed=0/8/0 second_take=n/a second_feed=1/1/1> (Env: P1=1144, CPU=666)
+[CPU] drop take: 31,29 (Env: P1=1078, CPU=967)
+[CPU] floor open: 18 (Env: P1=1078, CPU=967)
+[CPU] floor take: n/a (Env: P1=1080, CPU=969)
 [AFTER-OPP] seed=1772851281 side=P1 round=11/12 turn=4 after_opp_action=none(base=0,x2=0,wid=NONE) after_opp_base_delta=+0
-[P1] think drop: 22 (Env: P1=1147, CPU=667)
-[P1] drop take: 22,21 (Env: P1=1301, CPU=651)
-[P1] floor open: 16 (Env: P1=1301, CPU=651)
-[P1] floor take: 16,18 (Env: P1=1314, CPU=634)
+[P1] think drop: 22 (Env: P1=1080, CPU=969)
+[P1] drop take: 22,21 (Env: P1=1234, CPU=953)
+[P1] floor open: 16 (Env: P1=1234, CPU=953)
+[P1] floor take: 16,18 (Env: P1=1247, CPU=936)
 KOIKOI execution probability: 128 / 256
 KOIKOI: No
 [Round 11] Winner=P1 base=7 x2 => +14 (reason=7+, Total P1=46 CPU=23)

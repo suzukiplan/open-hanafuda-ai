@@ -2389,7 +2389,7 @@ KOIKOI: Yes
 Deck: 9,16,33,45 (Env: P1=473, CPU=-12)
 Thinking...
 drop[0] card=38 value=-3626520 (score=40 speed=20 deny=-4456 danger=0 safe=0 keep=0:none combo=0 cap=0/0/0 take=0 koikoi_win=-40000 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=16 k=0 imm=0 deny7=-55000 opp2ply=1/0)
-drop[1] card=11 value=-2932184 (score=40 speed=20 deny=0 danger=-104 safe=0 keep=-400:fatal combo=0 cap=1/160/0 take=9 koikoi_win=100000 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=16 k=0 imm=0 deny7=-35200 opp2ply=1/0)
+drop[1] card=11 value=-2919384 (score=40 speed=20 deny=0 danger=-104 safe=0 keep=-400:fatal combo=0 cap=1/6560/0 take=9 koikoi_win=100000 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=16 k=0 imm=0 deny7=-35200 opp2ply=1/0)
 [DROP-TOP2] best_idx=0 best_card=38 best_value=-3626520 second_idx=-1 second_card=-1 second_value=0 gap=0 best_take=n/a best_feed=win=ON(wid=Tane,base=6,x2=0) opp7=dist4+/th95/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th0/c0 final_pick=best why=comparator aim=DEFENCE7(wid=Tane)
 Priority-Speed:
 - Hanami-Sake: reach=23, delay=2, score=5
