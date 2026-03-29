@@ -301,7 +301,7 @@ drop[7] card=33 value=66211 (score=235 speed=58 deny=0 danger=0 safe=0 keep=0:no
 [drop] greedy fallback: top_k=7 chosen_index=5
 [drop-fallback-debug] seed=1772851294 game=47 round=2 turn=1 player=1 mode=G plan=P top_k=7 pool_count=7 pool={p0:orig=5 card=31 v=195807 take=31,29 keep=-320 safe=0 deny=33350 feed=0/8/0 | p1:orig=6 card=10 v=179235 take=10,11 keep=-60 safe=0 deny=33750 feed=0/3/0 | p2:orig=1 card=12 v=111274 take=12,15 keep=0 safe=0 deny=33750 feed=0/4/0 | p3:orig=3 card=26 v=78346 take=n/a keep=-60 safe=0 deny=0 feed=1/7/1 | p4:orig=0 card=24 v=72706 take=n/a keep=0 safe=0 deny=0 feed=1/7/1 | p5:orig=2 card=34 v=69864 take=n/a keep=-60 safe=0 deny=0 feed=1/9/1 | p6:orig=7 card=33 v=66211 take=n/a keep=0 safe=0 deny=0 feed=1/9/1} chosen_pool_idx=0 chosen_orig_idx=5 final_best_idx_pre_fb=5 final_best_idx_post_fb=5
 [phase2a] seed=1772851294 round=2 turn=1 plan=PRESS domain=LIGHT before=6 after=5 reason=hot
-[DROP-TOP2] best_idx=5 best_card=31 best_value=195807 second_idx=6 second_card=10 second_value=179235 gap=16572 best_take=31,29 best_feed=win=OFF opp7=dist4+/th0/c0 second_take=10,11 second_feed=win=OFF opp7=dist4+/th0/c0 final_pick=best why=phase2a aim=COMBO7(wid=Hanami-Sake)
+[DROP-TOP2] best_idx=5 best_card=31 best_value=195807 second_idx=6 second_card=10 second_value=179235 gap=16572 best_take=31,29 best_feed=win=OFF opp7=dist4+/th0/c0 second_take=10,11 second_feed=win=OFF opp7=dist4+/th0/c0 final_pick=best why=fallback aim=COMBO7(wid=Hanami-Sake)
 Priority-Speed:
 - Tan: reach=69, delay=6, score=1
 - Hanami-Sake: reach=53, delay=6, score=5
@@ -1579,7 +1579,7 @@ drop[5] card=17 value=49440 (score=91 speed=18 deny=0 danger=0 safe=0 keep=0:non
 [drop] greedy fallback: top_k=6 chosen_index=1
 [drop-fallback-debug] seed=1772851294 game=47 round=5 turn=3 player=1 mode=G plan=S top_k=6 pool_count=6 pool={p0:orig=1 card=38 v=80822 take=38,39 keep=0 safe=0 deny=0 feed=0/10/0 | p1:orig=4 card=42 v=71069 take=42,43 keep=-40 safe=0 deny=0 feed=0/11/0 | p2:orig=3 card=45 v=53920 take=45,44 keep=0 safe=0 deny=0 feed=0/12/0 | p3:orig=0 card=15 v=52913 take=n/a keep=-40 safe=0 deny=0 feed=1/4/1 | p4:orig=5 card=17 v=49440 take=n/a keep=0 safe=0 deny=0 feed=1/5/1 | p5:orig=2 card=23 v=35760 take=n/a keep=-40 safe=0 deny=0 feed=1/6/1} chosen_pool_idx=0 chosen_orig_idx=1 final_best_idx_pre_fb=1 final_best_idx_post_fb=1
 [phase2a] seed=1772851294 round=5 turn=3 plan=SURVIVE domain=LIGHT before=4 after=1 reason=combo7
-[DROP-TOP2] best_idx=1 best_card=38 best_value=80822 second_idx=4 second_card=42 second_value=71069 gap=9753 best_take=38,39 best_feed=win=OFF opp7=dist4+/th0/c0 second_take=42,43 second_feed=win=OFF opp7=dist4+/th0/c0 final_pick=best why=phase2a aim=COMBO7(wid=Ame-Shikou)
+[DROP-TOP2] best_idx=1 best_card=38 best_value=80822 second_idx=4 second_card=42 second_value=71069 gap=9753 best_take=38,39 best_feed=win=OFF opp7=dist4+/th0/c0 second_take=42,43 second_feed=win=OFF opp7=dist4+/th0/c0 final_pick=best why=fallback aim=COMBO7(wid=Ame-Shikou)
 Priority-Speed:
 - Tane: reach=44, delay=5, score=1
 - Sankou: reach=24, delay=4, score=5

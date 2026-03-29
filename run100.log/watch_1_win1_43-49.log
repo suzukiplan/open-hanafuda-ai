@@ -365,7 +365,7 @@ drop[2] card=13 value=549724 (score=500 speed=250 deny=-80 danger=-256 safe=0 ke
 [d1-override] skipped: preserve completion prev=0 new=2
 [sevenline] seed=1772851247 round=1 turn=6 plan=PRESS best_wid=12 delay=2 reach=7 margin=0 base=90000 mb=0 mult=69 bonus=62100 before=2 after=0
 [phase2a] seed=1772851247 round=1 turn=6 plan=PRESS domain=SAKE before=2 after=0 reason=7plus
-[DROP-TOP2] best_idx=0 best_card=3 best_value=181681 second_idx=2 second_card=13 second_value=549730 gap=-368049 best_take=3,0 best_feed=win=OFF opp7=dist4+/th55/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th55/c0 final_pick=best why=phase2a aim=IMMEDIATE(wid=Sankou)
+[DROP-TOP2] best_idx=0 best_card=3 best_value=181681 second_idx=2 second_card=13 second_value=549730 gap=-368049 best_take=3,0 best_feed=win=OFF opp7=dist4+/th55/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th55/c0 final_pick=best why=mc aim=IMMEDIATE(wid=Sankou)
 Priority-Speed:
 - Sankou: reach=100, delay=1, score=5
 - Kasu: reach=38, delay=3, score=1
@@ -2589,7 +2589,7 @@ drop[0] card=2 value=-433495 (score=130 speed=50 deny=-4039 danger=0 safe=0 keep
 drop[1] card=32 value=114320 (score=130 speed=50 deny=0 danger=0 safe=0 keep=-360:fatal combo=0 cap=1/1090/0 take=33 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=121500 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=0 k=0 imm=0 deny7=-15400 opp2ply=1/0)
 drop[2] card=42 value=-25753 (score=185 speed=61 deny=-173 danger=-344 safe=0 keep=-180:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=0 k=0 imm=0 deny7=-15400 opp2ply=1/0)
 [month-lock] month=9 own=3 known=3 hidden=1 hidden_card=35 reason=take_control
-drop[3] card=34 value=115268 (score=160 speed=53 deny=0 danger=0 safe=0 keep=-360:fatal combo=0 cap=1/1150/0 take=33 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=121500 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=0 k=0 imm=0 deny7=-15400 opp2ply=1/0)
+drop[3] card=34 value=116248 (score=160 speed=53 deny=0 danger=0 safe=0 keep=-360:fatal combo=0 cap=1/1640/0 take=33 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=121500 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=0 need=0 k=0 imm=0 deny7=-15400 opp2ply=1/0)
 [DROP-TOP2] best_idx=2 best_card=42 best_value=-25753 second_idx=-1 second_card=-1 second_value=0 gap=0 best_take=n/a best_feed=win=ON(wid=Tsukimi-Sake,base=5,x2=0) opp7=dist4+/th70/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th0/c0 final_pick=best why=comparator aim=NONE(wid=NONE)
 Priority-Speed:
 - Kasu: reach=100, delay=2, score=1

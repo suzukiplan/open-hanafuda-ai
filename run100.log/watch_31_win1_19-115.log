@@ -2144,7 +2144,7 @@ drop[5] card=31 value=-23791 (score=140 speed=35 deny=-3337 danger=0 safe=0 keep
 [drop-fallback-debug] seed=1772851277 game=30 round=7 turn=3 player=1 mode=G plan=P top_k=5 pool_count=5 pool={p0:orig=0 card=3 v=98088 take=3,0 keep=-180 safe=0 deny=0 feed=0/1/0 | p1:orig=4 card=20 v=87923 take=20,23 keep=-40 safe=0 deny=795 feed=0/6/0 | p2:orig=2 card=16 v=87363 take=16,19 keep=-40 safe=0 deny=795 feed=0/5/0 | p3:orig=3 card=37 v=85068 take=37,38 keep=-40 safe=0 deny=0 feed=0/10/0 | p4:orig=1 card=27 v=-20311 take=n/a keep=-180 safe=0 deny=-61980 feed=1/7/1} chosen_pool_idx=0 chosen_orig_idx=0 final_best_idx_pre_fb=0 final_best_idx_post_fb=0
 [sevenline] seed=1772851277 round=7 turn=3 plan=PRESS best_wid=2 delay=2 reach=4 margin=0 base=90000 mb=0 mult=69 bonus=62100 before=4 after=0
 [phase2a] seed=1772851277 round=7 turn=3 plan=PRESS domain=SAKE before=4 after=0 reason=7plus
-[DROP-TOP2] best_idx=0 best_card=3 best_value=98088 second_idx=4 second_card=20 second_value=87923 gap=10165 best_take=3,0 best_feed=win=OFF opp7=dist4+/th10/c0 second_take=20,23 second_feed=win=OFF opp7=dist4+/th0/c0 final_pick=best why=phase2a aim=SEVENLINE(wid=Ame-Shikou)
+[DROP-TOP2] best_idx=0 best_card=3 best_value=98088 second_idx=4 second_card=20 second_value=87923 gap=10165 best_take=3,0 best_feed=win=OFF opp7=dist4+/th10/c0 second_take=20,23 second_feed=win=OFF opp7=dist4+/th0/c0 final_pick=best why=fallback aim=SEVENLINE(wid=Ame-Shikou)
 Priority-Speed:
 - Tsukimi-Sake: reach=73, delay=4, score=5
 - Tane: reach=62, delay=4, score=1
@@ -2670,7 +2670,7 @@ drop[5] card=11 value=563126 (score=500 speed=250 deny=3756 danger=0 safe=0 keep
 [drop] greedy fallback skipped: preserve completion base_idx=5 fallback_idx=3
 [drop-fallback-debug] seed=1772851277 game=30 round=10 turn=3 player=1 mode=G plan=P top_k=6 pool_count=6 pool={p0:orig=5 card=11 v=563126 take=11,10 keep=-100 safe=0 deny=112680 feed=0/3/0 | p1:orig=3 card=46 v=590870 take=46,47 keep=-60 safe=0 deny=3810 feed=0/12/0 | p2:orig=1 card=13 v=550750 take=13,12 keep=-60 safe=0 deny=3810 feed=0/4/0 | p3:orig=4 card=40 v=542140 take=n/a keep=-60 safe=0 deny=0 feed=1/11/1 | p4:orig=0 card=18 v=540860 take=n/a keep=0 safe=0 deny=-1200 feed=1/5/1 | p5:orig=2 card=3 v=531600 take=n/a keep=-10600 safe=0 deny=0 feed=1/1/1} chosen_pool_idx=1 chosen_orig_idx=3 final_best_idx_pre_fb=5 final_best_idx_post_fb=5
 [phase2a] seed=1772851277 round=10 turn=3 plan=PRESS domain=SAKE before=3 after=5 reason=hot
-[DROP-TOP2] best_idx=5 best_card=11 best_value=563126 second_idx=3 second_card=46 second_value=590870 gap=-27744 best_take=11,10 best_feed=win=OFF opp7=dist4+/th0/c0 second_take=46,47 second_feed=win=OFF opp7=dist4+/th40/c0 final_pick=best why=phase2a aim=IMMEDIATE(wid=Hanami-Sake)
+[DROP-TOP2] best_idx=5 best_card=11 best_value=563126 second_idx=3 second_card=46 second_value=590870 gap=-27744 best_take=11,10 best_feed=win=OFF opp7=dist4+/th0/c0 second_take=46,47 second_feed=win=OFF opp7=dist4+/th40/c0 final_pick=best why=mc aim=IMMEDIATE(wid=Hanami-Sake)
 Priority-Speed:
 - Hanami-Sake: reach=100, delay=1, score=5
 - Sankou: reach=88, delay=3, score=5

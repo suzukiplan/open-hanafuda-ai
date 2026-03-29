@@ -1026,7 +1026,7 @@ drop[7] card=7 value=-55100 (score=190 speed=27 deny=0 danger=0 safe=0 keep=0:no
 [drop] greedy fallback: top_k=7 chosen_index=5
 [drop-fallback-debug] seed=1772851341 game=94 round=4 turn=1 player=1 mode=G plan=S top_k=7 pool_count=7 pool={p0:orig=5 card=47 v=115853 take=47,45 keep=-320 safe=0 deny=0 feed=0/12/0 | p1:orig=3 card=40 v=80251 take=40,43 keep=-60 safe=0 deny=0 feed=0/11/0 | p2:orig=0 card=32 v=57477 take=n/a keep=-60 safe=0 deny=0 feed=1/9/1 | p3:orig=6 card=44 v=14647 take=44,45 keep=-60 safe=0 deny=0 feed=0/12/0 | p4:orig=2 card=30 v=11450 take=n/a keep=0 safe=0 deny=0 feed=1/8/1 | p5:orig=4 card=10 v=6570 take=n/a keep=0 safe=0 deny=0 feed=1/3/1 | p6:orig=1 card=3 v=-5215 take=n/a keep=-9100 safe=0 deny=0 feed=1/1/1} chosen_pool_idx=0 chosen_orig_idx=5 final_best_idx_pre_fb=5 final_best_idx_post_fb=5
 [phase2a] seed=1772851341 round=4 turn=1 plan=SURVIVE domain=LIGHT before=3 after=5 reason=hot
-[DROP-TOP2] best_idx=5 best_card=47 best_value=115853 second_idx=3 second_card=40 second_value=80251 gap=35602 best_take=47,45 best_feed=win=OFF opp7=dist4+/th0/c0 second_take=40,43 second_feed=win=OFF opp7=dist4+/th0/c0 final_pick=best why=phase2a aim=MONTHLOCK(wid=NONE)
+[DROP-TOP2] best_idx=5 best_card=47 best_value=115853 second_idx=3 second_card=40 second_value=80251 gap=35602 best_take=47,45 best_feed=win=OFF opp7=dist4+/th0/c0 second_take=40,43 second_feed=win=OFF opp7=dist4+/th0/c0 final_pick=best why=fallback aim=MONTHLOCK(wid=NONE)
 Priority-Speed:
 - Kasu: reach=63, delay=6, score=1
 - Sankou: reach=44, delay=5, score=5
@@ -1263,7 +1263,7 @@ drop[3] card=44 value=2554 (score=32 speed=10 deny=0 danger=0 safe=0 keep=-60:ca
 [drop] greedy fallback: top_k=4 chosen_index=1
 [drop-fallback-debug] seed=1772851341 game=94 round=4 turn=5 player=1 mode=G plan=P top_k=4 pool_count=4 pool={p0:orig=1 card=30 v=103654 take=30,29 keep=-400 safe=0 deny=0 feed=0/8/0 | p1:orig=2 card=40 v=2554 take=n/a keep=-60 safe=0 deny=0 feed=1/11/1 | p2:orig=3 card=44 v=2554 take=n/a keep=-60 safe=0 deny=0 feed=1/12/1 | p3:orig=0 card=3 v=-291683 take=n/a keep=-6460 safe=0 deny=-201837 feed=1/1/1} chosen_pool_idx=0 chosen_orig_idx=1 final_best_idx_pre_fb=3 final_best_idx_post_fb=1
 [env-mc] seed=1772851341 round=4 turn=5 player=1 mode=GREEDY best=2 second=3 Ebest=17 Esecond=28 before_gap=0 after_gap=-1
-[DROP-TOP2] best_idx=3 best_card=44 best_value=2555 second_idx=2 second_card=40 second_value=2554 gap=1 best_take=n/a best_feed=win=OFF opp7=dist4+/th35/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th35/c0 final_pick=override why=phase2a aim=NONE(wid=NONE)
+[DROP-TOP2] best_idx=3 best_card=44 best_value=2555 second_idx=2 second_card=40 second_value=2554 gap=1 best_take=n/a best_feed=win=OFF opp7=dist4+/th35/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th35/c0 final_pick=override why=fallback aim=NONE(wid=NONE)
 Priority-Speed:
 - Kasu: reach=55, delay=4, score=1
 - Tane: reach=45, delay=3, score=1
@@ -2117,7 +2117,7 @@ drop[5] card=31 value=149140 (score=500 speed=250 deny=-150 danger=-210 safe=0 k
 drop[6] card=46 value=122018 (score=500 speed=166 deny=0 danger=0 safe=0 keep=-60:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=72930[Tsukimi-Sake+Aotan reach=70 delay=5 sum=10] end=-640 need=0 k=80 imm=0 deny7=0 opp2ply=0/0)
 [drop] greedy fallback: top_k=7 chosen_index=5
 [drop-fallback-debug] seed=1772851341 game=94 round=11 turn=2 player=1 mode=G plan=S top_k=7 pool_count=7 pool={p0:orig=5 card=31 v=149140 take=31,29 keep=-400 safe=0 deny=-3900 feed=0/8/0 | p1:orig=0 card=12 v=122018 take=n/a keep=-60 safe=0 deny=0 feed=1/4/1 | p2:orig=6 card=46 v=122018 take=n/a keep=-60 safe=0 deny=0 feed=1/12/1 | p3:orig=2 card=14 v=120890 take=n/a keep=-40 safe=0 deny=-1040 feed=1/4/1 | p4:orig=3 card=37 v=70248 take=37,38 keep=-60 safe=0 deny=0 feed=0/10/0 | p5:orig=1 card=28 v=37096 take=28,29 keep=-60 safe=0 deny=0 feed=0/8/0 | p6:orig=4 card=35 v=19230 take=35,32 keep=-400 safe=0 deny=0 feed=0/9/0} chosen_pool_idx=0 chosen_orig_idx=5 final_best_idx_pre_fb=0 final_best_idx_post_fb=5
-[DROP-TOP2] best_idx=0 best_card=12 best_value=122052 second_idx=6 second_card=46 second_value=122052 gap=0 best_take=n/a best_feed=win=OFF opp7=dist4+/th25/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th25/c0 final_pick=override why=phase2a aim=NONE(wid=NONE)
+[DROP-TOP2] best_idx=0 best_card=12 best_value=122052 second_idx=6 second_card=46 second_value=122052 gap=0 best_take=n/a best_feed=win=OFF opp7=dist4+/th25/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th25/c0 final_pick=override why=fallback aim=NONE(wid=NONE)
 Priority-Speed:
 - Tsukimi-Sake: reach=100, delay=2, score=5
 - Kasu: reach=84, delay=6, score=1

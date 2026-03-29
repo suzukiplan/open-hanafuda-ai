@@ -3545,7 +3545,7 @@ drop[2] card=42 value=-5182 (score=210 speed=70 deny=-89 danger=-260 safe=0 keep
 drop[3] card=11 value=31063 (score=210 speed=70 deny=-21 danger=-339 safe=0 keep=-400:fatal combo=0 cap=1/1020/0 take=8 koikoi_win=0 atk7=0 emg1=0 hot=18000 block5=0 overpay=0 delay5=0 monthlock=1500 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-640 need=0 k=80 imm=0 deny7=-15400 opp2ply=1/0)
 [drop] greedy fallback: top_k=4 chosen_index=3
 [drop-fallback-debug] seed=1772851296 game=49 round=11 turn=5 player=1 mode=G plan=S top_k=4 pool_count=4 pool={p0:orig=3 card=11 v=31063 take=11,8 keep=-400 safe=0 deny=-1428 feed=0/3/0 | p1:orig=1 card=10 v=735 take=10,8 keep=0 safe=0 deny=1292 feed=0/3/0 | p2:orig=2 card=42 v=-5182 take=n/a keep=-120 safe=0 deny=-6052 feed=1/11/1 | p3:orig=0 card=39 v=-5382 take=n/a keep=-320 safe=0 deny=-6052 feed=1/10/1} chosen_pool_idx=0 chosen_orig_idx=3 final_best_idx_pre_fb=1 final_best_idx_post_fb=3
-[DROP-TOP2] best_idx=1 best_card=10 best_value=735 second_idx=2 second_card=42 second_value=-5182 gap=5917 best_take=10,8 best_feed=win=ON(wid=Tsukimi-Sake,base=5,x2=0) opp7=dist4+/th70/c0 second_take=n/a second_feed=win=ON(wid=Tsukimi-Sake,base=5,x2=0) opp7=dist4+/th70/c0 final_pick=override why=phase2a aim=NONE(wid=NONE)
+[DROP-TOP2] best_idx=1 best_card=10 best_value=735 second_idx=2 second_card=42 second_value=-5182 gap=5917 best_take=10,8 best_feed=win=ON(wid=Tsukimi-Sake,base=5,x2=0) opp7=dist4+/th70/c0 second_take=n/a second_feed=win=ON(wid=Tsukimi-Sake,base=5,x2=0) opp7=dist4+/th70/c0 final_pick=override why=fallback aim=NONE(wid=NONE)
 Priority-Speed:
 - Sankou: reach=35, delay=2, score=5
 - Tane: reach=30, delay=4, score=1

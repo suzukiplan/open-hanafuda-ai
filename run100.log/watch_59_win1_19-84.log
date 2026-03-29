@@ -2491,7 +2491,7 @@ drop[2] card=22 value=-65357 (score=147 speed=36 deny=-8161 danger=-224 safe=0 k
 drop[3] card=28 value=131750 (score=112 speed=37 deny=0 danger=0 safe=0 keep=-40:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=124200 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[Sankou+Tane+Kasu reach=22 delay=3 sum=7] end=0 need=0 k=0 imm=0 deny7=0 opp2ply=0/0)
 [drop] greedy fallback: top_k=4 chosen_index=1
 [drop-fallback-debug] seed=1772851305 game=58 round=7 turn=5 player=1 mode=G plan=P top_k=4 pool_count=4 pool={p0:orig=1 card=47 v=139224 take=47,44 keep=-400 safe=0 deny=0 feed=0/12/0 | p1:orig=0 card=29 v=131750 take=n/a keep=-40 safe=0 deny=0 feed=1/8/1 | p2:orig=3 card=28 v=131750 take=n/a keep=-40 safe=0 deny=0 feed=1/8/1 | p3:orig=2 card=22 v=-65357 take=n/a keep=0 safe=0 deny=-122415 feed=1/6/1} chosen_pool_idx=0 chosen_orig_idx=1 final_best_idx_pre_fb=0 final_best_idx_post_fb=1
-[DROP-TOP2] best_idx=0 best_card=29 best_value=131750 second_idx=3 second_card=28 second_value=131750 gap=0 best_take=n/a best_feed=win=OFF opp7=dist4+/th40/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th40/c0 final_pick=override why=phase2a aim=NONE(wid=NONE)
+[DROP-TOP2] best_idx=0 best_card=29 best_value=131750 second_idx=3 second_card=28 second_value=131750 gap=0 best_take=n/a best_feed=win=OFF opp7=dist4+/th40/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th40/c0 final_pick=override why=fallback aim=NONE(wid=NONE)
 Priority-Speed:
 - Sankou: reach=25, delay=2, score=5
 - Ame-Shikou: reach=25, delay=2, score=7
@@ -2621,7 +2621,7 @@ drop[7] card=8 value=2365 (score=45 speed=5 deny=0 danger=0 safe=0 keep=-60:caut
 [drop] greedy fallback: top_k=7 chosen_index=4
 [drop-fallback-debug] seed=1772851305 game=58 round=8 turn=1 player=1 mode=G plan=S top_k=7 pool_count=7 pool={p0:orig=4 card=47 v=32605 take=47,44 keep=-180 safe=0 deny=0 feed=0/12/0 | p1:orig=3 card=18 v=16945 take=18,19 keep=-40 safe=0 deny=0 feed=0/5/0 | p2:orig=5 card=17 v=15045 take=17,19 keep=-60 safe=0 deny=0 feed=0/5/0 | p3:orig=6 card=2 v=9385 take=2,0 keep=-40 safe=0 deny=0 feed=0/1/0 | p4:orig=0 card=41 v=5985 take=n/a keep=-40 safe=0 deny=0 feed=1/11/1 | p5:orig=2 card=40 v=5965 take=n/a keep=-60 safe=0 deny=0 feed=1/11/1 | p6:orig=7 card=8 v=2365 take=n/a keep=-60 safe=0 deny=0 feed=1/3/1} chosen_pool_idx=0 chosen_orig_idx=4 final_best_idx_pre_fb=4 final_best_idx_post_fb=4
 [phase2a] seed=1772851305 round=8 turn=1 plan=SURVIVE domain=LIGHT before=3 after=4 reason=hot
-[DROP-TOP2] best_idx=4 best_card=47 best_value=32605 second_idx=3 second_card=18 second_value=16945 gap=15660 best_take=47,44 best_feed=win=OFF opp7=dist4+/th25/c0 second_take=18,19 second_feed=win=OFF opp7=dist4+/th25/c0 final_pick=best why=phase2a aim=NONE(wid=NONE)
+[DROP-TOP2] best_idx=4 best_card=47 best_value=32605 second_idx=3 second_card=18 second_value=16945 gap=15660 best_take=47,44 best_feed=win=OFF opp7=dist4+/th25/c0 second_take=18,19 second_feed=win=OFF opp7=dist4+/th25/c0 final_pick=best why=fallback aim=NONE(wid=NONE)
 Priority-Speed:
 - Kasu: reach=53, delay=7, score=1
 - Tan: reach=31, delay=7, score=1
@@ -3337,7 +3337,7 @@ Think End
 [P1] floor take: n/a (Env: P1=404, CPU=608)
 [AFTER-OPP] seed=1772851305 side=CPU round=10/12 turn=2 after_opp_action=none(base=0,x2=0,wid=NONE) after_opp_base_delta=+0
 Thinking...
-drop[0] card=6 value=209060 (score=500 speed=250 deny=0 danger=0 safe=0 keep=-60:caution combo=0 cap=1/580/0 take=7 koikoi_win=0 atk7=24150 emg1=0 hot=13440 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=121680[Sankou+Akatan reach=75 delay=4 sum=10] end=-320 need=0 k=40 imm=0 deny7=0 opp2ply=0/0)
+drop[0] card=6 value=211196 (score=500 speed=250 deny=0 danger=0 safe=0 keep=-60:caution combo=0 cap=1/1114/0 take=7 koikoi_win=0 atk7=24150 emg1=0 hot=13440 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=121680[Sankou+Akatan reach=75 delay=4 sum=10] end=-320 need=0 k=40 imm=0 deny7=0 opp2ply=0/0)
 drop[1] card=14 value=194740 (score=500 speed=250 deny=0 danger=0 safe=0 keep=-60:caution combo=0 cap=1/360/0 take=13 koikoi_win=0 atk7=24150 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=121680[Sankou+Akatan reach=75 delay=4 sum=10] end=-320 need=0 k=40 imm=0 deny7=0 opp2ply=0/0)
 drop[2] card=17 value=215560 (score=500 speed=250 deny=0 danger=0 safe=0 keep=-60:caution combo=0 cap=1/300/0 take=16 koikoi_win=0 atk7=24150 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=142740[Sankou+Akatan reach=75 delay=3 sum=10] end=-320 need=0 k=40 imm=0 deny7=0 opp2ply=0/0)
 drop[3] card=37 value=212752 (score=500 speed=250 deny=0 danger=0 safe=0 keep=-60:caution combo=0 cap=1/300/0 take=36 koikoi_win=0 atk7=24150 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=139932[Sankou+Akatan reach=73 delay=3 sum=10] end=-320 need=0 k=40 imm=0 deny7=0 opp2ply=0/0)
@@ -3345,7 +3345,7 @@ drop[3] card=37 value=212752 (score=500 speed=250 deny=0 danger=0 safe=0 keep=-6
 drop[4] card=11 value=253852 (score=80 speed=16 deny=0 danger=-129 safe=0 keep=-100:caution combo=100000 cap=1/9540/0 take=9 koikoi_win=0 atk7=24150 emg1=0 hot=13800 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=57283[Ame-Shikou+Akatan reach=11 delay=4 sum=12] end=2880 need=0 k=40 imm=5 deny7=0 opp2ply=0/0)
 drop[5] card=45 value=207952 (score=500 speed=250 deny=0 danger=0 safe=0 keep=-60:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=24150 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=139932[Sankou+Akatan reach=73 delay=3 sum=10] end=-320 need=0 k=40 imm=0 deny7=0 opp2ply=0/0)
 [drop] greedy fallback: top_k=6 chosen_index=4
-[drop-fallback-debug] seed=1772851305 game=58 round=10 turn=3 player=1 mode=G plan=S top_k=6 pool_count=6 pool={p0:orig=4 card=11 v=253852 take=11,9 keep=-100 safe=0 deny=0 feed=0/3/0 | p1:orig=2 card=17 v=215560 take=17,16 keep=-60 safe=0 deny=0 feed=0/5/0 | p2:orig=3 card=37 v=212752 take=37,36 keep=-60 safe=0 deny=0 feed=0/10/0 | p3:orig=0 card=6 v=209060 take=6,7 keep=-60 safe=0 deny=0 feed=0/2/0 | p4:orig=5 card=45 v=207952 take=n/a keep=-60 safe=0 deny=0 feed=1/12/1 | p5:orig=1 card=14 v=194740 take=14,13 keep=-60 safe=0 deny=0 feed=0/4/0} chosen_pool_idx=0 chosen_orig_idx=4 final_best_idx_pre_fb=4 final_best_idx_post_fb=4
+[drop-fallback-debug] seed=1772851305 game=58 round=10 turn=3 player=1 mode=G plan=S top_k=6 pool_count=6 pool={p0:orig=4 card=11 v=253852 take=11,9 keep=-100 safe=0 deny=0 feed=0/3/0 | p1:orig=2 card=17 v=215560 take=17,16 keep=-60 safe=0 deny=0 feed=0/5/0 | p2:orig=3 card=37 v=212752 take=37,36 keep=-60 safe=0 deny=0 feed=0/10/0 | p3:orig=0 card=6 v=211196 take=6,7 keep=-60 safe=0 deny=0 feed=0/2/0 | p4:orig=5 card=45 v=207952 take=n/a keep=-60 safe=0 deny=0 feed=1/12/1 | p5:orig=1 card=14 v=194740 take=14,13 keep=-60 safe=0 deny=0 feed=0/4/0} chosen_pool_idx=0 chosen_orig_idx=4 final_best_idx_pre_fb=4 final_best_idx_post_fb=4
 [DROP-TOP2] best_idx=4 best_card=11 best_value=253852 second_idx=2 second_card=17 second_value=215560 gap=38292 best_take=11,9 best_feed=win=OFF opp7=dist4+/th0/c0 second_take=17,16 second_feed=win=OFF opp7=dist4+/th0/c0 final_pick=best why=fallback aim=IMMEDIATE(wid=Sankou)
 Priority-Speed:
 - Sankou: reach=100, delay=1, score=5
@@ -3565,7 +3565,6 @@ Think End
 Thinking...
 drop[0] card=6 value=96907 (score=100 speed=50 deny=-302 danger=-125 safe=0 keep=-60:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=110432[Kasu+Tan reach=74 delay=0 sum=2] end=-320 need=0 k=40 imm=0 deny7=0 opp2ply=0/0)
 drop[1] card=45 value=9753 (score=23 speed=11 deny=4 danger=-151 safe=0 keep=-60:caution combo=0 cap=1/365/0 take=46 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=4800 need=0 k=40 imm=1 deny7=0 opp2ply=0/0)
-[phase2a] seed=1772851305 round=10 turn=7 plan=SURVIVE domain=LIGHT before=0 after=1 reason=none
 [DROP-TOP2] best_idx=0 best_card=6 best_value=96907 second_idx=1 second_card=45 second_value=9753 gap=87154 best_take=n/a best_feed=win=OFF opp7=dist4+/th55/c0 second_take=45,46 second_feed=win=OFF opp7=dist4+/th55/c0 final_pick=second why=comparator aim=IMMEDIATE(wid=Sankou)
 Priority-Speed:
 - Kasu: reach=100, delay=1, score=1

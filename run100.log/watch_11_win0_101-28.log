@@ -586,7 +586,7 @@ drop[3] card=38 value=100827 (score=250 speed=83 deny=53 danger=0 safe=0 keep=-4
 drop[4] card=44 value=145046 (score=250 speed=83 deny=0 danger=0 safe=0 keep=-40:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=24150 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=102960[Sankou+Hanami-Sake reach=35 delay=2 sum=10] end=0 need=0 k=0 imm=0 deny7=0 opp2ply=0/0)
 [drop] greedy fallback: top_k=5 chosen_index=2
 [drop-fallback-debug] seed=1772851257 game=10 round=2 turn=4 player=1 mode=G plan=S top_k=5 pool_count=5 pool={p0:orig=2 card=3 v=191501 take=3,1 keep=-400 safe=0 deny=-280 feed=0/1/0 | p1:orig=1 card=17 v=145346 take=n/a keep=-40 safe=0 deny=0 feed=1/5/1 | p2:orig=4 card=44 v=145046 take=n/a keep=-40 safe=0 deny=0 feed=1/12/1 | p3:orig=3 card=38 v=100827 take=38,39 keep=-40 safe=0 deny=371 feed=0/10/0 | p4:orig=0 card=27 v=89715 take=n/a keep=0 safe=0 deny=-31409 feed=1/7/1} chosen_pool_idx=0 chosen_orig_idx=2 final_best_idx_pre_fb=1 final_best_idx_post_fb=2
-[DROP-TOP2] best_idx=1 best_card=17 best_value=145352 second_idx=4 second_card=44 second_value=145052 gap=300 best_take=n/a best_feed=win=OFF opp7=dist4+/th25/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th25/c0 final_pick=override why=phase2a aim=NONE(wid=NONE)
+[DROP-TOP2] best_idx=1 best_card=17 best_value=145352 second_idx=4 second_card=44 second_value=145052 gap=300 best_take=n/a best_feed=win=OFF opp7=dist4+/th25/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th25/c0 final_pick=override why=fallback aim=NONE(wid=NONE)
 Priority-Speed:
 - Sankou: reach=43, delay=2, score=5
 - Kasu: reach=43, delay=4, score=1

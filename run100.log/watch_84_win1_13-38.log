@@ -2826,7 +2826,7 @@ drop[0] card=23 value=16556 (score=42 speed=21 deny=218 danger=0 safe=0 keep=-60
 drop[1] card=6 value=14328 (score=42 speed=21 deny=138 danger=-228 safe=0 keep=-400:fatal combo=0 cap=1/700/0 take=7 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-320 need=0 k=40 imm=0 deny7=0 opp2ply=0/0)
 [drop] greedy fallback: top_k=2 chosen_index=1
 [drop-fallback-debug] seed=1772851330 game=83 round=10 turn=7 player=1 mode=B plan=S top_k=2 pool_count=2 pool={p0:orig=0 card=23 v=16556 take=23,21 keep=-60 safe=0 deny=11554 feed=0/6/0 | p1:orig=1 card=6 v=14328 take=6,7 keep=-400 safe=0 deny=7314 feed=0/2/0} chosen_pool_idx=1 chosen_orig_idx=1 final_best_idx_pre_fb=0 final_best_idx_post_fb=1
-[DROP-TOP2] best_idx=0 best_card=23 best_value=16556 second_idx=-1 second_card=-1 second_value=0 gap=0 best_take=23,21 best_feed=win=OFF opp7=dist4+/th55/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th0/c0 final_pick=override why=phase2a aim=NONE(wid=NONE)
+[DROP-TOP2] best_idx=0 best_card=23 best_value=16556 second_idx=-1 second_card=-1 second_value=0 gap=0 best_take=23,21 best_feed=win=OFF opp7=dist4+/th55/c0 second_take=n/a second_feed=win=OFF opp7=dist4+/th0/c0 final_pick=override why=fallback aim=NONE(wid=NONE)
 Priority-Speed:
 - Tane: reach=77, delay=2, score=1
 - Tan: reach=31, delay=2, score=1

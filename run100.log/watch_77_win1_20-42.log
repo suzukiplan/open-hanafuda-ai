@@ -3784,11 +3784,11 @@ Thinking...
 drop[0] card=3 value=-15594 (score=37 speed=6 deny=-150 danger=-210 safe=0 keep=-120:caution combo=0 cap=1/240/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-800 need=0 k=100 imm=0 deny7=0 opp2ply=0/0)
 drop[1] card=37 value=462 (score=35 speed=7 deny=0 danger=0 safe=0 keep=-40:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-800 need=0 k=100 imm=0 deny7=0 opp2ply=0/0)
 drop[2] card=1 value=2810 (score=41 speed=5 deny=0 danger=0 safe=0 keep=-40:caution combo=0 cap=1/300/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-800 need=0 k=100 imm=0 deny7=0 opp2ply=0/0)
-drop[3] card=2 value=5922 (score=37 speed=7 deny=0 danger=0 safe=0 keep=-40:caution combo=0 cap=1/360/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-800 need=0 k=100 imm=0 deny7=0 opp2ply=0/0)
+drop[3] card=2 value=6830 (score=37 speed=7 deny=0 danger=0 safe=0 keep=-40:caution combo=0 cap=1/814/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-800 need=0 k=100 imm=0 deny7=0 opp2ply=0/0)
 drop[4] card=20 value=3262 (score=37 speed=7 deny=0 danger=0 safe=0 keep=-40:caution combo=0 cap=1/480/0 take=22 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-800 need=0 k=100 imm=0 deny7=0 opp2ply=0/0)
 drop[5] card=43 value=-422456 (score=35 speed=7 deny=-3472 danger=-98 safe=0 keep=-120:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-800 need=0 k=100 imm=0 deny7=0 opp2ply=0/0)
 drop[6] card=46 value=1206 (score=55 speed=11 deny=0 danger=0 safe=0 keep=-40:caution combo=0 cap=0/0/0 take=0 koikoi_win=0 atk7=0 emg1=0 hot=0 block5=0 overpay=0 delay5=0 monthlock=0 deadmonth=0 combo7=0[- reach=0 delay=99 sum=0] end=-800 need=0 k=100 imm=0 deny7=0 opp2ply=0/0)
-[DROP-TOP2] best_idx=3 best_card=2 best_value=5922 second_idx=4 second_card=20 second_value=3262 gap=2660 best_take=2,0 best_feed=win=OFF opp7=dist4+/th25/c0 second_take=20,22 second_feed=win=OFF opp7=dist4+/th25/c0 final_pick=best why=comparator aim=NONE(wid=NONE)
+[DROP-TOP2] best_idx=3 best_card=2 best_value=6830 second_idx=4 second_card=20 second_value=3262 gap=3568 best_take=2,0 best_feed=win=OFF opp7=dist4+/th25/c0 second_take=20,22 second_feed=win=OFF opp7=dist4+/th25/c0 final_pick=best why=comparator aim=NONE(wid=NONE)
 Priority-Speed:
 - Tan: reach=47, delay=5, score=1
 - Kasu: reach=31, delay=6, score=1
@@ -3824,7 +3824,7 @@ Env:
 - cat_sum: CAT1=0 CAT2=100 CAT3=-210 CAT4=350 CAT5=50 CAT6=50 CAT7=0 CAT11=0 CAT12=0 NA=0
 - cat_top: CAT4=350 CAT3=-210 CAT2=100 CAT5=50 CAT6=50
 Think End
-[CPU] think drop: 2 seed=1772851323 round=12/12 turn=2 dealer=P1 is_parent=0 left_rounds=1 left_hand=7 score_total_p1=14 score_total_cpu=42 round_score_p1=0 round_score_cpu=0 koikoi_p1=0 koikoi_cpu=0 opponent_win_x2=0 match_diff=28 needed=0 k_end=100 imm=0/0 clinch=-800/-800 <M pre_best=3/5922 pre_2nd=4/3262 gap=2660 opp:0/0/0/25 imm:0/NONE final=3/5922 by=HARD best_take=2,0 best_feed=0/1/0 second_take=20,22 second_feed=0/6/0> (Env: P1=1072, CPU=328)
+[CPU] think drop: 2 seed=1772851323 round=12/12 turn=2 dealer=P1 is_parent=0 left_rounds=1 left_hand=7 score_total_p1=14 score_total_cpu=42 round_score_p1=0 round_score_cpu=0 koikoi_p1=0 koikoi_cpu=0 opponent_win_x2=0 match_diff=28 needed=0 k_end=100 imm=0/0 clinch=-800/-800 <M pre_best=3/6830 pre_2nd=4/3262 gap=3568 opp:0/0/0/25 imm:0/NONE final=3/6830 by=HARD best_take=2,0 best_feed=0/1/0 second_take=20,22 second_feed=0/6/0> (Env: P1=1072, CPU=328)
 [CPU] drop take: 2,0 (Env: P1=1056, CPU=482)
 [CPU] floor open: 10 (Env: P1=1056, CPU=482)
 [CPU] floor take: n/a (Env: P1=1058, CPU=532)

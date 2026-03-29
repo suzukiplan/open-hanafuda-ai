@@ -2561,7 +2561,7 @@ drop[4] card=9 value=501208 (score=700 speed=350 deny=0 danger=0 safe=0 keep=0:n
 [drop-fallback-debug] seed=1772851291 game=44 round=9 turn=4 player=1 mode=G plan=P top_k=5 pool_count=5 pool={p0:orig=1 card=47 v=291964 take=47,44 keep=-100 safe=0 deny=0 feed=0/12/0 | p1:orig=0 card=27 v=503492 take=27,25 keep=-180 safe=0 deny=-2000 feed=0/7/0 | p2:orig=3 card=18 v=501208 take=n/a keep=0 safe=0 deny=0 feed=1/5/1 | p3:orig=4 card=9 v=501208 take=n/a keep=0 safe=0 deny=0 feed=1/3/1 | p4:orig=2 card=30 v=498772 take=n/a keep=-180 safe=0 deny=-2000 feed=1/8/1} chosen_pool_idx=1 chosen_orig_idx=0 final_best_idx_pre_fb=1 final_best_idx_post_fb=1
 [sevenline] seed=1772851291 round=9 turn=4 plan=PRESS best_wid=0 delay=1 reach=5 margin=3 base=140000 mb=24000 mult=69 bonus=113160 before=0 after=1
 [phase2a] seed=1772851291 round=9 turn=4 plan=PRESS domain=LIGHT before=0 after=1 reason=7plus
-[DROP-TOP2] best_idx=1 best_card=47 best_value=291957 second_idx=0 second_card=27 second_value=503485 gap=-211528 best_take=47,44 best_feed=win=OFF opp7=dist4+/th55/c0 second_take=27,25 second_feed=win=OFF opp7=dist4+/th55/c0 final_pick=best why=phase2a aim=IMMEDIATE(wid=Ame-Shikou)
+[DROP-TOP2] best_idx=1 best_card=47 best_value=291957 second_idx=0 second_card=27 second_value=503485 gap=-211528 best_take=47,44 best_feed=win=OFF opp7=dist4+/th55/c0 second_take=27,25 second_feed=win=OFF opp7=dist4+/th55/c0 final_pick=best why=mc aim=IMMEDIATE(wid=Ame-Shikou)
 Priority-Speed:
 - Sankou: reach=100, delay=1, score=5
 - Ame-Shikou: reach=100, delay=1, score=7

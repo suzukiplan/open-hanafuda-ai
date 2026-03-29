@@ -3551,7 +3551,7 @@ drop[3] card=1 value=218904 (score=500 speed=250 deny=-80 danger=-256 safe=0 kee
 [drop] greedy fallback skipped: preserve completion base_idx=0 fallback_idx=2
 [drop-fallback-debug] seed=1772851289 game=42 round=10 turn=5 player=1 mode=G plan=P top_k=4 pool_count=4 pool={p0:orig=0 card=11 v=167438 take=11,9 keep=-100 safe=0 deny=0 feed=0/3/0 | p1:orig=2 card=18 v=268280 take=18,16 keep=-40 safe=0 deny=0 feed=0/5/0 | p2:orig=1 card=4 v=218904 take=n/a keep=0 safe=0 deny=-2000 feed=1/2/1 | p3:orig=3 card=1 v=218904 take=n/a keep=0 safe=0 deny=-2000 feed=1/1/1} chosen_pool_idx=1 chosen_orig_idx=2 final_best_idx_pre_fb=0 final_best_idx_post_fb=0
 [phase2a] seed=1772851289 round=10 turn=5 plan=PRESS domain=LIGHT before=2 after=0 reason=combo7
-[DROP-TOP2] best_idx=0 best_card=11 best_value=167446 second_idx=2 second_card=18 second_value=268286 gap=-100840 best_take=11,9 best_feed=win=OFF opp7=dist4+/th55/c0 second_take=18,16 second_feed=win=OFF opp7=dist4+/th55/c0 final_pick=best why=phase2a aim=IMMEDIATE(wid=Sankou)
+[DROP-TOP2] best_idx=0 best_card=11 best_value=167446 second_idx=2 second_card=18 second_value=268286 gap=-100840 best_take=11,9 best_feed=win=OFF opp7=dist4+/th55/c0 second_take=18,16 second_feed=win=OFF opp7=dist4+/th55/c0 final_pick=best why=mc aim=IMMEDIATE(wid=Sankou)
 Priority-Speed:
 - Sankou: reach=100, delay=1, score=5
 - Tan: reach=35, delay=3, score=1

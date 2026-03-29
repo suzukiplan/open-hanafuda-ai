@@ -1050,6 +1050,62 @@ static int should_preserve_sake_cup_in_greedy_fallback(const StrategyData* befor
     return (self_live || opp_live) ? ON : OFF;
 }
 
+static int should_keep_top_value_over_tan_domain_material_fallback(
+    int player, const StrategyData* before, const DropCandidateScore* top, const DropCandidateScore* chosen, int top_value, int chosen_value)
+{
+    int target_wid;
+    int material_card_no = -1;
+    Card* material;
+
+    if (player < 0 || player > 1 || !before || !top || !chosen) {
+        return OFF;
+    }
+    if (before->plan != AI_PLAN_SURVIVE || before->left_own < 6) {
+        return OFF;
+    }
+    if (before->domain == AI_ENV_DOMAIN_AKATAN) {
+        target_wid = WID_AKATAN;
+    } else if (before->domain == AI_ENV_DOMAIN_AOTAN) {
+        target_wid = WID_AOTAN;
+    } else {
+        return OFF;
+    }
+    if (chosen->taken_card_no < 0 || top->taken_card_no >= 0) {
+        return OFF;
+    }
+    if (chosen->immediate_gain > 0 || chosen->completion_base > 0 || chosen->aim_wid >= 0) {
+        return OFF;
+    }
+    if (top->combo7_bonus <= chosen->combo7_bonus) {
+        return OFF;
+    }
+    if (top->part_keep - chosen->part_keep < 200) {
+        return OFF;
+    }
+    if (top_value - chosen_value < 3000) {
+        return OFF;
+    }
+
+    if (g.cards[chosen->card_no].type == CARD_TYPE_TAN && ai_is_card_critical_for_wid(chosen->card_no, target_wid)) {
+        material_card_no = chosen->card_no;
+    } else if (chosen->taken_card_no >= 0 && g.cards[chosen->taken_card_no].type == CARD_TYPE_TAN &&
+               ai_is_card_critical_for_wid(chosen->taken_card_no, target_wid)) {
+        material_card_no = chosen->taken_card_no;
+    }
+    if (material_card_no < 0) {
+        return OFF;
+    }
+    material = &g.cards[material_card_no];
+    if (material->type != CARD_TYPE_TAN) {
+        return OFF;
+    }
+    if (ai_would_complete_wid_by_taking_card(player, target_wid, chosen->card_no) ||
+        (chosen->taken_card_no >= 0 && ai_would_complete_wid_by_taking_card(player, target_wid, chosen->taken_card_no))) {
+        return OFF;
+    }
+    return ON;
+}
+
 static int calc_fallback_take_priority(const DropCandidateScore* candidate)
 {
     Card* taken;
@@ -1190,6 +1246,10 @@ static int choose_greedy_drop_candidate_from_pool(
     if (greedy_best_pool_idx >= 0 && top_value_pool_idx >= 0) {
         int chosen_value = drop_candidate_value(&pool[greedy_best_pool_idx], value_mode);
         if (top_value - chosen_value > GREEDY_FALLBACK_MAX_VALUE_GAP) {
+            greedy_best_pool_idx = top_value_pool_idx;
+        } else if (before && greedy_best_pool_idx != top_value_pool_idx &&
+                   should_keep_top_value_over_tan_domain_material_fallback(
+                       player, before, &pool[top_value_pool_idx], &pool[greedy_best_pool_idx], top_value, chosen_value)) {
             greedy_best_pool_idx = top_value_pool_idx;
         } else if (before && greedy_best_pool_idx != top_value_pool_idx && pool[greedy_best_pool_idx].taken_card_no < 0 &&
                    pool[top_value_pool_idx].taken_card_no < 0 && top_value - chosen_value <= 1000 &&
@@ -1342,17 +1402,17 @@ static const char* trace_reason_short(const DropTraceDecision* decision)
     if (!decision || !decision->reason_code || !decision->reason_code[0] || trace_str_eq(decision->reason_code, "BASE_COMPARATOR")) {
         return "comparator";
     }
-    if (decision->d1_changed) {
-        return "sevenline";
-    }
-    if (decision->phase2a_changed) {
-        return "phase2a";
-    }
     if (trace_str_eq(decision->reason_code, "GREEDY_FALLBACK")) {
         return "fallback";
     }
     if (trace_str_eq(decision->reason_code, "ACTION_MC_COMPARE") || trace_str_eq(decision->reason_code, "ENV_MC_COMPARE")) {
         return "mc";
+    }
+    if (decision->d1_changed) {
+        return "sevenline";
+    }
+    if (decision->phase2a_changed) {
+        return "phase2a";
     }
     return "override";
 }
@@ -2532,6 +2592,11 @@ static int calc_combo7_bonus_raw(int player, int round_score, const StrategyData
         bonus = (bonus * COMBO7_PRIORITY_PUSH_MULT) / 100;
     }
     return bonus;
+}
+
+static int phase2a_should_neutralize_hot_override(AiEnvDomain domain)
+{
+    return domain == AI_ENV_DOMAIN_AKATAN || domain == AI_ENV_DOMAIN_AOTAN;
 }
 
 static int calc_combo7_bonus(int player, int round_score, const StrategyData* s, AiCombo7Eval* out_eval)
@@ -4184,8 +4249,6 @@ static int calc_plain_role_progress_bonus_for_capture(int player, int first_card
 static int is_three_card_five_point_wid(int wid)
 {
     switch (wid) {
-        case WID_SANKOU:
-        case WID_ISC:
         case WID_AKATAN:
         case WID_AOTAN:
             return ON;
@@ -4199,6 +4262,9 @@ static int calc_drop_three_card_five_point_setup_bonus(int player, int first_car
     int best_bonus = 0;
 
     if (!before || player < 0 || player > 1) {
+        return 0;
+    }
+    if (before->mode == MODE_BALANCED) {
         return 0;
     }
 
@@ -4462,6 +4528,7 @@ static int calc_capture_quality(int player, int drop_card_no, int taken_card_no,
         quality += threshold_gain_bonus(before_kasu, before_kasu + 1, 10) * 2;
     }
 
+    quality += calc_drop_three_card_five_point_setup_bonus(player, drop_card_no, taken_card_no, before);
     quality += calc_plain_role_progress_bonus_for_capture(player, drop_card_no, taken_card_no);
     quality += calc_public_access_secure_bonus(player, drop_card_no, before);
     quality += calc_month_lock_bonus(player, taken->month);
@@ -5295,9 +5362,11 @@ int ai_hard_drop(int player)
 #if PHASE2A_PLAN_DOMAIN_SCALING_ENABLE
         int greedy_seven_plus_bonus_base = 0;
         int hot_material_bonus_base = 0;
+        int phase2a_hot_material_bonus_base = 0;
         int seven_plus_pressure_bonus_base = 0;
         int combo7_bonus_base = 0;
         int domain_hot_bonus = 0;
+        int phase2a_domain_hot_baseline_bonus = 0;
         int phase2a_delta_7plus = 0;
         int phase2a_delta_combo7 = 0;
         int phase2a_delta_domain_hot = 0;
@@ -5363,6 +5432,9 @@ int ai_hard_drop(int player)
             five_point_block_bonus = calc_opp_five_point_block_bonus(player, capture_eval.chosen_take_card_no, &str);
 #if PHASE2A_PLAN_DOMAIN_SCALING_ENABLE
             domain_hot_bonus = calc_domain_hot_bonus(player, card->id, &after);
+            if (phase2a_should_neutralize_hot_override(after.domain)) {
+                phase2a_domain_hot_baseline_bonus = domain_hot_bonus;
+            }
             hot_material_bonus += domain_hot_bonus;
 #endif
             month_lock_bonus = calc_month_lock_bonus(player, g.cards[capture_eval.chosen_take_card_no].month);
@@ -5397,9 +5469,13 @@ int ai_hard_drop(int player)
         }
 
 #if PHASE2A_PLAN_DOMAIN_SCALING_ENABLE
+        phase2a_hot_material_bonus_base = hot_material_bonus_base + phase2a_domain_hot_baseline_bonus;
+        if (phase2a_should_neutralize_hot_override(after.domain)) {
+            phase2a_hot_material_bonus_base = hot_material_bonus;
+        }
         phase2a_delta_7plus = greedy_seven_plus_bonus - greedy_seven_plus_bonus_base;
         phase2a_delta_combo7 = combo7_bonus - combo7_bonus_base;
-        phase2a_delta_domain_hot = hot_material_bonus - hot_material_bonus_base;
+        phase2a_delta_domain_hot = hot_material_bonus - phase2a_hot_material_bonus_base;
         phase2a_delta_defence = seven_plus_pressure_bonus - seven_plus_pressure_bonus_base;
         if (phase2a_delta_7plus != 0 || phase2a_delta_combo7 != 0 || phase2a_delta_domain_hot != 0 || phase2a_delta_defence != 0) {
             int best_abs = 0;
@@ -5448,7 +5524,7 @@ int ai_hard_drop(int player)
 #if PHASE2A_PLAN_DOMAIN_SCALING_ENABLE
         int value_base = self_score_term * offence_weight + self_speed_term * speed_weight + opp_deny_term * defence_weight +
                          safety_term * safety_weight + keep_term + completion_combo_bonus + capture_term * capture_weight + opp_koikoi_win_bonus +
-                         greedy_seven_plus_bonus_base + hot_material_bonus_base + five_point_block_bonus + overpay_bonus + early_delay_bonus + month_lock_bonus +
+                         greedy_seven_plus_bonus_base + phase2a_hot_material_bonus_base + five_point_block_bonus + overpay_bonus + early_delay_bonus + month_lock_bonus +
                          dead_month_release_bonus + seven_plus_pressure_bonus_base + combo7_bonus_base + visible_light_finish_bonus -
                          keytarget_expose_penalty - no_take_gokou_penalty +
                          danger_drop_penalty;
@@ -6236,7 +6312,10 @@ int ai_hard_drop(int player)
             }
 
 #if PHASE2A_PLAN_DOMAIN_SCALING_ENABLE
-            if (PHASE2A_PLAN_DOMAIN_SCALING_ENABLE && final_best_index_phase2a_off >= 0 && final_best_index_pre_d1 != final_best_index_phase2a_off) {
+            {
+                int phase2a_final_pos = find_drop_candidate_pos_by_index(greedy_candidates, greedy_candidate_count, final_best_index_pre_d1);
+                if (phase2a_final_pos >= 0 && phase2a_candidate_reason[phase2a_final_pos] != AI_PHASE2A_REASON_NONE &&
+                    final_best_index_phase2a_off >= 0 && final_best_index_pre_d1 != final_best_index_phase2a_off) {
                 trace_decision.phase2a_trigger = ON;
                 trace_decision.phase2a_changed = ON;
                 for (int i = 0; i < greedy_candidate_count; i++) {
@@ -6258,6 +6337,7 @@ int ai_hard_drop(int player)
                         break;
                     }
                 }
+            }
             }
             {
                 int choice_order[2];
