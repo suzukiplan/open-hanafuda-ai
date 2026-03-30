@@ -501,6 +501,8 @@ static int should_press_domain_capture(int player, int taken_card_no, const Stra
 static const char* trace_plan_short(AiPlan plan);
 static int count_owned_type(int player, int type);
 static int count_owned_kasu_total(int player);
+static int hand_has_same_month_card_type_except(int player, int month, int type, int exclude_card_no);
+static int calc_sake_cup_capture_material_bonus(int player, int drop_card_no, int taken_card_no, const StrategyData* before);
 static void calc_drop_top2_feed(int player, int card_no, int taken_card_no, int* out_flag, int* out_month, int* out_recap);
 static void emit_drop_trace(int player, const StrategyData* before, const DropCandidateScore* candidates, const AiSevenLine* sevenlines,
                             const AiSevenLineBonus* sevenline_bonuses, int count, int fallback_index, const DropTraceDecision* decision);
@@ -4345,6 +4347,80 @@ static int count_owned_kasu_total(int player)
     return total;
 }
 
+static int hand_has_same_month_card_type_except(int player, int month, int type, int exclude_card_no)
+{
+    if (player < 0 || player > 1 || month < 0 || month >= 12) {
+        return OFF;
+    }
+
+    for (int i = 0; i < g.own[player].num; i++) {
+        Card* card = g.own[player].cards[i];
+        if (!card || card->id == exclude_card_no) {
+            continue;
+        }
+        if (card->month == month && card->type == type) {
+            return ON;
+        }
+    }
+    return OFF;
+}
+
+static int calc_sake_cup_capture_material_bonus(int player, int drop_card_no, int taken_card_no, const StrategyData* before)
+{
+    Card* drop;
+    int before_tan;
+    int bonus = 0;
+
+    if (player < 0 || player > 1 || !before || drop_card_no < 0 || drop_card_no >= 48 || taken_card_no != 35) {
+        return 0;
+    }
+
+    drop = &g.cards[drop_card_no];
+    if (drop->month != 8 || (drop->type != CARD_TYPE_TAN && drop->type != CARD_TYPE_KASU)) {
+        return 0;
+    }
+
+    // 盃を 9 月の短冊/カスどちらでも拾える可視 2 択だけを補正する。
+    if (drop->type == CARD_TYPE_TAN) {
+        if (!hand_has_same_month_card_type_except(player, drop->month, CARD_TYPE_KASU, drop_card_no)) {
+            return 0;
+        }
+    } else {
+        if (!hand_has_same_month_card_type_except(player, drop->month, CARD_TYPE_TAN, drop_card_no)) {
+            return 0;
+        }
+    }
+
+    before_tan = count_owned_type(player, CARD_TYPE_TAN);
+    if (drop->type == CARD_TYPE_TAN) {
+        if (before_tan == 4) {
+            bonus += 220000;
+        } else if (before_tan == 3) {
+            bonus += 70000;
+        }
+        if (before->reach[WID_AOTAN] > 0 && ai_is_card_critical_for_wid(drop_card_no, WID_AOTAN)) {
+            bonus += 18000 + before->reach[WID_AOTAN] * 120;
+            if (before->delay[WID_AOTAN] <= 4) {
+                bonus += 12000;
+            }
+        }
+        if (before->reach[WID_TAN] > 0) {
+            bonus += before->reach[WID_TAN] * 80;
+        }
+    } else {
+        if (before_tan == 4) {
+            bonus -= 220000;
+        } else if (before_tan == 3) {
+            bonus -= 70000;
+        }
+        if (before->reach[WID_AOTAN] > 0 && hand_has_same_month_card_type_except(player, drop->month, CARD_TYPE_TAN, drop_card_no)) {
+            bonus -= 12000;
+        }
+    }
+
+    return bonus;
+}
+
 static int count_owned_month_cards_excluding_card(int player, int month, int exclude_card_no)
 {
     int count = 0;
@@ -4545,6 +4621,7 @@ static int calc_capture_quality(int player, int drop_card_no, int taken_card_no,
 
     quality += calc_drop_three_card_five_point_setup_bonus(player, drop_card_no, taken_card_no, before);
     quality += calc_plain_role_progress_bonus_for_capture(player, drop_card_no, taken_card_no);
+    quality += calc_sake_cup_capture_material_bonus(player, drop_card_no, taken_card_no, before);
     quality += calc_public_access_secure_bonus(player, drop_card_no, before);
     quality += calc_month_lock_bonus(player, taken->month);
 
