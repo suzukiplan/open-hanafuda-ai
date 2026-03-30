@@ -37,6 +37,12 @@
 #define DROP_VISIBLE_SAKE_LIGHT_SETUP_BONUS 72000
 // その光札が相手の光系危険役にも絡む場合の追加加点。
 #define DROP_VISIBLE_SAKE_LIGHT_DENY_BONUS 18000
+// 手札の光を温存したまま、可視の 1月/12月光で三光リーチを secure する加点。
+#define DROP_VISIBLE_SANKOU_REACH_SETUP_BONUS 20000
+// その後の三光完成札が手札に見えている場合の追加加点。
+#define DROP_VISIBLE_SANKOU_HAND_FINISHER_BONUS 10000
+// 温存札が桜/月なら、花見酒・月見酒の両睨みを残せるぶん追加で押す。
+#define DROP_VISIBLE_SANKOU_SAKE_SYNERGY_BONUS 6000
 // 相手 KOIKOI 中に即死筋の受け皿を新規開通する drop を強く抑止する減点。
 // 回帰防止: 条件を広げたら tools/ai の fixed-seed run1k を回し、Hard 勝率 40.6% 未満なら条件か値を絞ること。
 #define DROP_OPP_KOIKOI_KEYTARGET_EXPOSE_PENALTY 180000
@@ -4514,6 +4520,57 @@ static int calc_public_access_secure_bonus(int player, int drop_card_no, const S
     return best_bonus;
 }
 
+static int calc_visible_sankou_reach_setup_bonus(int player, int drop_card_no, int taken_card_no, const StrategyData* before)
+{
+    int delayed_hand_finisher = OFF;
+    int delayed_sake_synergy = OFF;
+    int captured_light_already = OFF;
+    Card* taken;
+
+    if (player < 0 || player > 1 || !before || drop_card_no < 0 || drop_card_no >= 48 || taken_card_no < 0 || taken_card_no >= 48) {
+        return 0;
+    }
+    if (before->koikoi_opp == ON || before->opponent_win_x2 == ON) {
+        return 0;
+    }
+    if (before->left_own >= 8) {
+        return 0;
+    }
+    taken = &g.cards[taken_card_no];
+    if (taken->type != CARD_TYPE_GOKOU || taken->month == 10) {
+        return 0;
+    }
+    if (!ai_is_card_critical_for_wid(taken_card_no, WID_SANKOU) || is_secured_role_card_for_player(player, taken_card_no)) {
+        return 0;
+    }
+    captured_light_already = hard_player_invent_has_card_id(player, 3) || hard_player_invent_has_card_id(player, 11) ||
+                             hard_player_invent_has_card_id(player, 31) || hard_player_invent_has_card_id(player, 47);
+    if (!captured_light_already) {
+        return 0;
+    }
+
+    for (int i = 0; i < g.own[player].num; i++) {
+        Card* hand = g.own[player].cards[i];
+        if (!hand || hand->id == drop_card_no || hand->id == taken_card_no) {
+            continue;
+        }
+        if (!ai_is_card_critical_for_wid(hand->id, WID_SANKOU)) {
+            continue;
+        }
+        delayed_hand_finisher = ON;
+        if (hand->id == 31 || hand->id == 11) {
+            delayed_sake_synergy = ON;
+        }
+        break;
+    }
+    if (!delayed_hand_finisher) {
+        return 0;
+    }
+
+    return DROP_VISIBLE_SANKOU_REACH_SETUP_BONUS + before->reach[WID_SANKOU] * 80 + DROP_VISIBLE_SANKOU_HAND_FINISHER_BONUS +
+           (delayed_sake_synergy ? DROP_VISIBLE_SANKOU_SAKE_SYNERGY_BONUS : 0);
+}
+
 static int calc_capture_quality(int player, int drop_card_no, int taken_card_no, const StrategyData* before)
 {
     Card* taken;
@@ -4557,6 +4614,7 @@ static int calc_capture_quality(int player, int drop_card_no, int taken_card_no,
             }
         }
     }
+    quality += calc_visible_sankou_reach_setup_bonus(player, drop_card_no, taken_card_no, before);
     if (should_press_domain_capture(player, taken_card_no, before)) {
         quality += calc_domain_capture_bonus(player, taken_card_no, before);
     } else if (taken->type == CARD_TYPE_GOKOU) {

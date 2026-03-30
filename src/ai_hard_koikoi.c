@@ -1700,8 +1700,7 @@ finalize:
     ai_putlog("- base_now=%d best_additional_1pt=%d/%d base6_push=%d overpay_possible=%d", s->base_now, s->best_additional_1pt_reach,
               s->best_additional_1pt_delay, base6_seven_push, overpay_possible);
     ai_putlog("- visible_threshold_followup=%d/%d secured_followup=%d/%d high=%d", visible_threshold_followup_cards, visible_threshold_followup_gain,
-              secured_followup_cards, secured_followup_gain, secured_high_value_followup_gain > visible_threshold_high_gain ? secured_high_value_followup_gain
-                                                                                                                           : visible_threshold_high_gain);
+              secured_followup_cards, secured_followup_gain, secured_high_value_followup_gain > visible_threshold_high_gain ? secured_high_value_followup_gain : visible_threshold_high_gain);
     ai_putlog("- best_self_delay=%d best_self_reach=%d", best_self_delay, best_self_reach);
     ai_putlog("- best_7plus_delay=%d best_7plus_reach=%d", best_seven_plus_delay, best_seven_plus_reach);
     ai_putlog("- min_risk_delay=%d max_risk_score=%d", min_risk_delay, max_risk_score);
