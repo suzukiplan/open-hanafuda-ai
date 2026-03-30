@@ -2,9 +2,32 @@
 
 ## Overview
 
-This repository contains an open-source snapshot of the Hanafuda AI simulator used in [Battle Hanafuda](https://store.steampowered.com/app/4161340/Battle_Hanafuda/).
+This project is motivated by a research-oriented question:
 
-The OSS package focuses on the CPU decision logic and the minimum game-side code required to run AI-vs-AI simulations on macOS or Linux. It is intended for AI behavior inspection, balance tuning, and reproducible local experiments.
+**Can a strong Hanafuda (Koi-Koi) AI be achieved purely through statistical reasoning and simulation, without relying on hidden information or artificial bias?**
+
+In many existing implementations, perceived difficulty is often influenced by non-transparent mechanisms such as biased dealing or access to hidden game state. While these approaches are practical for tuning player experience, they obscure the relationship between decision-making quality and actual AI strength.
+
+From a technical perspective, simulation-based decision-making has historically been constrained by hardware limitations. Techniques such as Monte Carlo evaluation require substantial computational resources, making them impractical for older consoles and arcade systems.
+
+However, with modern CPU performance, it has become feasible to perform large numbers of forward simulations within real-time constraints. This enables a different design approach:
+
+- Treat Hanafuda as a stochastic, imperfect-information game
+- Estimate action values through repeated simulation
+- Infer hidden state only from observable information
+- Combine statistical evaluation with deterministic heuristics
+
+Under this framework, AI strength emerges from the accuracy and efficiency of its inference process, rather than from external adjustments to randomness.
+
+Hanafuda inherently includes a significant degree of chance, making it an interesting domain for studying the balance between stochasticity and decision quality. This project explores how far simulation-based reasoning alone can push competitive performance in such an environment.
+
+By providing this implementation as open source under a permissive license, the project aims to:
+
+- Enable reproducible experiments and comparative evaluation
+- Encourage transparent AI design in Hanafuda games
+- Serve as a reference implementation for simulation-based decision systems in small decision-space games
+
+Finally, this repository contains an open-source snapshot of the Hanafuda AI simulator used in [Battle Hanafuda](https://store.steampowered.com/app/4161340/Battle_Hanafuda/), bridging experimental design and real-world deployment.
 
 ## Coding Rules
 
