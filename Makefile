@@ -73,6 +73,7 @@ test:
 	make all
 	make run100
 	make run1k
+	python3 update_requirements_from_run1k.py
 
 .PHONY: all clean run1k
 
