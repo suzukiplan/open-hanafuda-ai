@@ -1,26 +1,26 @@
 SUMMARY games=100 seed=1772851247 rounds=12
-P1 model=Normal wins=35 avg_diff=-10.770 reason_7plus=141 reason_opponent_koikoi=97 koikoi=418 koikoi_success=274 koikoi_success_rate=65.55%
-CPU model=Hard wins=65 avg_diff=10.770 reason_7plus=168 reason_opponent_koikoi=123 koikoi=295 koikoi_success=191 koikoi_success_rate=64.75%
+P1 model=Normal wins=35 avg_diff=-10.640 reason_7plus=142 reason_opponent_koikoi=95 koikoi=418 koikoi_success=274 koikoi_success_rate=65.55%
+CPU model=Hard wins=65 avg_diff=10.640 reason_7plus=169 reason_opponent_koikoi=123 koikoi=293 koikoi_success=191 koikoi_success_rate=65.19%
 DRAW draws=0
 Sake round summary: 1P=213, CPU=187
- - 1P detail: win=114 (53.52%), average=8.91pts koikoi-cnt=107 koikoi-win=75 koikoi-up=6.93pts
+ - 1P detail: win=113 (53.05%), average=8.96pts koikoi-cnt=106 koikoi-win=74 koikoi-up=7.00pts
  - CPU detail: win=112 (59.89%), average=10.49pts koikoi-cnt=84 koikoi-win=62 koikoi-up=8.42pts
 KOIKOI_BASE6_PUSH P1=0/0/0 CPU=12/12/1
 KOIKOI_LOCKED_THRESHOLD P1=0/0 CPU=0/0
-WIN_RATE P1=35.00%(58.26pts) CPU=65.00%(62.95pts)
-- Round 1: P1=36.00%(9.75pts) CPU=58.00%(7.52pts)
-- Round 2: P1=49.00%(8.88pts) CPU=47.00%(9.77pts)
+WIN_RATE P1=35.00%(58.74pts) CPU=65.00%(62.86pts)
+- Round 1: P1=36.00%(9.75pts) CPU=58.00%(7.55pts)
+- Round 2: P1=49.00%(8.88pts) CPU=47.00%(9.60pts)
 - Round 3: P1=42.00%(8.14pts) CPU=52.00%(6.67pts)
 - Round 4: P1=43.00%(7.00pts) CPU=53.00%(7.43pts)
 - Round 5: P1=47.00%(5.47pts) CPU=52.00%(8.19pts)
 - Round 6: P1=47.00%(5.81pts) CPU=50.00%(8.58pts)
 - Round 7: P1=41.00%(7.90pts) CPU=55.00%(6.27pts)
 - Round 8: P1=43.00%(7.98pts) CPU=53.00%(8.94pts)
-- Round 9: P1=49.00%(7.02pts) CPU=50.00%(9.88pts)
-- Round 10: P1=40.00%(7.15pts) CPU=53.00%(9.11pts)
-- Round 11: P1=46.00%(7.07pts) CPU=48.00%(9.10pts)
-- Round 12: P1=45.00%(7.18pts) CPU=49.00%(5.24pts)
+- Round 9: P1=48.00%(7.12pts) CPU=51.00%(9.96pts)
+- Round 10: P1=39.00%(7.23pts) CPU=54.00%(8.98pts)
+- Round 11: P1=47.00%(7.34pts) CPU=47.00%(9.17pts)
+- Round 12: P1=45.00%(7.24pts) CPU=49.00%(5.24pts)
 Per Bias:
-- GREEDY: win=167 (58.2%), lose=111 (38.7%), draw=9 (3.1%)
+- GREEDY: win=167 (58.4%), lose=110 (38.5%), draw=9 (3.1%)
 - DEFENSIVE: win=396 (47.8%), lose=392 (47.3%), draw=41 (4.9%)
-- BALANCED: win=57 (67.9%), lose=25 (29.8%), draw=2 (2.4%)
+- BALANCED: win=58 (68.2%), lose=25 (29.4%), draw=2 (2.4%)

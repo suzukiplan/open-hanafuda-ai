@@ -115,6 +115,8 @@ static int count_owned_month_cards(int player, int month);
 static int player_has_hand_card(int player, int card_no);
 static int count_floor_month_cards(int month);
 static int hard_player_has_sake_cup(int player);
+static int analyze_score_gain_with_card_ids_fresh(int player, const int* card_ids, int count, int* out_best_wid);
+static int should_preserve_immediate_finish_in_koikoi(const StrategyData* s, int immediate_gain);
 #define DROP_7LINE_MARGIN1_BONUS 12000
 #define DROP_7LINE_MIN_REACH 10
 #define DROP_7LINE_LOW_REACH_MULT 50
@@ -4746,7 +4748,7 @@ static int calc_drop_take_immediate_gain(int player, int drop_card_no, int take_
 
     cards[0] = drop_card_no;
     cards[1] = take_card_no;
-    return analyze_score_gain_with_card_ids(player, cards, 2, out_best_wid);
+    return analyze_score_gain_with_card_ids_fresh(player, cards, 2, out_best_wid);
 }
 
 static void evaluate_drop_capture(int player, int drop_card_no, const StrategyData* before, DropCaptureEval* out_eval)
@@ -5059,6 +5061,68 @@ static int collect_takeable_floor_cards_by_drop(int drop_card_no, int* out_list,
     return count;
 }
 
+static int analyze_score_gain_with_card_ids_fresh(int player, const int* card_ids, int count, int* out_best_wid)
+{
+    InventStats stats_backup;
+    CardSet invent_backup[4];
+    int base_score;
+    int sim_score;
+
+    if (out_best_wid) {
+        *out_best_wid = -1;
+    }
+    if (player < 0 || player > 1) {
+        return 0;
+    }
+
+    stats_backup = g.stats[player];
+    vgs_memcpy(invent_backup, g.invent[player], sizeof(invent_backup));
+
+    analyze_invent(player);
+    base_score = g.stats[player].score;
+
+    for (int i = 0; i < count; i++) {
+        int card_id = card_ids ? card_ids[i] : -1;
+        Card* card;
+
+        if (card_id < 0 || card_id >= 48) {
+            continue;
+        }
+        card = &g.cards[card_id];
+        g.invent[player][card->type].cards[g.invent[player][card->type].num++] = card;
+    }
+
+    analyze_invent(player);
+    sim_score = g.stats[player].score;
+    if (out_best_wid) {
+        *out_best_wid = (g.stats[player].wh_count > 0 && g.stats[player].wh[0]) ? g.stats[player].wh[0]->id : -1;
+    }
+
+    vgs_memcpy(g.invent[player], invent_backup, sizeof(invent_backup));
+    g.stats[player] = stats_backup;
+    return sim_score - base_score;
+}
+
+static int should_preserve_immediate_finish_in_koikoi(const StrategyData* s, int immediate_gain)
+{
+    if (!s || immediate_gain <= 0) {
+        return OFF;
+    }
+    if (immediate_gain >= 5) {
+        return ON;
+    }
+    if (s->koikoi_opp == ON || s->opponent_win_x2 == ON) {
+        return ON;
+    }
+    if (s->opp_coarse_threat >= 40 || s->opp_exact_7plus_threat >= 20) {
+        return ON;
+    }
+    if (s->risk_7plus_distance <= 4 || s->left_rounds <= 2) {
+        return ON;
+    }
+    return OFF;
+}
+
 static int calc_drop_immediate_points_gain(int player, int drop_card_no, const DropCaptureEval* capture_eval, int* out_best_wid, int* out_take_card_no)
 {
     int takeable[48];
@@ -5089,7 +5153,7 @@ static int calc_drop_immediate_points_gain(int player, int drop_card_no, const D
     for (int i = 0; i < takeable_count; i++) {
         cards[card_count++] = takeable[i];
     }
-    best_score = analyze_score_gain_with_card_ids(player, cards, card_count, &best_wid);
+    best_score = analyze_score_gain_with_card_ids_fresh(player, cards, card_count, &best_wid);
     if (best_score > 0) {
         best_take = capture_eval->chosen_take_card_no >= 0 ? capture_eval->chosen_take_card_no : drop_card_no;
     }
@@ -6292,6 +6356,7 @@ int ai_hard_drop(int player)
                 int base_pos = find_drop_candidate_pos_by_index(all_candidates, all_candidate_count, final_best_index);
                 int fallback_pos = find_drop_candidate_pos_by_index(all_candidates, all_candidate_count, greedy_fallback_chosen_orig_idx);
                 int keep_base_completion = OFF;
+                int keep_base_immediate = OFF;
 
                 if (base_pos >= 0 && fallback_pos >= 0) {
                     int base_completion = all_candidates[base_pos].completion_base;
@@ -6302,13 +6367,20 @@ int ai_hard_drop(int player)
                           all_candidates[fallback_pos].completion_unrevealed < all_candidates[base_pos].completion_unrevealed))) {
                         keep_base_completion = ON;
                     }
+                    if (should_preserve_immediate_finish_in_koikoi(&str, all_candidates[base_pos].immediate_gain) &&
+                        all_candidates[fallback_pos].immediate_gain < all_candidates[base_pos].immediate_gain) {
+                        keep_base_immediate = ON;
+                    }
                 }
 
-                if (!keep_base_completion) {
+                if (!keep_base_completion && !keep_base_immediate) {
                     final_best_index = greedy_fallback_chosen_orig_idx;
                     final_best_index_post_fb = final_best_index;
                     ai_putlog("[drop] greedy fallback: top_k=%d chosen_index=%d", greedy_fallback_pool_count, greedy_fallback_chosen_orig_idx);
                     trace_decision.reason_code = "GREEDY_FALLBACK";
+                } else if (keep_base_immediate) {
+                    ai_putlog("[drop] greedy fallback skipped: preserve immediate base_idx=%d fallback_idx=%d gain=%d>%d", final_best_index,
+                              greedy_fallback_chosen_orig_idx, all_candidates[base_pos].immediate_gain, all_candidates[fallback_pos].immediate_gain);
                 } else {
                     ai_putlog("[drop] greedy fallback skipped: preserve completion base_idx=%d fallback_idx=%d", final_best_index,
                               greedy_fallback_chosen_orig_idx);
@@ -6389,6 +6461,12 @@ int ai_hard_drop(int player)
                                 should_keep_drop_completion_candidate(player, &greedy_candidates[current_pos], &greedy_candidates[override_pos])) {
                                 changed = OFF;
                                 ai_putlog("[d1-override] skipped: preserve completion prev=%d new=%d", final_best_index, d1_override_index);
+                            } else if (current_pos >= 0 && override_pos >= 0 &&
+                                       should_preserve_immediate_finish_in_koikoi(&str, greedy_candidates[current_pos].immediate_gain) &&
+                                       greedy_candidates[override_pos].immediate_gain < greedy_candidates[current_pos].immediate_gain) {
+                                changed = OFF;
+                                ai_putlog("[d1-override] skipped: preserve immediate prev=%d new=%d gain=%d>%d", final_best_index, d1_override_index,
+                                          greedy_candidates[current_pos].immediate_gain, greedy_candidates[override_pos].immediate_gain);
                             }
                         }
                         trace_decision.d1_changed = changed;
