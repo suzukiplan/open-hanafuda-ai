@@ -68,8 +68,8 @@ This implementation strictly follows the official Koi-Koi rules defined by Ninte
   - In case of a no-game, the dealer switches.
 - **Capture Rules**
   - If multiple matches exist, the player chooses which cards to capture.
-  - If 3 matching cards are on the table, all are captured.
-  - If all 4 cards of a month are present, all are captured.
+  - <s>If 3 matching cards are on the table, all are captured.</s> → _Auto-Reshuffle_
+  - <s>If all 4 cards of a month are present, all are captured.</s> → _Auto-Reshuffle_
 - **Sake Cup (酒)**
   - Always enabled (not optional).
   - Counts as both:
