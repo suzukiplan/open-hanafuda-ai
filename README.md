@@ -35,6 +35,59 @@ Finally, this repository contains an open-source snapshot of the Hanafuda AI sim
 
 As a fundamental principle, the game must be implemented in **full compliance** with the [Nintendo rules for Hanafuda Koi-Koi](https://www.nintendo.com/jp/others/hanafuda_kabufuda/howtoplay/koikoi/index.html) only, and no other local rule variations shall be supported.
 
+## KoiKoi Rules (Nintendo Standard)
+
+This implementation strictly follows the official Koi-Koi rules defined by Nintendo, with no support for local or optional variations.
+
+- **Rounds**
+  - A game consists of 12 rounds (January–December).
+- **Initial Setup**
+  - Each player is dealt 8 cards.
+  - 8 cards are placed on the table.
+  - The remaining cards form the draw pile.
+- **Turn Flow**
+  - Play one card from hand to the table and capture matching cards if possible.
+  - Draw one card from the deck and resolve captures in the same way.
+- **Yaku Declaration**
+  - When a player forms a yaku, they must choose:
+    - **Stop**: End the round and score points.
+    - **Koi-Koi**: Continue the round to aim for higher points.
+- **Koi-Koi Restriction**
+  - Koi-Koi may be declared **only once per round** (no multiple Koi-Koi).
+- **Koi-Koi Penalty**
+  - If a player declares Koi-Koi and the opponent forms a yaku first:
+    - The opponent wins the round.
+    - The opponent’s score is **doubled**.
+- **Score Multipliers**
+  - If the winning score is **7 points or more**, the total score is doubled.
+  - These multipliers stack multiplicatively.
+- **Draw (No Yaku End)**
+  - If both players run out of cards without forming any yaku:
+    - The round is a **no-game** (no points awarded).
+    - The dealer (**oya**) **switches**.
+- **Dealer (Oya) Rotation**
+  - The winner of a round becomes the next dealer.
+  - In case of a no-game, the dealer switches.
+- **Capture Rules**
+  - If multiple matches exist, the player chooses which cards to capture.
+  - If 3 matching cards are on the table, all are captured.
+  - If all 4 cards of a month are present, all are captured.
+- **Sake Cup (酒)**
+  - Always enabled (not optional).
+  - Counts as both:
+    - a **Tane (10-point card)**, and
+    - a **Kasu (junk card)**.
+- **Yaku System**
+  - Standard Nintendo scoring is used (e.g., Gokō = 10, Sankō = 5).
+  - No stacking within the same yaku category.
+- **No Additional Rules**
+  - No optional or regional rules are applied (e.g., no multi-Koi-Koi, no optional Sake Cup toggles).
+
+As an exception, the following rules are handled mechanically (i.e., automatically enforced without player choice):
+
+- **Initial Hand Yaku**
+  - **Teshi (手四)** and **Kuttsuki (くっつき)** are enabled.
+
 ### Hidden Info
 
 AI hidden-info rule for `ai*.{c,h}`:
