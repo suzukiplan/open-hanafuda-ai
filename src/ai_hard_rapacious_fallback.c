@@ -113,8 +113,62 @@ static int rapacious_fallback_eval_better(const RapaciousFallbackEval* lhs, cons
     return OFF;
 }
 
+static int count_hand_cards_actual(int player, Card** out_last_card)
+{
+    int count = 0;
+
+    if (out_last_card) {
+        *out_last_card = NULL;
+    }
+    if (player < 0 || player > 1) {
+        return 0;
+    }
+    for (int i = 0; i < 8; i++) {
+        Card* card = g.own[player].cards[i];
+        if (!card) {
+            continue;
+        }
+        count++;
+        if (out_last_card) {
+            *out_last_card = card;
+        }
+    }
+    return count;
+}
+
+static int should_stop_rapacious_small_base_last_card_koikoi(int player, int round_score)
+{
+    Card* card;
+    int card_id;
+    int best_wid = -1;
+    int gain;
+
+    if (player < 0 || player > 1) {
+        return OFF;
+    }
+    if (round_score > 2) {
+        return OFF;
+    }
+    if (count_hand_cards_actual(player, &card) != 1) {
+        return OFF;
+    }
+    if (!card) {
+        return OFF;
+    }
+    card_id = card->id;
+    gain = analyze_score_gain_with_card_ids(player, &card_id, 1, &best_wid);
+    if (round_score + gain >= 7) {
+        return OFF;
+    }
+    return gain <= 1 ? ON : OFF;
+}
+
 int ai_hard_rapacious_fallback_koikoi(int player, int round_score)
 {
+    if (should_stop_rapacious_small_base_last_card_koikoi(player, round_score)) {
+        ai_putlog("[koikoi] rapacious_fallback small_base_last_card => STOP");
+        return OFF;
+    }
     return ai_normal_koikoi(player, round_score);
 }
 

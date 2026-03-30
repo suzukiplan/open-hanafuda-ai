@@ -131,6 +131,9 @@ static int estimate_secured_followup_gain(int player, int* out_ready_cards, int*
 static int estimate_visible_threshold_followup_gain(int player, int* out_ready_cards, int* out_best_high_value_gain);
 static int has_current_winning_hand(int player, int wid);
 static int player_has_captured_month_type(int player, int month, int type);
+static int should_stop_small_base_last_card_koikoi(const StrategyData* s, int round_score, int live_out_delay, int best_seven_plus_delay, int best_seven_plus_reach,
+                                                   int visible_threshold_followup_gain, int secured_followup_cards, int visible_threshold_high_gain,
+                                                   int secured_high_value_followup_gain);
 
 static int should_loosen_close_match_koikoi(const StrategyData* s, int max_risk_score)
 {
@@ -280,6 +283,42 @@ static int should_stop_base5_near_high_risk_koikoi(const StrategyData* s, int ro
         best_visible_high_gain = secured_high_value_followup_gain;
     }
     if (best_visible_high_gain >= 5) {
+        return OFF;
+    }
+    return ON;
+}
+
+static int should_stop_small_base_last_card_koikoi(const StrategyData* s, int round_score, int live_out_delay, int best_seven_plus_delay, int best_seven_plus_reach,
+                                                   int visible_threshold_followup_gain, int secured_followup_cards, int visible_threshold_high_gain,
+                                                   int secured_high_value_followup_gain)
+{
+    int best_high_gain = visible_threshold_high_gain;
+
+    if (!s) {
+        return OFF;
+    }
+    if (round_score > KOIKOI_SMALL_BASE_MAX) {
+        return OFF;
+    }
+    if (s->left_own > 1) {
+        return OFF;
+    }
+    if (best_seven_plus_delay <= KOIKOI_SEVEN_PLUS_MAX_DELAY && best_seven_plus_reach >= KOIKOI_SEVEN_PLUS_MIN_REACH) {
+        return OFF;
+    }
+    if (secured_followup_cards >= 2) {
+        return OFF;
+    }
+    if (visible_threshold_followup_gain >= 2) {
+        return OFF;
+    }
+    if (secured_high_value_followup_gain > best_high_gain) {
+        best_high_gain = secured_high_value_followup_gain;
+    }
+    if (best_high_gain >= 2) {
+        return OFF;
+    }
+    if (live_out_delay > 1) {
         return OFF;
     }
     return ON;
@@ -1589,6 +1628,13 @@ int ai_hard_koikoi(int player, int round_score)
     if (should_stop_base5_blocked_sake_koikoi(player, s, round_score, live_out_est, live_out_delay, best_seven_plus_delay, best_seven_plus_reach)) {
         if (!forced_stop_reason) {
             forced_stop_reason = "BASE5_BLOCKED_SAKE";
+        }
+    }
+    if (should_stop_small_base_last_card_koikoi(s, round_score, live_out_delay, best_seven_plus_delay, best_seven_plus_reach,
+                                                visible_threshold_followup_gain, secured_followup_cards, visible_threshold_high_gain,
+                                                secured_high_value_followup_gain)) {
+        if (!forced_stop_reason) {
+            forced_stop_reason = "SMALL_BASE_LAST_CARD";
         }
     }
 
