@@ -53,7 +53,7 @@ Use of the C standard library is prohibited, except in the following files, whic
 
 ## Requirements
 
-As a general rule, this repository only accepts changes that improve the win rate produced by `make run1k` (for example, `57.60%` in the case below), and does not allow changes that reduce it.
+As a general rule, this repository only accepts changes that improve the win rate produced by `make run1k`, and does not allow changes that reduce it.
 
 ```
 % make run1k
@@ -85,6 +85,8 @@ Per Bias:
 - DEFENSIVE: win=3861 (47.3%), lose=3926 (48.1%), draw=383 (4.7%)
 - BALANCED: win=639 (70.5%), lose=246 (27.2%), draw=21 (2.3%)
 ```
+
+> Most Important: `CPU`'s `WIN_RATE`
 
 If you find room for improvement in Battle Hanafuda's Watch Mode match results, you may be able to improve the win rate by cross-referencing `watch.log` with the source code in this repository and having a coding agent (such as Codex or Claude) analyze it.
 
