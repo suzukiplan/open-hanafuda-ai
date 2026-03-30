@@ -82,6 +82,18 @@
 #define KOIKOI_BASE5_THIN_HAND_SEVEN_REACH_MAX 25
 // base=5 で手札実態が薄い時に stop へ倒す補正。
 #define KOIKOI_BASE5_THIN_HAND_STOP_BONUS 420
+// base=5 の確定点を優先する近接高打点脅威の閾値。
+#define KOIKOI_BASE5_NEAR_HIGH_RISK_THREAT_MIN 80
+// base=5 の確定点を優先する近接高打点脅威の最短 delay。
+#define KOIKOI_BASE5_NEAR_HIGH_RISK_DELAY_MAX 2
+// base=5 の確定点を優先する近接高打点脅威の最低 risk score。
+#define KOIKOI_BASE5_NEAR_HIGH_RISK_SCORE_MIN 5
+// base=5 の確定点を優先する際、自分の 1pt 伸び筋が薄いとみなす到達率上限。
+#define KOIKOI_BASE5_NEAR_HIGH_RISK_LIVE_OUT_REACH_MAX 25
+// base=5 の確定点を優先する際、自分の 1pt 伸び筋が遅いとみなす最短 delay 下限。
+#define KOIKOI_BASE5_NEAR_HIGH_RISK_LIVE_OUT_DELAY_MIN 4
+// base=5 の近接高打点脅威 stop を許す最大ビハインド。
+#define KOIKOI_BASE5_NEAR_HIGH_RISK_DIFF_MIN -10
 // base=5・大差ビハインドでも、終盤で伸び筋が細い時は確定点を優先する。
 #define KOIKOI_BASE5_BEHIND_THIN_PUSH_STOP_BONUS 520
 // 上記専用 stop 条件で使う最大ビハインド閾値。
@@ -236,6 +248,38 @@ static int should_stop_base5_behind_thin_push_koikoi(const StrategyData* s, int 
         return OFF;
     }
     if (min_risk_delay < 2 || max_risk_score > KOIKOI_BASE5_BEHIND_THIN_PUSH_RISK_SCORE_MAX) {
+        return OFF;
+    }
+    return ON;
+}
+
+static int should_stop_base5_near_high_risk_koikoi(const StrategyData* s, int round_score, int live_out_est, int live_out_delay, int min_risk_delay,
+                                                   int max_risk_score, int visible_threshold_high_gain, int secured_high_value_followup_gain)
+{
+    int best_visible_high_gain = visible_threshold_high_gain;
+
+    if (!s) {
+        return OFF;
+    }
+    if (round_score != 5) {
+        return OFF;
+    }
+    if (s->match_score_diff < KOIKOI_BASE5_NEAR_HIGH_RISK_DIFF_MIN) {
+        return OFF;
+    }
+    if (s->opp_coarse_threat < KOIKOI_BASE5_NEAR_HIGH_RISK_THREAT_MIN) {
+        return OFF;
+    }
+    if (min_risk_delay > KOIKOI_BASE5_NEAR_HIGH_RISK_DELAY_MAX || max_risk_score < KOIKOI_BASE5_NEAR_HIGH_RISK_SCORE_MIN) {
+        return OFF;
+    }
+    if (live_out_est > KOIKOI_BASE5_NEAR_HIGH_RISK_LIVE_OUT_REACH_MAX || live_out_delay < KOIKOI_BASE5_NEAR_HIGH_RISK_LIVE_OUT_DELAY_MIN) {
+        return OFF;
+    }
+    if (secured_high_value_followup_gain > best_visible_high_gain) {
+        best_visible_high_gain = secured_high_value_followup_gain;
+    }
+    if (best_visible_high_gain >= 5) {
         return OFF;
     }
     return ON;
@@ -1524,6 +1568,12 @@ int ai_hard_koikoi(int player, int round_score)
         continue_value_without_push -= KOIKOI_BASE5_THIN_HAND_STOP_BONUS / 3;
         if (!forced_stop_reason) {
             forced_stop_reason = "BASE5_THIN_HAND";
+        }
+    }
+    if (should_stop_base5_near_high_risk_koikoi(s, round_score, live_out_est, live_out_delay, min_risk_delay, max_risk_score, visible_threshold_high_gain,
+                                                secured_high_value_followup_gain)) {
+        if (!forced_stop_reason) {
+            forced_stop_reason = "BASE5_NEAR_HIGH_RISK";
         }
     }
     if (should_stop_base5_behind_thin_push_koikoi(s, round_score, live_out_est, live_out_delay, best_self_reach, best_seven_plus_reach, min_risk_delay,
