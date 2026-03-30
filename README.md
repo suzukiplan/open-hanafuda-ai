@@ -1,6 +1,6 @@
 # Open Hanafuda AI [![CircleCI](https://dl.circleci.com/status-badge/img/gh/suzukiplan/open-hanafuda-ai/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/suzukiplan/open-hanafuda-ai/tree/master)
 
-![image.png](./image.png)
+![header.png](./header.png)
 
 ## Overview
 
