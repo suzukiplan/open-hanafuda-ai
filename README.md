@@ -31,11 +31,9 @@ Finally, this repository contains an open-source snapshot of the Hanafuda AI sim
 
 ## Coding Rules
 
-### KoiKoi Rules
+### KoiKoi Rules (Nintendo Standard)
 
 As a fundamental principle, the game must be implemented in **full compliance** with the [Nintendo rules for Hanafuda Koi-Koi](https://www.nintendo.com/jp/others/hanafuda_kabufuda/howtoplay/koikoi/index.html) only, and no other local rule variations shall be supported.
-
-## KoiKoi Rules (Nintendo Standard)
 
 This implementation strictly follows the official Koi-Koi rules defined by Nintendo, with no support for local or optional variations.
 
