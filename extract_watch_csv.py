@@ -3,6 +3,7 @@ import re
 import csv
 import sys
 
+WATCH_START_RE = re.compile(r'^Watch Start: P1=(\S+) CPU=(\S+) rounds=\d+ seed=\d+$')
 
 def extract_data_from_filename(filename):
     """
@@ -18,7 +19,8 @@ def extract_data_from_filename(filename):
         count = int(m_win.group(1))
         score0 = int(m_win.group(3))
         score1 = int(m_win.group(4))
-        return count, score0, score1
+        winner = "P1" if m_win.group(2) == "0" else "CPU"
+        return count, score0, score1, winner
 
     # draw pattern
     m_draw = re.search(r'_(\d+)_draw_(\d+)-(\d+)', filename)
@@ -26,7 +28,7 @@ def extract_data_from_filename(filename):
         count = int(m_draw.group(1))
         score0 = int(m_draw.group(2))
         score1 = int(m_draw.group(3))
-        return count, score0, score1
+        return count, score0, score1, "draw"
 
     # score-only pattern
     m_score = re.search(r'_(\d+)_(\d+)-(\d+)(?:_|\.|$)', filename)
@@ -34,7 +36,12 @@ def extract_data_from_filename(filename):
         count = int(m_score.group(1))
         score0 = int(m_score.group(2))
         score1 = int(m_score.group(3))
-        return count, score0, score1
+        winner = "draw"
+        if score0 > score1:
+            winner = "P1"
+        elif score1 > score0:
+            winner = "CPU"
+        return count, score0, score1, winner
 
     return None
 
@@ -70,6 +77,16 @@ def extract_round_diffs(log_path):
     return round_diffs
 
 
+def extract_models(log_path):
+    with open(log_path, encoding="utf-8") as f:
+        first_line = f.readline().rstrip("\n")
+
+    match = WATCH_START_RE.match(first_line)
+    if not match:
+        raise ValueError(f"watch start header not found: {log_path}")
+    return match.group(1), match.group(2)
+
+
 def process_directory(input_dir):
     rows = []
     max_round = 0
@@ -81,18 +98,27 @@ def process_directory(input_dir):
 
         result = extract_data_from_filename(fname)
         if result:
-            count, score0, score1 = result
+            count, score0, score1, winner = result
             diff = score0 - score1
             log_path = os.path.join(input_dir, fname)
+            p1_model, cpu_model = extract_models(log_path)
             round_diffs = extract_round_diffs(log_path)
             if round_diffs:
                 max_round = max(max_round, max(round_diffs))
+            winner_label = "draw"
+            if winner == "P1":
+                winner_label = f"P1:{p1_model}"
+            elif winner == "CPU":
+                winner_label = f"CPU:{cpu_model}"
             rows.append(
                 {
                     "count": count,
                     "score0": score0,
                     "score1": score1,
+                    "p1_model": p1_model,
+                    "cpu_model": cpu_model,
                     "diff": diff,
+                    "winner": winner_label,
                     "round_diffs": round_diffs,
                     "filename": fname,
                 }
@@ -104,12 +130,12 @@ def process_directory(input_dir):
     rows.sort(key=lambda row: (row["count"], row["filename"]))
 
     writer = csv.writer(sys.stdout)
-    header = ["count", "score0", "score1", "diff"]
+    header = ["count", "P1:Model", "CPU:Model", "diff", "winner"]
     header.extend(f"round{i}" for i in range(1, max_round + 1))
     writer.writerow(header)
 
     for row in rows:
-        csv_row = [row["count"], row["score0"], row["score1"], row["diff"]]
+        csv_row = [row["count"], row["score0"], row["score1"], row["diff"], row["winner"]]
         csv_row.extend(row["round_diffs"].get(i, "") for i in range(1, max_round + 1))
         writer.writerow(csv_row)
 
