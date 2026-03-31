@@ -101,6 +101,7 @@ typedef struct {
 } NativeAiInventStatsSnapshot;
 
 typedef struct {
+    uint32_t frame;
     NativeAiCardSnapshot cards[48];
     NativeAiCardSet48Snapshot floor;
     NativeAiCardSet48Snapshot deck;
@@ -112,7 +113,9 @@ typedef struct {
     int32_t koikoi_score[2];
     int32_t round_max;
     int32_t round;
+    int32_t oya;
     int32_t current_player;
+    int32_t auto_play;
     int32_t ai_model[2];
     NativeAiStrategySnapshot strategy[2];
     int8_t watch_min_action[2][256];

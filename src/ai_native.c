@@ -164,6 +164,7 @@ static void build_native_ai_snapshot(void)
         native_ai_snapshot.cards[i].id = g.cards[i].id;
     }
 
+    native_ai_snapshot.frame = g.frame;
     snapshot_card_set48(&native_ai_snapshot.floor, &g.floor);
     snapshot_card_set48(&native_ai_snapshot.deck, &g.deck);
     for (p = 0; p < 2; p++) {
@@ -180,7 +181,9 @@ static void build_native_ai_snapshot(void)
 
     native_ai_snapshot.round_max = g.round_max;
     native_ai_snapshot.round = g.round;
+    native_ai_snapshot.oya = g.oya;
     native_ai_snapshot.current_player = g.current_player;
+    native_ai_snapshot.auto_play = g.auto_play;
     native_ai_snapshot.ai_model[0] = g.ai_model[0];
     native_ai_snapshot.ai_model[1] = g.ai_model[1];
     native_ai_snapshot.watch_min_action[0][0] = '\0';
