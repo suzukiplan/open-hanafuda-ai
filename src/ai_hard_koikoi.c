@@ -52,6 +52,16 @@
 #define KOIKOI_BASE6_LIVE_OUT_CONTINUE_BONUS 220
 // 7+ 後は原則 stop に寄せる補正。
 #define KOIKOI_SEVEN_PLUS_STOP_BONUS 270
+// visible な 7+ 脅威が近い時は stop を強く押す。
+#define KOIKOI_VISIBLE_SEVEN_THREAT_STOP_BONUS 3000
+// 上記専用 stop 条件で使う exact 7+ threat 閾値。
+#define KOIKOI_VISIBLE_SEVEN_THREAT_EXACT_MIN 25
+// 上記専用 stop 条件で使う coarse threat 閾値。
+#define KOIKOI_VISIBLE_SEVEN_THREAT_COARSE_MIN 70
+// 上記専用 stop 条件で使う近接危険 delay 閾値。
+#define KOIKOI_VISIBLE_SEVEN_THREAT_RISK_DELAY_MAX 2
+// 上記専用 stop 条件で使う危険役 score 閾値。
+#define KOIKOI_VISIBLE_SEVEN_THREAT_RISK_SCORE_MIN 7
 // base=6 から +1 で 7 に届く live-out を強い push とみなす最低 reach。
 #define KOIKOI_BASE6_SEVEN_PUSH_MIN_REACH 15
 // base=6 から +1 で 7 に届く live-out を強い push とみなす最長 delay。
@@ -480,6 +490,41 @@ static int should_stop_base5_blocked_sake_koikoi(int player, const StrategyData*
     self_followup_pressure = calc_followup_pressure_value(s->reach, s->delay);
     opp_followup_pressure = calc_followup_pressure_value(s->risk_reach_estimate, s->risk_delay);
     return (opp_followup_pressure >= self_followup_pressure + KOIKOI_BASE5_BLOCKED_SAKE_FOLLOWUP_MARGIN) ? ON : OFF;
+}
+
+static int should_apply_visible_seven_threat_stop_bonus(const StrategyData* s, int round_score, int best_self_delay, int best_self_reach, int best_seven_plus_delay,
+                                                        int best_seven_plus_reach, int min_risk_delay, int max_risk_score, int base6_seven_push)
+{
+    int self_can_race;
+
+    if (!s) {
+        return OFF;
+    }
+    if (round_score >= 7) {
+        return OFF;
+    }
+    if (s->opp_exact_7plus_threat < KOIKOI_VISIBLE_SEVEN_THREAT_EXACT_MIN) {
+        return OFF;
+    }
+    if (min_risk_delay > KOIKOI_VISIBLE_SEVEN_THREAT_RISK_DELAY_MAX) {
+        return OFF;
+    }
+    if (max_risk_score < KOIKOI_VISIBLE_SEVEN_THREAT_RISK_SCORE_MIN) {
+        return OFF;
+    }
+    if (s->opp_coarse_threat < KOIKOI_VISIBLE_SEVEN_THREAT_COARSE_MIN) {
+        return OFF;
+    }
+
+    self_can_race = (best_self_delay <= 1 && best_self_reach >= 35) ? ON : OFF;
+    if (best_seven_plus_delay <= 2 && best_seven_plus_reach >= 35) {
+        self_can_race = ON;
+    }
+    if (round_score == 6 && base6_seven_push) {
+        self_can_race = ON;
+    }
+
+    return self_can_race ? OFF : ON;
 }
 
 static const char* strategy_mode_name(int mode)
@@ -1633,6 +1678,13 @@ int ai_hard_koikoi(int player, int round_score)
     if (s->opponent_win_x2 && round_score < 7 && best_seven_plus_delay > 2) {
         stop_value += 220;
         stop_value_without_push += 220;
+    }
+    if (should_apply_visible_seven_threat_stop_bonus(s, round_score, best_self_delay, best_self_reach, best_seven_plus_delay, best_seven_plus_reach,
+                                                     min_risk_delay, max_risk_score, base6_seven_push)) {
+        stop_value += KOIKOI_VISIBLE_SEVEN_THREAT_STOP_BONUS;
+        stop_value_without_push += KOIKOI_VISIBLE_SEVEN_THREAT_STOP_BONUS;
+        continue_value -= KOIKOI_VISIBLE_SEVEN_THREAT_STOP_BONUS / 3;
+        continue_value_without_push -= KOIKOI_VISIBLE_SEVEN_THREAT_STOP_BONUS / 3;
     }
     if (should_stop_base5_endgame_lead_koikoi(s, round_score, min_risk_delay, max_risk_score, best_seven_plus_delay)) {
         stop_value += KOIKOI_BASE5_ENDGAME_LEAD_STOP_BONUS;
