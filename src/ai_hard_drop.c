@@ -33,6 +33,24 @@
 #define DROP_OPP_KOIKOI_WIN_BONUS 100000
 // 相手 KOIKOI 中の勝ち筋を見逃す drop への減点。
 #define DROP_OPP_KOIKOI_MISS_PENALTY 40000
+// no-capture で場に捨てた札を相手に取られた想定の、公開 invent ベース悪化差分。
+#define DROP_TAKEN_RISK_PROGRESS_UNIT 240
+#define DROP_TAKEN_RISK_SCORE_UNIT 180
+#define DROP_TAKEN_RISK_REACH_UNIT 18
+#define DROP_TAKEN_RISK_DELAY_UNIT 320
+#define DROP_TAKEN_RISK_CRITICAL_BONUS 900
+#define DROP_TAKEN_RISK_RELATED_BONUS 320
+#define DROP_TAKEN_RISK_SECURED_UNIT 1400
+#define DROP_TAKEN_RISK_REACH_STATE_BONUS 7000
+#define DROP_TAKEN_RISK_COMPLETE_STATE_BONUS 32000
+#define DROP_TAKEN_HIDDEN_FINISH_BONUS 42000
+#define DROP_TAKEN_HIDDEN_REACH_BONUS 12000
+#define DROP_TAKEN_HIDDEN_ACCESS_UNIT 80
+#define DROP_TAKEN_HIDDEN_LAST_ACCESS_BONUS 8000
+#define DROP_TAKEN_RISK_CLAMP_MAX 180000
+#define DROP_TAKEN_RISK_GREEDY_MULT 98
+#define DROP_TAKEN_RISK_BALANCED_MULT 99
+#define DROP_TAKEN_RISK_DEFENSIVE_MULT 100
 // 盃所持時に可視の月/桜光を早取りして酒リーチを作る独立加点。
 #define DROP_VISIBLE_SAKE_LIGHT_SETUP_BONUS 72000
 // その光札が相手の光系危険役にも絡む場合の追加加点。
@@ -498,6 +516,7 @@ static int card_exists_in_hand(int player, int card_no);
 static int card_exists_in_invent(int player, int card_no);
 static int card_exists_on_floor(int card_no);
 static int calc_access_keep_penalty_for_wid(int player, int card, int wid, const StrategyData* before);
+static int calc_no_capture_taken_risk_penalty(int player, int card_no, const StrategyData* before);
 static int is_light_capture_urgent_state(const StrategyData* s);
 static int is_domain_capture_target(int player, int taken_card_no, const StrategyData* s);
 static int calc_domain_capture_bonus(int player, int taken_card_no, const StrategyData* s);
@@ -2581,6 +2600,23 @@ static int combo7_mode_multiplier(int mode)
     }
 }
 
+static int drop_taken_risk_mode_multiplier(int player, const StrategyData* before)
+{
+    if (!before) {
+        return DROP_TAKEN_RISK_BALANCED_MULT;
+    }
+    if (g.koikoi[player] == ON || before->koikoi_opp == ON || before->opp_coarse_threat >= 60 || before->opponent_win_x2 == ON ||
+        before->risk_reach_estimate[WID_HANAMI] >= 40 || before->risk_reach_estimate[WID_TSUKIMI] >= 40 ||
+        before->risk_delay[WID_HANAMI] <= 2 || before->risk_delay[WID_TSUKIMI] <= 2) {
+        return DROP_TAKEN_RISK_DEFENSIVE_MULT;
+    }
+    switch (before->mode) {
+        case MODE_GREEDY: return DROP_TAKEN_RISK_GREEDY_MULT;
+        case MODE_DEFENSIVE: return DROP_TAKEN_RISK_DEFENSIVE_MULT;
+        default: return DROP_TAKEN_RISK_BALANCED_MULT;
+    }
+}
+
 static int calc_combo7_bonus_raw(int player, int round_score, const StrategyData* s, AiCombo7Eval* out_eval)
 {
     AiCombo7Eval eval;
@@ -3869,6 +3905,116 @@ static int calc_visible_opp_role_feed_penalty(int player, int drop_card_no, cons
 static int calc_safety_term(int player, int card, const StrategyData* before)
 {
     return calc_visible_opp_role_feed_penalty(player, card, before); // (A) safe は visible feed を主に扱い、危険札本体は別項で積む
+}
+
+static int calc_no_capture_taken_risk_penalty(int player, int card_no, const StrategyData* before)
+{
+    int opp;
+    Card* card;
+    int best_penalty = 0;
+    int progress_before[WINNING_HAND_MAX];
+    int secured_before[WINNING_HAND_MAX];
+    int hidden_capture_candidates[4];
+    int hidden_capture_count = 0;
+
+    if (!before || player < 0 || player > 1 || card_no < 0 || card_no >= 48) {
+        return 0;
+    }
+
+    card = &g.cards[card_no];
+    if (is_month_locked_for_player(player, card->month)) {
+        return 0;
+    }
+
+    for (int candidate = card->month * 4; candidate < card->month * 4 + 4; candidate++) {
+        if (candidate == card_no) {
+            continue;
+        }
+        if (card_exists_in_hand(player, candidate) || card_exists_in_invent(player, candidate) || card_exists_in_invent(1 - player, candidate) ||
+            card_exists_on_floor(candidate)) {
+            continue;
+        }
+        hidden_capture_candidates[hidden_capture_count++] = candidate;
+    }
+    if (hidden_capture_count <= 0) {
+        return 0;
+    }
+
+    opp = 1 - player;
+    for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
+        progress_before[wid] = ai_role_progress_level(opp, wid);
+        secured_before[wid] = count_secured_components_for_wid(opp, wid);
+    }
+    for (int ci = 0; ci < hidden_capture_count; ci++) {
+        int candidate = hidden_capture_candidates[ci];
+
+        for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
+            int missing_before;
+            int access_penalty;
+            int required;
+            int hidden_related;
+
+            if (!ai_is_fixed_wid(wid) || !ai_is_high_value_wid(wid)) {
+                continue;
+            }
+            hidden_related = ai_is_card_critical_for_wid(candidate, wid) || ai_is_card_related_for_wid(candidate, wid);
+            if (!hidden_related) {
+                continue;
+            }
+
+            missing_before = ai_wid_missing_count(opp, wid);
+            access_penalty = calc_access_keep_penalty_for_wid(opp, candidate, wid, before);
+            if (access_penalty > 0) {
+                int hidden_penalty = access_penalty * DROP_TAKEN_HIDDEN_ACCESS_UNIT;
+                if (count_owned_month_cards(opp, card->month) == 1) {
+                    hidden_penalty += DROP_TAKEN_HIDDEN_LAST_ACCESS_BONUS;
+                }
+                if (best_penalty < hidden_penalty) {
+                    best_penalty = hidden_penalty;
+                }
+            }
+
+            required = required_component_count_for_wid(wid);
+            if (required > 0 && missing_before == 1 && ai_is_card_critical_for_wid(candidate, wid) &&
+                ai_would_complete_wid_by_taking_card(opp, wid, candidate)) {
+                int finish_penalty = DROP_TAKEN_HIDDEN_FINISH_BONUS + winning_hands[wid].base_score * 9000;
+                if (before->koikoi_opp == ON) {
+                    finish_penalty += 12000;
+                }
+                if (before->opp_coarse_threat >= 60) {
+                    finish_penalty += 12000;
+                }
+                if (before->opponent_win_x2 == ON) {
+                    finish_penalty += 18000;
+                }
+                if (count_owned_month_cards(opp, card->month) == 1) {
+                    finish_penalty += DROP_TAKEN_HIDDEN_LAST_ACCESS_BONUS;
+                }
+                if (best_penalty < finish_penalty) {
+                    best_penalty = finish_penalty;
+                }
+            } else if (required > 0 && missing_before == 2 && ai_is_card_critical_for_wid(candidate, wid)) {
+                int reach_penalty = DROP_TAKEN_HIDDEN_REACH_BONUS + winning_hands[wid].base_score * 1800;
+                if (before->opp_coarse_threat >= 60) {
+                    reach_penalty += 6000;
+                }
+                if (best_penalty < reach_penalty) {
+                    best_penalty = reach_penalty;
+                }
+            } else if (progress_before[wid] > 0 && ai_is_card_critical_for_wid(candidate, wid)) {
+                int progress_penalty = progress_before[wid] * DROP_TAKEN_RISK_PROGRESS_UNIT;
+                if (best_penalty < progress_penalty) {
+                    best_penalty = progress_penalty;
+                }
+            }
+        }
+    }
+
+    if (best_penalty > DROP_TAKEN_RISK_CLAMP_MAX) {
+        best_penalty = DROP_TAKEN_RISK_CLAMP_MAX;
+    }
+    best_penalty = apply_mult(best_penalty, drop_taken_risk_mode_multiplier(player, before));
+    return -best_penalty;
 }
 
 static int calc_drop_card_direct_block_bonus(int card_no, const StrategyData* before)
@@ -5542,6 +5688,9 @@ int ai_hard_drop(int player)
         int opp_deny_term = calc_opp_deny_term(&str, &after) + calc_drop_card_direct_block_bonus(card->id, &str);
         // 危険札そのものを場へ出す罰は bias に依らず直接反映する。
         int danger_drop_penalty = calc_card_direct_risk_penalty(player, card->id, &str);
+        if (!capture_eval.capture_possible) {
+            danger_drop_penalty += calc_no_capture_taken_risk_penalty(player, card->id, &str);
+        }
         // 危険札を直接切るリスクの抑制。
         int safety_term = calc_safety_term(player, card->id, &str);
         // 優先役の必須札を切る損失を、bias に依存しない独立項で反映。

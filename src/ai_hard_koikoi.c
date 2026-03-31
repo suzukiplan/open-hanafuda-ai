@@ -82,6 +82,18 @@
 #define KOIKOI_BASE5_THIN_HAND_SEVEN_REACH_MAX 25
 // base=5 で手札実態が薄い時に stop へ倒す補正。
 #define KOIKOI_BASE5_THIN_HAND_STOP_BONUS 420
+// 遅延戦略を終えて終盤へ入った 5pt は stop を強める。
+#define KOIKOI_BASE5_POST_DELAY_STOP_BONUS 2600
+// 「遅延戦略を終えた」とみなす残り手札上限。
+#define KOIKOI_BASE5_POST_DELAY_LEFT_OWN_MAX 2
+// 上記専用 stop 条件で使う相手脅威閾値。
+#define KOIKOI_BASE5_POST_DELAY_THREAT_MIN 50
+// 上記専用 stop 条件で使う近接危険 delay 閾値。
+#define KOIKOI_BASE5_POST_DELAY_RISK_DELAY_MAX 2
+// 上記専用 stop 条件で使う危険役 score 閾値。
+#define KOIKOI_BASE5_POST_DELAY_RISK_SCORE_MIN 5
+// 上記専用 stop 条件で使う 7+ 到達率上限。
+#define KOIKOI_BASE5_POST_DELAY_SEVEN_REACH_MAX 25
 // base=5 の確定点を優先する近接高打点脅威の閾値。
 #define KOIKOI_BASE5_NEAR_HIGH_RISK_THREAT_MIN 80
 // base=5 の確定点を優先する近接高打点脅威の最短 delay。
@@ -218,6 +230,38 @@ static int should_stop_base5_thin_hand_koikoi(const StrategyData* s, int round_s
         return OFF;
     }
     return ON;
+}
+
+static int should_apply_base5_post_delay_stop_bonus(const StrategyData* s, int round_score, int best_self_delay, int best_self_reach, int best_seven_plus_delay,
+                                                    int best_seven_plus_reach, int min_risk_delay, int max_risk_score)
+{
+    int near_danger;
+
+    if (!s) {
+        return OFF;
+    }
+    if (round_score != 5) {
+        return OFF;
+    }
+    if (s->left_own > KOIKOI_BASE5_POST_DELAY_LEFT_OWN_MAX) {
+        return OFF;
+    }
+    if (best_self_delay <= 1 && best_self_reach >= 30) {
+        return OFF;
+    }
+    if (best_seven_plus_delay <= 1 && best_seven_plus_reach >= 30) {
+        return OFF;
+    }
+    if (best_seven_plus_reach > KOIKOI_BASE5_POST_DELAY_SEVEN_REACH_MAX) {
+        return OFF;
+    }
+
+    near_danger = (s->opp_coarse_threat >= KOIKOI_BASE5_POST_DELAY_THREAT_MIN) ? ON : OFF;
+    if (min_risk_delay <= KOIKOI_BASE5_POST_DELAY_RISK_DELAY_MAX && max_risk_score >= KOIKOI_BASE5_POST_DELAY_RISK_SCORE_MIN) {
+        near_danger = ON;
+    }
+
+    return near_danger;
 }
 
 static int should_stop_base5_behind_thin_push_koikoi(const StrategyData* s, int round_score, int live_out_est, int live_out_delay, int best_self_reach,
@@ -1608,6 +1652,11 @@ int ai_hard_koikoi(int player, int round_score)
         if (!forced_stop_reason) {
             forced_stop_reason = "BASE5_THIN_HAND";
         }
+    }
+    if (should_apply_base5_post_delay_stop_bonus(s, round_score, best_self_delay, best_self_reach, best_seven_plus_delay, best_seven_plus_reach,
+                                                 min_risk_delay, max_risk_score)) {
+        stop_value += KOIKOI_BASE5_POST_DELAY_STOP_BONUS;
+        stop_value_without_push += KOIKOI_BASE5_POST_DELAY_STOP_BONUS;
     }
     if (should_stop_base5_near_high_risk_koikoi(s, round_score, live_out_est, live_out_delay, min_risk_delay, max_risk_score, visible_threshold_high_gain,
                                                 secured_high_value_followup_gain)) {
