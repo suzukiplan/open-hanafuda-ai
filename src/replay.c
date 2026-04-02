@@ -361,13 +361,13 @@ static void run_round_loop(void)
     } while (show_result(g.current_player));
 }
 
-static int replay_game(const ReplaySpec* spec)
+static int replay_game(const ReplaySpec* spec, int force_preset_rounds)
 {
     if (!spec) {
         return 1;
     }
 
-    if (spec->has_seed) {
+    if (spec->has_seed && !force_preset_rounds) {
         configure_game(spec->ai_model[0], spec->ai_model[1], spec->no_sake);
         ai_debug_set_run_context(spec->seed, 0);
         vgs_srand((uint32_t)spec->seed);
@@ -438,5 +438,5 @@ int main(int argc, char** argv)
         spec.no_sake = OFF;
     }
 
-    return replay_game(&spec);
+    return replay_game(&spec, force_sake);
 }
