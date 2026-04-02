@@ -201,9 +201,6 @@ static int hard_should_force_rapacious_fallback_behind(const StrategyData* s)
 
 static int hard_has_rapacious_fallback_sake_base(int player)
 {
-    if (ai_is_no_sake_mode()) {
-        return OFF;
-    }
     return player >= 0 && player <= 1 && g.ai_model[player] == AI_MODEL_HARD && ai_debug_has_initial_sake(player);
 }
 
@@ -217,7 +214,6 @@ static int hard_should_disable_rapacious_fallback_sake(const StrategyData* s)
 
 static int hard_should_force_rapacious_fallback_sake_select_drop(int player, const StrategyData* s)
 {
-    return OFF;
     if (!hard_has_rapacious_fallback_sake_base(player) || hard_should_disable_rapacious_fallback_sake(s)) {
         return OFF;
     }
@@ -991,12 +987,14 @@ static int is_month_locked_for_player(int player, int month)
 
 static int month_lock_known_target(int month)
 {
-    return (ai_is_no_sake_mode() && month == 8) ? 2 : 3;
+    (void)month;
+    return 3;
 }
 
 static int month_lock_hidden_floor_target(int month)
 {
-    return (ai_is_no_sake_mode() && month == 8) ? 1 : 2;
+    (void)month;
+    return 2;
 }
 
 static int count_floor_month_cards(int month)
@@ -1224,10 +1222,10 @@ static int calc_month_lock_bonus(int player, int month)
     if (known != month_lock_known_target(month)) {
         return 0;
     }
-    if (owned >= ((ai_is_no_sake_mode() && month == 8) ? 2 : 3)) {
+    if (owned >= 3) {
         return SELECT_MONTH_LOCK_BONUS;
     }
-    if (owned == ((ai_is_no_sake_mode() && month == 8) ? 1 : 2)) {
+    if (owned == 2) {
         return SELECT_MONTH_LOCK_BONUS / 2;
     }
     return 0;
@@ -1287,10 +1285,6 @@ static int calc_hidden_month_card_bonus(int hidden_card_no, const StrategyData* 
     if (hidden_card_no < 0 || hidden_card_no >= 48 || !before) {
         return 0;
     }
-    if (ai_is_no_sake_mode() && g.cards[hidden_card_no].month == 8) {
-        return 0;
-    }
-
     for (int i = 0; i < 3; i++) {
         int wid = before->priority_score[i];
         if (wid >= 0 && wid < WINNING_HAND_MAX && ai_is_card_critical_for_wid(hidden_card_no, wid)) {

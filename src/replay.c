@@ -17,6 +17,7 @@ typedef struct {
     int no_sake;
     int seed;
     int has_seed;
+    int has_preset_rounds;
     int native_ai_seed;
     int has_native_ai_seed;
     ReplayRoundSpec rounds[12];
@@ -194,10 +195,15 @@ static int parse_watch_log(const char* path, ReplaySpec* out)
     if (out->round_max <= 0 || out->round_max > 12) {
         return OFF;
     }
+    out->has_preset_rounds = ON;
     for (int i = 0; i < out->round_max; i++) {
         if (out->rounds[i].floor_count != 48 || out->rounds[i].first_actor < 0) {
-            return OFF;
+            out->has_preset_rounds = OFF;
+            break;
         }
+    }
+    if (!out->has_preset_rounds && !out->has_seed) {
+        return OFF;
     }
     return ON;
 }
@@ -367,7 +373,7 @@ static int replay_game(const ReplaySpec* spec, int force_preset_rounds)
         return 1;
     }
 
-    if (spec->has_seed && !force_preset_rounds) {
+    if (spec->has_seed && !spec->has_preset_rounds && !force_preset_rounds) {
         configure_game(spec->ai_model[0], spec->ai_model[1], spec->no_sake);
         ai_debug_set_run_context(spec->seed, 0);
         vgs_srand((uint32_t)spec->seed);

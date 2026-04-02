@@ -456,22 +456,8 @@ static int strategy_rand_range(uint32_t* state, int n)
 
 static void strategy_pin_no_sake_hidden_cards_to_tail(Card** cards, int count)
 {
-    int tail = count - 1;
-
-    if (!ai_is_no_sake_mode() || !cards || count <= 0) {
-        return;
-    }
-    for (int target = 35; target >= 32; target -= 3) {
-        for (int i = 0; i <= tail; i++) {
-            if (cards[i] && cards[i]->id == target) {
-                Card* tmp = cards[tail];
-                cards[tail] = cards[i];
-                cards[i] = tmp;
-                tail--;
-                break;
-            }
-        }
-    }
+    (void)cards;
+    (void)count;
 }
 
 static int strategy_capture_priority(const StrategyCounts* counts, const Card* card)
@@ -524,9 +510,6 @@ static int strategy_discard_priority(const Card* card)
 static int strategy_cluster_card_bonus(int cluster, const Card* card)
 {
     if (!card) {
-        return 0;
-    }
-    if (ai_is_no_sake_mode() && (cluster == STRATEGY_CLUSTER_HANAMI || cluster == STRATEGY_CLUSTER_TSUKIMI)) {
         return 0;
     }
     switch (cluster) {
@@ -712,7 +695,6 @@ static int sample_determinization(int player, const Card** hidden_pool, int hidd
         shuffled[i] = shuffled[j];
         shuffled[j] = tmp;
     }
-    strategy_pin_no_sake_hidden_cards_to_tail(shuffled, hidden_num);
     int ptr = 0;
     for (int i = 0; i < opp_hand_num; i++) {
         sim->hand[opp][sim->hand_num[opp]++] = shuffled[ptr++];
@@ -1031,10 +1013,8 @@ static int strategy_total_score_from_counts(const StrategyCounts* counts, int op
             light_score = score;
         }
     }
-    if (!ai_is_no_sake_mode()) {
-        sake_score += calc_role_score(WID_HANAMI, counts);
-        sake_score += calc_role_score(WID_TSUKIMI, counts);
-    }
+    sake_score += calc_role_score(WID_HANAMI, counts);
+    sake_score += calc_role_score(WID_TSUKIMI, counts);
 
     {
         int isc_score = calc_role_score(WID_ISC, counts);
@@ -1272,7 +1252,7 @@ static int sim_env_effective_category(const ReachSimState* sim, int player, Card
         if (!captured) {
             continue;
         }
-        if (!ai_is_no_sake_mode() && captured->type == CARD_TYPE_TANE && captured->month == 8) {
+        if (captured->type == CARD_TYPE_TANE && captured->month == 8) {
             has_sake = ON;
         }
         if (captured->type == CARD_TYPE_GOKOU) {
@@ -1292,10 +1272,10 @@ static int sim_env_effective_category(const ReachSimState* sim, int player, Card
         (card->month == 0 || card->month == 2 || card->month == 7 || card->month == 10 || card->month == 11)) {
         return ENV_CAT_NA;
     }
-    if (!ai_is_no_sake_mode() && cat == ENV_CAT_1 && has_sake) {
+    if (cat == ENV_CAT_1 && has_sake) {
         return ENV_CAT_3;
     }
-    if (!ai_is_no_sake_mode() && (cat == ENV_CAT_2 || cat == ENV_CAT_11)) {
+    if (cat == ENV_CAT_2 || cat == ENV_CAT_11) {
         if (has_sakura && has_moon) {
             return ENV_CAT_12;
         }
@@ -1776,9 +1756,6 @@ int ai_count_unrevealed_same_month(int player, int month)
     int count = 0;
     for (int i = 0; i < 48; i++) {
         if (!known[i] && g.cards[i].month == month) {
-            if (ai_is_no_sake_mode() && (i == 32 || i == 35)) {
-                continue;
-            }
             count++;
         }
     }

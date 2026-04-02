@@ -157,9 +157,6 @@ static int hard_should_force_rapacious_fallback_behind(const StrategyData* s)
 
 static int hard_has_rapacious_fallback_sake_base(int player)
 {
-    if (ai_is_no_sake_mode()) {
-        return OFF;
-    }
     return player >= 0 && player <= 1 && g.ai_model[player] == AI_MODEL_HARD && ai_debug_has_initial_sake(player);
 }
 
@@ -201,9 +198,6 @@ static int hard_player_invent_has_card_id(int player, int card_id)
 
 static int hard_player_has_sake_cup(int player)
 {
-    if (ai_is_no_sake_mode()) {
-        return OFF;
-    }
     return player_has_hand_card(player, 35) || hard_player_invent_has_card_id(player, 35);
 }
 
@@ -1064,9 +1058,6 @@ static int choose_greedy_drop_candidate(int player, const StrategyData* before, 
 
 static int has_live_sake_line(const StrategyData* s, int reach_hanami, int delay_hanami, int reach_tsukimi, int delay_tsukimi)
 {
-    if (ai_is_no_sake_mode()) {
-        return OFF;
-    }
     if (!s) {
         return OFF;
     }
@@ -1078,9 +1069,6 @@ static int has_live_sake_line(const StrategyData* s, int reach_hanami, int delay
 
 static int should_preserve_sake_cup_in_greedy_fallback(const StrategyData* before, const DropCandidateScore* candidate)
 {
-    if (ai_is_no_sake_mode()) {
-        return OFF;
-    }
     Card* card;
     int self_live;
     int opp_live;
@@ -1795,9 +1783,6 @@ static int calc_visible_sake_followup_bonus(int player, int drop_card_no, const 
 {
     Card* drop;
 
-    if (ai_is_no_sake_mode()) {
-        return 0;
-    }
     if (out_wid) {
         *out_wid = -1;
     }
@@ -1846,9 +1831,6 @@ static int calc_visible_sake_light_setup_bonus(int player, int drop_card_no, con
     int bonus = 0;
     int wid = -1;
 
-    if (ai_is_no_sake_mode()) {
-        return 0;
-    }
     if (out_wid) {
         *out_wid = -1;
     }
@@ -1894,9 +1876,6 @@ static int calc_visible_sake_light_setup_bonus(int player, int drop_card_no, con
 
 static int find_forced_visible_sake_setup_drop(int player, const StrategyData* before)
 {
-    if (ai_is_no_sake_mode()) {
-        return -1;
-    }
     if (player < 0 || player > 1 || !before) {
         return -1;
     }
@@ -2824,12 +2803,14 @@ static int is_month_locked_for_player(int player, int month)
 
 static int month_lock_known_target(int month)
 {
-    return (ai_is_no_sake_mode() && month == 8) ? 2 : 3;
+    (void)month;
+    return 3;
 }
 
 static int month_lock_hidden_floor_target(int month)
 {
-    return (ai_is_no_sake_mode() && month == 8) ? 1 : 2;
+    (void)month;
+    return 2;
 }
 
 static int count_floor_month_cards(int month)
@@ -3091,10 +3072,10 @@ static int calc_month_lock_bonus(int player, int month)
     if (known != month_lock_known_target(month)) {
         return 0;
     }
-    if (owned >= ((ai_is_no_sake_mode() && month == 8) ? 2 : 3)) {
+    if (owned >= 3) {
         return DROP_MONTH_LOCK_BONUS;
     }
-    if (owned == ((ai_is_no_sake_mode() && month == 8) ? 1 : 2)) {
+    if (owned == 2) {
         return DROP_MONTH_LOCK_BONUS / 2;
     }
     return 0;
@@ -3191,10 +3172,6 @@ static int calc_hidden_month_card_bonus(int hidden_card_no, const StrategyData* 
     if (hidden_card_no < 0 || hidden_card_no >= 48 || !before) {
         return 0;
     }
-    if (ai_is_no_sake_mode() && g.cards[hidden_card_no].month == 8) {
-        return 0;
-    }
-
     for (int i = 0; i < 3; i++) {
         int wid = before->priority_score[i];
         if (wid >= 0 && wid < WINNING_HAND_MAX && ai_is_card_critical_for_wid(hidden_card_no, wid)) {
@@ -4528,7 +4505,7 @@ static int count_owned_kasu_total(int player)
 
     for (int i = 0; i < tane->num; i++) {
         Card* card = tane->cards[i];
-        if (card && card->month == 8 && !ai_is_no_sake_mode()) {
+        if (card && card->month == 8) {
             total++;
         }
     }
@@ -4555,9 +4532,6 @@ static int hand_has_same_month_card_type_except(int player, int month, int type,
 
 static int calc_sake_cup_capture_material_bonus(int player, int drop_card_no, int taken_card_no, const StrategyData* before)
 {
-    if (ai_is_no_sake_mode()) {
-        return 0;
-    }
     Card* drop;
     int before_tan;
     int bonus = 0;
@@ -4741,7 +4715,7 @@ static int calc_visible_sankou_reach_setup_bonus(int player, int drop_card_no, i
             continue;
         }
         delayed_hand_finisher = ON;
-        if (!ai_is_no_sake_mode() && (hand->id == 31 || hand->id == 11)) {
+        if (hand->id == 31 || hand->id == 11) {
             delayed_sake_synergy = ON;
         }
         break;
@@ -4775,7 +4749,7 @@ static int calc_capture_quality(int player, int drop_card_no, int taken_card_no,
         default: break;
     }
 
-    if (!ai_is_no_sake_mode() && taken->type == CARD_TYPE_TANE && taken->month == 8) {
+    if (taken->type == CARD_TYPE_TANE && taken->month == 8) {
         quality += 180; // 盃は花見酒/月見酒/カスの起点になりやすい。
     }
     if (hard_player_has_sake_cup(player)) {
@@ -5410,9 +5384,6 @@ static int calc_drop_immediate_points_gain(int player, int drop_card_no, const D
 
 static int should_delay_early_sake_completion(int player, int drop_card_no, const StrategyData* before, int completion_wid, int completion_take)
 {
-    if (ai_is_no_sake_mode()) {
-        return OFF;
-    }
     Card* drop;
 
     if (player < 0 || player > 1 || !before || completion_take != drop_card_no) {
