@@ -211,17 +211,6 @@ static int hard_should_disable_rapacious_fallback_sake(const StrategyData* s)
     }
     return s->opponent_win_x2 == ON || s->opp_coarse_threat >= 85 || s->left_rounds <= 2;
 }
-
-static int hard_should_force_rapacious_fallback_sake_select_drop(int player, const StrategyData* s)
-{
-    (void)player;
-    (void)s;
-    return OFF;
-    if (!hard_has_rapacious_fallback_sake_base(player) || hard_should_disable_rapacious_fallback_sake(s)) {
-        return OFF;
-    }
-    return g.koikoi[1 - player] ? OFF : ON;
-}
 #endif
 
 static int is_runtime_card_ptr_valid(const Card* card)
@@ -2433,7 +2422,7 @@ int ai_hard_select(int player, Card* card)
 #endif
 
 #if HARD_RAPACIOUS_FALLBACK_ENABLE == 1
-    if (hard_should_force_rapacious_fallback_behind(before) || hard_should_force_rapacious_fallback_sake_select_drop(player, before)) {
+    if (hard_should_force_rapacious_fallback_behind(before)) {
         return ai_hard_rapacious_fallback_select(player, card);
     }
 #endif

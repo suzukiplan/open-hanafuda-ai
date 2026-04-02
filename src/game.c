@@ -146,8 +146,8 @@ static inline void unlock_win_trophies(void)
             default: tid = -1;
         }
         if (0 <= tid) {
-            tid <<= g.no_sake ? 8 : 0;
-            tid <<= g.ai_model[1] == AI_MODEL_HARD ? 4 : 0;
+            tid += g.no_sake ? 8 : 0;
+            tid += g.ai_model[1] == AI_MODEL_HARD ? 4 : 0;
             trophy_unlock(tids[tid]);
         }
     }
@@ -253,8 +253,8 @@ void game(int round_max)
         vgs_bgm_play(BGM_MAIN_THEME);
 
         // ラウンド開始のための初期設定
-        g.avatar[0] = OFF;            // アバター再表示リクエスト (1P)
-        g.avatar[1] = OFF;            // アバター再表示リクエスト (COM)
+        g.avatar[0] = OFF; // アバター再表示リクエスト (1P)
+        g.avatar[1] = OFF; // アバター再表示リクエスト (COM)
         g.no_sake = g_no_sake_latched;
         reset_cards();                // シャッフルして配る
         if (g.online_error) break;    // オンラインエラーによる中断
