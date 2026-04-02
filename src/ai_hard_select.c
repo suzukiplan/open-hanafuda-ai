@@ -214,6 +214,9 @@ static int hard_should_disable_rapacious_fallback_sake(const StrategyData* s)
 
 static int hard_should_force_rapacious_fallback_sake_select_drop(int player, const StrategyData* s)
 {
+    (void)player;
+    (void)s;
+    return OFF;
     if (!hard_has_rapacious_fallback_sake_base(player) || hard_should_disable_rapacious_fallback_sake(s)) {
         return OFF;
     }
