@@ -59,19 +59,27 @@ clean:
 	rm -rf $(BUILD_DIR) $(BINARIES)
 
 run1k: ai_sim
-	./ai_sim -0 0 -1 1 -r 12 -l 1000 --seed=1772851247 >run1k.log
+	./ai_sim -0 0 -1 1 -r 12 -l 1000 --sake=1 --seed=1772851247 >run1k.log
 	@cat run1k.log
 
 run100: ai_sim
 	rm -rf run100.log
 	mkdir run100.log
-	./ai_sim -0 0 -1 1 -r 12 -l 100 --seed=1772851247 --log run100.log/watch.log > run100.txt
+	./ai_sim -0 0 -1 1 -r 12 -l 100 --sake=1 --seed=1772851247 --log run100.log/watch.log > run100.txt
 	cat run100.txt
 	python3 extract_watch_csv.py run100.log >run100.csv
+
+run100-ns: ai_sim
+	rm -rf run100_ns.log
+	mkdir run100_ns.log
+	./ai_sim -0 0 -1 1 -r 12 -l 100 --sake=0 --seed=1772851247 --log run100_ns.log/watch.log > run100_ns.txt
+	cat run100_ns.txt
+	python3 extract_watch_csv.py run100_ns.log >run100_ns.csv
 
 test:
 	make all
 	make run100
+	make run100-ns
 	make run1k
 	python3 update_requirements_from_run1k.py
 

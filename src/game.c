@@ -115,11 +115,40 @@ static inline void unlock_win_trophies(void)
     if (g.online_mode) {
         trophy_unlock(TROPHY_WIN_ONLINE);
     } else {
+        static const int tids[] = {
+            // Normal / Standard
+            TROPHY_WIN_VERYSHORT,
+            TROPHY_WIN_SHORT,
+            TROPHY_WIN_HALF,
+            TROPHY_WIN_FULL,
+            // Hard / Standard
+            TROPHY_WIN2_VERYSHORT,
+            TROPHY_WIN2_SHORT,
+            TROPHY_WIN2_HALF,
+            TROPHY_WIN2_FULL,
+            // Normal / No-Sake
+            TROPHY_WIN3_VERYSHORT,
+            TROPHY_WIN3_SHORT,
+            TROPHY_WIN3_HALF,
+            TROPHY_WIN3_FULL,
+            // Hard / No-Sake
+            TROPHY_WIN4_VERYSHORT,
+            TROPHY_WIN4_SHORT,
+            TROPHY_WIN4_HALF,
+            TROPHY_WIN4_FULL,
+        };
+        int tid = 0;
         switch (g.round_max) {
-            case 2: trophy_unlock(TROPHY_WIN_VERYSHORT); break;
-            case 4: trophy_unlock(TROPHY_WIN_SHORT); break;
-            case 6: trophy_unlock(TROPHY_WIN_HALF); break;
-            case 12: trophy_unlock(TROPHY_WIN_FULL); break;
+            case 2: tid = 0; break;
+            case 4: tid = 1; break;
+            case 6: tid = 2; break;
+            case 12: tid = 3; break;
+            default: tid = -1;
+        }
+        if (0 <= tid) {
+            tid <<= g.no_sake ? 8 : 0;
+            tid <<= g.ai_model[1] == AI_MODEL_HARD ? 4 : 0;
+            trophy_unlock(tids[tid]);
         }
     }
 
@@ -139,6 +168,7 @@ static inline void unlock_win_trophies(void)
 
 void game(int round_max)
 {
+    g_no_sake_latched = g.no_sake ? ON : OFF;
 #ifdef LOGGING
     ai_putlog("=================");
     ai_putlog("=  Round Start  =");
@@ -213,11 +243,19 @@ void game(int round_max)
         vgs_u32str(sc, g.total_score[0]);
         vgs_print_bg(0, 38 - vgs_strlen(sc), 15, 0, sc);
 
+        // 禁酒マーク
+        if (g.no_sake) {
+            for (int i = 0; i < 4; i++) {
+                vgs_put_bg(0, i, 24, 0x10 + i);
+            }
+        }
+
         vgs_bgm_play(BGM_MAIN_THEME);
 
         // ラウンド開始のための初期設定
         g.avatar[0] = OFF;            // アバター再表示リクエスト (1P)
         g.avatar[1] = OFF;            // アバター再表示リクエスト (COM)
+        g.no_sake = g_no_sake_latched;
         reset_cards();                // シャッフルして配る
         if (g.online_error) break;    // オンラインエラーによる中断
         ai_putlog("[Round Start]");   // ラウンド開始

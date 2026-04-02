@@ -147,6 +147,8 @@ static int count_known_month_cards_for_player(int player, int month);
 static int count_owned_month_cards(int player, int month);
 static int is_month_locked_for_player(int player, int month);
 static int has_floor_same_month_card(int month);
+static int month_lock_known_target(int month);
+static int month_lock_hidden_floor_target(int month);
 static int is_secured_threshold_followup_card(int player, Card* card);
 static int secured_followup_single_card_gain(int player, Card* card, int* out_best_wid);
 static int estimate_secured_followup_gain(int player, int* out_ready_cards, int* out_best_high_value_gain);
@@ -386,6 +388,9 @@ static int hard_should_force_rapacious_fallback_behind(const StrategyData* s)
 
 static int hard_has_rapacious_fallback_sake_base(int player)
 {
+    if (ai_is_no_sake_mode()) {
+        return OFF;
+    }
     return player >= 0 && player <= 1 && g.ai_model[player] == AI_MODEL_HARD && ai_debug_has_initial_sake(player);
 }
 
@@ -445,6 +450,9 @@ static int calc_followup_pressure_value(const int* reach, const int* delay)
 
 static int find_blocked_sake_wid(int player)
 {
+    if (ai_is_no_sake_mode()) {
+        return -1;
+    }
     int opp = 1 - player;
 
     if (player < 0 || player > 1) {
@@ -462,6 +470,9 @@ static int find_blocked_sake_wid(int player)
 static int should_stop_base5_blocked_sake_koikoi(int player, const StrategyData* s, int round_score, int live_out_est, int live_out_delay,
                                                  int best_seven_plus_delay, int best_seven_plus_reach)
 {
+    if (ai_is_no_sake_mode()) {
+        return OFF;
+    }
     int self_followup_pressure;
     int opp_followup_pressure;
 
@@ -606,7 +617,17 @@ static int count_owned_month_cards(int player, int month)
 
 static int is_month_locked_for_player(int player, int month)
 {
-    return (count_known_month_cards_for_player(player, month) == 3 && count_owned_month_cards(player, month) >= 2) ? ON : OFF;
+    return (count_known_month_cards_for_player(player, month) == month_lock_known_target(month) && count_owned_month_cards(player, month) >= 2) ? ON : OFF;
+}
+
+static int month_lock_known_target(int month)
+{
+    return (ai_is_no_sake_mode() && month == 8) ? 2 : 3;
+}
+
+static int month_lock_hidden_floor_target(int month)
+{
+    return (ai_is_no_sake_mode() && month == 8) ? 1 : 2;
 }
 
 static int count_floor_month_cards(int month)
@@ -650,13 +671,13 @@ static int is_hidden_month_lock_key_card_for_player(int player, int card_no)
         return OFF;
     }
     month = g.cards[card_no].month;
-    if (count_known_month_cards_for_player(player, month) != 3) {
+    if (count_known_month_cards_for_player(player, month) != month_lock_known_target(month)) {
         return OFF;
     }
     if (count_owned_month_cards(player, month) != 1) {
         return OFF;
     }
-    if (count_floor_month_cards(month) != 2) {
+    if (count_floor_month_cards(month) != month_lock_hidden_floor_target(month)) {
         return OFF;
     }
     for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
@@ -871,6 +892,9 @@ static int has_live_out_to_seven_push(const StrategyData* s, int round_score)
 
 static int has_captured_sake_cup(int player)
 {
+    if (ai_is_no_sake_mode()) {
+        return OFF;
+    }
     if (player < 0 || player > 1) {
         return OFF;
     }

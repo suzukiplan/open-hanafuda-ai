@@ -14,6 +14,7 @@ typedef struct {
 typedef struct {
     int ai_model[2];
     int round_max;
+    int no_sake;
     int seed;
     int has_seed;
     int native_ai_seed;
@@ -52,11 +53,13 @@ static const char* ai_name_local(int model)
     }
 }
 
-static void configure_game(int ai0, int ai1)
+static void configure_game(int ai0, int ai1, int no_sake)
 {
     vgs_memset(&g, 0, sizeof(g));
     g.online_mode = OFF;
     g.auto_play = ON;
+    g.no_sake = no_sake ? ON : OFF;
+    g_no_sake_latched = g.no_sake;
     g.ai_model[0] = ai0;
     g.ai_model[1] = ai1;
     g.bg_color = 0;
@@ -119,6 +122,14 @@ static int parse_watch_log(const char* path, ReplaySpec* out)
         int round_no = 0;
 
         int seed = 0;
+        int no_sake = 0;
+
+        if (sscanf(line, "Watch Start: P1=%31s CPU=%31s rounds=%d no_sake=%d", p1_model, cpu_model, &out->round_max, &no_sake) == 4) {
+            out->ai_model[0] = parse_ai_model(p1_model);
+            out->ai_model[1] = parse_ai_model(cpu_model);
+            out->no_sake = no_sake ? ON : OFF;
+            continue;
+        }
 
         if (sscanf(line, "Watch Start: P1=%31s CPU=%31s rounds=%d seed=%d", p1_model, cpu_model, &out->round_max, &seed) == 4) {
             out->ai_model[0] = parse_ai_model(p1_model);
@@ -131,6 +142,12 @@ static int parse_watch_log(const char* path, ReplaySpec* out)
         if (sscanf(line, "Watch Start: P1=%31s CPU=%31s rounds=%d", p1_model, cpu_model, &out->round_max) == 3) {
             out->ai_model[0] = parse_ai_model(p1_model);
             out->ai_model[1] = parse_ai_model(cpu_model);
+            continue;
+        }
+
+        if (sscanf(line, "Watch Seed: %d", &seed) == 1) {
+            out->seed = seed;
+            out->has_seed = ON;
             continue;
         }
 
@@ -351,14 +368,14 @@ static int replay_game(const ReplaySpec* spec)
     }
 
     if (spec->has_seed) {
-        configure_game(spec->ai_model[0], spec->ai_model[1]);
+        configure_game(spec->ai_model[0], spec->ai_model[1], spec->no_sake);
         ai_debug_set_run_context(spec->seed, 0);
         vgs_srand((uint32_t)spec->seed);
         game(spec->round_max);
         return 0;
     }
 
-    configure_game(spec->ai_model[0], spec->ai_model[1]);
+    configure_game(spec->ai_model[0], spec->ai_model[1], spec->no_sake);
     g.round_max = spec->round_max;
     g.round = 0;
     g.total_score[0] = 0;
@@ -385,21 +402,40 @@ static int replay_game(const ReplaySpec* spec)
 
 static void print_usage(const char* argv0)
 {
-    fprintf(stderr, "usage: %s <watch.log>\n", argv0 ? argv0 : "replay");
+    fprintf(stderr, "usage: %s [--force_sake] <watch.log>\n", argv0 ? argv0 : "replay");
 }
 
 int main(int argc, char** argv)
 {
     ReplaySpec spec;
+    const char* log_path = NULL;
+    int force_sake = OFF;
 
-    if (argc != 2) {
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--force_sake") == 0) {
+            force_sake = ON;
+            continue;
+        }
+        if (!log_path) {
+            log_path = argv[i];
+            continue;
+        }
         print_usage(argv[0]);
         return 1;
     }
 
-    if (!parse_watch_log(argv[1], &spec)) {
-        fprintf(stderr, "failed to parse replay inputs from %s\n", argv[1]);
+    if (!log_path) {
+        print_usage(argv[0]);
         return 1;
+    }
+
+    if (!parse_watch_log(log_path, &spec)) {
+        fprintf(stderr, "failed to parse replay inputs from %s\n", log_path);
+        return 1;
+    }
+
+    if (force_sake) {
+        spec.no_sake = OFF;
     }
 
     return replay_game(&spec);

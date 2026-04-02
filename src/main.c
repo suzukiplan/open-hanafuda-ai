@@ -65,7 +65,7 @@ static void print_usage(const char* argv0)
 {
     const char* prog = (argv0 && *argv0) ? argv0 : "ai_sim";
     fprintf(stderr,
-            "usage: %s -0 <ai_model> -1 <ai_model> -r <rounds> [-l <loops>] [--seed=<seed>] [--log=<path>] [--find-seed-actionmc-best=<N> "
+            "usage: %s -0 <ai_model> -1 <ai_model> -r <rounds> [-l <loops>] [--seed=<seed>] [--sake=<0|1>] [--log=<path>] [--find-seed-actionmc-best=<N> "
             "--seed-start=<S> --seed-count=<M>]\n",
             prog);
 }
@@ -79,11 +79,13 @@ static const char* strategy_mode_name(int mode)
     }
 }
 
-static void configure_game(int ai0, int ai1)
+static void configure_game(int ai0, int ai1, int sake_enabled)
 {
     vgs_memset(&g, 0, sizeof(g));
     g.online_mode = OFF;
     g.auto_play = ON;
+    g.no_sake = sake_enabled ? OFF : ON;
+    g_no_sake_latched = g.no_sake;
     g.ai_model[0] = ai0;
     g.ai_model[1] = ai1;
     g.bg_color = 0;
@@ -100,11 +102,11 @@ const char* ai_name(int model)
     }
 }
 
-static void run_single_game(int ai0, int ai1, int round_max, int seed, int game_index)
+static void run_single_game(int ai0, int ai1, int round_max, int seed, int game_index, int sake_enabled)
 {
     sim_metrics_reset();
     ai_debug_metrics_reset();
-    configure_game(ai0, ai1);
+    configure_game(ai0, ai1, sake_enabled);
     ai_debug_set_run_context(seed, game_index);
     vgs_srand((uint32_t)seed);
     game(round_max);
@@ -151,7 +153,7 @@ static void update_seed_search_top(SeedSearchResult* top, int top_n, const SeedS
     top[insert_at] = *candidate;
 }
 
-static int run_action_mc_best_seed_search(int ai0, int ai1, int round_max, int seed_start, int seed_count, int top_n)
+static int run_action_mc_best_seed_search(int ai0, int ai1, int round_max, int seed_start, int seed_count, int top_n, int sake_enabled)
 {
     SeedSearchResult* top;
 
@@ -168,7 +170,7 @@ static int run_action_mc_best_seed_search(int ai0, int ai1, int round_max, int s
         int current_seed = seed_start + i;
         SeedSearchResult result;
         const AiDebugMetrics* debug_metrics;
-        run_single_game(ai0, ai1, round_max, current_seed, 0);
+        run_single_game(ai0, ai1, round_max, current_seed, 0, sake_enabled);
         debug_metrics = ai_debug_metrics_get();
         result.seed = current_seed;
         result.applied_best = debug_metrics->action_mc_applied_best_count[1];
@@ -208,6 +210,7 @@ int main(int argc, char** argv)
     int seed_start = 1;
     int seed_count = 0;
     int parse_error = OFF;
+    int sake_enabled = 1;
 
     for (int i = 1; i < argc; i++) {
         const char* arg = argv[i];
@@ -239,12 +242,16 @@ int main(int argc, char** argv)
             seed = parse_or_default(arg + 7, seed);
         } else if (strncmp(arg, "--log=", 6) == 0) {
             log_path = arg + 6;
+        } else if (strncmp(arg, "--sake=", 7) == 0) {
+            sake_enabled = parse_or_default(arg + 7, sake_enabled) ? 1 : 0;
         } else if (strcmp(arg, "--log") == 0) {
             if (i + 1 >= argc) {
                 parse_error = ON;
                 break;
             }
             log_path = argv[++i];
+        } else if (strcmp(arg, "--sake") == 0) {
+            sake_enabled = parse_option_value(argc, argv, &i, sake_enabled) ? 1 : 0;
         } else if (strncmp(arg, "--find-seed-actionmc-best=", 26) == 0) {
             find_seed_actionmc_best = parse_or_default(arg + 26, 0);
         } else if (strcmp(arg, "--find-seed-actionmc-best") == 0) {
@@ -284,7 +291,7 @@ int main(int argc, char** argv)
         if (seed_count <= 0) {
             seed_count = 100;
         }
-        return run_action_mc_best_seed_search(ai_model[0], ai_model[1], round_max, seed_start, seed_count, find_seed_actionmc_best);
+        return run_action_mc_best_seed_search(ai_model[0], ai_model[1], round_max, seed_start, seed_count, find_seed_actionmc_best, sake_enabled);
     }
     if (!vgs_watch_log_set_base_path(log_path)) {
         return 1;
@@ -299,7 +306,7 @@ int main(int argc, char** argv)
             vgs_watch_log_shutdown();
             return 1;
         }
-        configure_game(ai_model[0], ai_model[1]);
+        configure_game(ai_model[0], ai_model[1], sake_enabled);
         ai_debug_set_run_context(seed + game_index, game_index);
         vgs_srand((uint32_t)(seed + game_index));
         game(round_max);

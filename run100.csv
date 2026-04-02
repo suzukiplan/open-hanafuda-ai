@@ -1,4 +1,4 @@
-count,P1:Model,CPU:Model,diff,winner,round1,round2,round3,round4,round5,round6,round7,round8,round9,round10,round11,round12
+count,score0,score1,diff,winner,round1,round2,round3,round4,round5,round6,round7,round8,round9,round10,round11,round12
 1,43,49,-6,CPU:Hard,-24,-4,-8,-9,-8,-7,-21,-7,-3,0,-1,-6
 2,84,15,69,P1:Normal,16,30,44,38,40,60,65,77,73,71,68,69
 3,17,48,-31,CPU:Hard,10,10,-12,-11,-10,-11,-16,-26,-22,-21,-26,-31

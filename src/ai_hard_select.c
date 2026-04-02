@@ -111,6 +111,8 @@ static int count_owned_month_cards(int player, int month);
 static int count_floor_month_cards(int month);
 static int player_has_hand_card(int player, int card_no);
 static int is_hidden_month_lock_key_card_for_player(int player, int card_no);
+static int month_lock_known_target(int month);
+static int month_lock_hidden_floor_target(int month);
 // GREEDY 時は combo7 を主項として押し上げる。
 #define COMBO7_GREEDY_MULT 140
 // BALANCED 時は tactical より少し強い程度に留める。
@@ -199,6 +201,9 @@ static int hard_should_force_rapacious_fallback_behind(const StrategyData* s)
 
 static int hard_has_rapacious_fallback_sake_base(int player)
 {
+    if (ai_is_no_sake_mode()) {
+        return OFF;
+    }
     return player >= 0 && player <= 1 && g.ai_model[player] == AI_MODEL_HARD && ai_debug_has_initial_sake(player);
 }
 
@@ -981,7 +986,17 @@ static int is_month_locked_for_player(int player, int month)
     }
     known = count_known_month_cards_for_player(player, month);
     owned = count_owned_month_cards(player, month);
-    return (known == 3 && owned >= 2) ? ON : OFF;
+    return (known == month_lock_known_target(month) && owned >= 2) ? ON : OFF;
+}
+
+static int month_lock_known_target(int month)
+{
+    return (ai_is_no_sake_mode() && month == 8) ? 2 : 3;
+}
+
+static int month_lock_hidden_floor_target(int month)
+{
+    return (ai_is_no_sake_mode() && month == 8) ? 1 : 2;
 }
 
 static int count_floor_month_cards(int month)
@@ -1025,13 +1040,13 @@ static int is_hidden_month_lock_key_card_for_player(int player, int card_no)
         return OFF;
     }
     month = g.cards[card_no].month;
-    if (count_known_month_cards_for_player(player, month) != 3) {
+    if (count_known_month_cards_for_player(player, month) != month_lock_known_target(month)) {
         return OFF;
     }
     if (count_owned_month_cards(player, month) != 1) {
         return OFF;
     }
-    if (count_floor_month_cards(month) != 2) {
+    if (count_floor_month_cards(month) != month_lock_hidden_floor_target(month)) {
         return OFF;
     }
     for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
@@ -1202,19 +1217,17 @@ static int calc_month_lock_bonus(int player, int month)
 {
     int known = count_known_month_cards_for_player(player, month);
     int owned = count_owned_month_cards(player, month);
-    int hidden;
 
     if (known <= 0) {
         return 0;
     }
-    hidden = 4 - known;
-    if (hidden != 1) {
+    if (known != month_lock_known_target(month)) {
         return 0;
     }
-    if (owned >= 3) {
+    if (owned >= ((ai_is_no_sake_mode() && month == 8) ? 2 : 3)) {
         return SELECT_MONTH_LOCK_BONUS;
     }
-    if (owned == 2) {
+    if (owned == ((ai_is_no_sake_mode() && month == 8) ? 1 : 2)) {
         return SELECT_MONTH_LOCK_BONUS / 2;
     }
     return 0;
@@ -1272,6 +1285,9 @@ static int calc_hidden_month_card_bonus(int hidden_card_no, const StrategyData* 
     }
 
     if (hidden_card_no < 0 || hidden_card_no >= 48 || !before) {
+        return 0;
+    }
+    if (ai_is_no_sake_mode() && g.cards[hidden_card_no].month == 8) {
         return 0;
     }
 

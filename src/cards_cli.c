@@ -1069,6 +1069,37 @@ int validate_floor_cards(CardSet* floor)
     return ON;
 }
 
+static void enforce_no_sake_hidden_cards(CardSet* floor)
+{
+    int kasu_pos = -1;
+    int sake_pos = -1;
+    Card* tmp;
+
+    if (!floor) {
+        return;
+    }
+    for (int i = 0; i < 48; i++) {
+        if (floor->cards[i] && floor->cards[i]->id == 32) {
+            kasu_pos = i;
+        } else if (floor->cards[i] && floor->cards[i]->id == 35) {
+            sake_pos = i;
+        }
+    }
+    if (kasu_pos >= 0 && kasu_pos != 46) {
+        tmp = floor->cards[46];
+        floor->cards[46] = floor->cards[kasu_pos];
+        floor->cards[kasu_pos] = tmp;
+        if (sake_pos == 46) {
+            sake_pos = kasu_pos;
+        }
+    }
+    if (sake_pos >= 0 && sake_pos != 47) {
+        tmp = floor->cards[47];
+        floor->cards[47] = floor->cards[sake_pos];
+        floor->cards[sake_pos] = tmp;
+    }
+}
+
 void reset_cards()
 {
     vgs_memset(&g.cards, 0, sizeof(g.cards));
@@ -1122,13 +1153,34 @@ void reset_cards()
             g.floor.num = 0;
 
             // とりあえずランダムに並べる
-            for (int i = 0; i < 48; i++) {
-                int r = vgs_rand() % 48;
-                while (g.floor.cards[r]) {
-                    r = vgs_rand() % 48;
+            if (g.no_sake || g_no_sake_latched) {
+                g.floor.cards[46] = &g.cards[32];
+                g.floor.cards[47] = &g.cards[35];
+                g.floor.num = 2;
+                for (int i = 0; i < 48; i++) {
+                    if (i == 32 || i == 35) {
+                        continue;
+                    }
+                    int r = vgs_rand() % 48;
+                    while (g.floor.cards[r]) {
+                        r = vgs_rand() % 48;
+                    }
+                    g.floor.cards[r] = &g.cards[i];
+                    g.floor.num++;
                 }
-                g.floor.cards[r] = &g.cards[i];
-                g.floor.num++;
+            } else {
+                for (int i = 0; i < 48; i++) {
+                    int r = vgs_rand() % 48;
+                    while (g.floor.cards[r]) {
+                        r = vgs_rand() % 48;
+                    }
+                    g.floor.cards[r] = &g.cards[i];
+                    g.floor.num++;
+                }
+            }
+
+            if (g.no_sake || g_no_sake_latched) {
+                enforce_no_sake_hidden_cards(&g.floor);
             }
 
             if (validate_floor_cards(&g.floor)) {

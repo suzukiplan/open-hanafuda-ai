@@ -259,6 +259,8 @@ void ai_putlog_env(const char* fmt, ...);
 void ai_putlog_raw(const char* s);
 void ai_watch_log_begin(void);
 void ai_watch_log_end(void);
+int ai_is_no_sake_mode(void);
+int ai_is_disabled_wid_by_rules(int wid);
 void ai_watch_min_set_action(int player, const char* fmt, ...);
 void ai_watch_min_import_action(int player, const char* s);
 const char* ai_watch_min_get_action(int player);

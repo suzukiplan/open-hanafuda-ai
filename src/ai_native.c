@@ -184,6 +184,7 @@ static void build_native_ai_snapshot(void)
     native_ai_snapshot.oya = g.oya;
     native_ai_snapshot.current_player = g.current_player;
     native_ai_snapshot.auto_play = g.auto_play;
+    native_ai_snapshot.no_sake = g.no_sake;
     native_ai_snapshot.ai_model[0] = g.ai_model[0];
     native_ai_snapshot.ai_model[1] = g.ai_model[1];
     native_ai_snapshot.watch_min_action[0][0] = '\0';

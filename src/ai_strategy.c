@@ -388,6 +388,9 @@ enum StrategyCluster {
 
 static int strategy_cluster_of_wid(int wid)
 {
+    if (ai_is_disabled_wid_by_rules(wid)) {
+        return STRATEGY_CLUSTER_KASU;
+    }
     switch (wid) {
         case WID_GOKOU:
         case WID_SHIKOU:
@@ -451,6 +454,26 @@ static int strategy_rand_range(uint32_t* state, int n)
     return (int)(strategy_rng_next(state) % (uint32_t)n);
 }
 
+static void strategy_pin_no_sake_hidden_cards_to_tail(Card** cards, int count)
+{
+    int tail = count - 1;
+
+    if (!ai_is_no_sake_mode() || !cards || count <= 0) {
+        return;
+    }
+    for (int target = 35; target >= 32; target -= 3) {
+        for (int i = 0; i <= tail; i++) {
+            if (cards[i] && cards[i]->id == target) {
+                Card* tmp = cards[tail];
+                cards[tail] = cards[i];
+                cards[i] = tmp;
+                tail--;
+                break;
+            }
+        }
+    }
+}
+
 static int strategy_capture_priority(const StrategyCounts* counts, const Card* card)
 {
     if (!counts || !card) {
@@ -503,6 +526,9 @@ static int strategy_cluster_card_bonus(int cluster, const Card* card)
     if (!card) {
         return 0;
     }
+    if (ai_is_no_sake_mode() && (cluster == STRATEGY_CLUSTER_HANAMI || cluster == STRATEGY_CLUSTER_TSUKIMI)) {
+        return 0;
+    }
     switch (cluster) {
         case STRATEGY_CLUSTER_LIGHT:
             return card->type == CARD_TYPE_GOKOU ? 20 : 0;
@@ -530,6 +556,9 @@ static int strategy_cluster_card_bonus(int cluster, const Card* card)
 static int strategy_role_progress(int wid, const StrategyCounts* counts)
 {
     if (!counts) {
+        return 0;
+    }
+    if (ai_is_disabled_wid_by_rules(wid)) {
         return 0;
     }
     if (can_complete_by_counts(wid, counts)) {
@@ -683,6 +712,7 @@ static int sample_determinization(int player, const Card** hidden_pool, int hidd
         shuffled[i] = shuffled[j];
         shuffled[j] = tmp;
     }
+    strategy_pin_no_sake_hidden_cards_to_tail(shuffled, hidden_num);
     int ptr = 0;
     for (int i = 0; i < opp_hand_num; i++) {
         sim->hand[opp][sim->hand_num[opp]++] = shuffled[ptr++];
@@ -1001,8 +1031,10 @@ static int strategy_total_score_from_counts(const StrategyCounts* counts, int op
             light_score = score;
         }
     }
-    sake_score += calc_role_score(WID_HANAMI, counts);
-    sake_score += calc_role_score(WID_TSUKIMI, counts);
+    if (!ai_is_no_sake_mode()) {
+        sake_score += calc_role_score(WID_HANAMI, counts);
+        sake_score += calc_role_score(WID_TSUKIMI, counts);
+    }
 
     {
         int isc_score = calc_role_score(WID_ISC, counts);
@@ -1240,7 +1272,7 @@ static int sim_env_effective_category(const ReachSimState* sim, int player, Card
         if (!captured) {
             continue;
         }
-        if (captured->type == CARD_TYPE_TANE && captured->month == 8) {
+        if (!ai_is_no_sake_mode() && captured->type == CARD_TYPE_TANE && captured->month == 8) {
             has_sake = ON;
         }
         if (captured->type == CARD_TYPE_GOKOU) {
@@ -1260,10 +1292,10 @@ static int sim_env_effective_category(const ReachSimState* sim, int player, Card
         (card->month == 0 || card->month == 2 || card->month == 7 || card->month == 10 || card->month == 11)) {
         return ENV_CAT_NA;
     }
-    if (cat == ENV_CAT_1 && has_sake) {
+    if (!ai_is_no_sake_mode() && cat == ENV_CAT_1 && has_sake) {
         return ENV_CAT_3;
     }
-    if (cat == ENV_CAT_2 || cat == ENV_CAT_11) {
+    if (!ai_is_no_sake_mode() && (cat == ENV_CAT_2 || cat == ENV_CAT_11)) {
         if (has_sakura && has_moon) {
             return ENV_CAT_12;
         }
@@ -1514,6 +1546,9 @@ int ai_is_card_critical_for_wid(int card_no, int wid)
     if (card_no < 0 || card_no >= 48 || wid < 0 || wid >= WINNING_HAND_MAX) {
         return OFF;
     }
+    if (ai_is_disabled_wid_by_rules(wid)) {
+        return OFF;
+    }
 
     init_strategy_requirements();
     if (is_threshold_role_wid(wid)) {
@@ -1532,6 +1567,9 @@ int ai_is_card_critical_for_wid(int card_no, int wid)
 int ai_is_card_related_for_wid(int card_no, int wid)
 {
     if (card_no < 0 || card_no >= 48 || wid < 0 || wid >= WINNING_HAND_MAX) {
+        return OFF;
+    }
+    if (ai_is_disabled_wid_by_rules(wid)) {
         return OFF;
     }
     if (ai_is_card_critical_for_wid(card_no, wid)) {
@@ -1569,6 +1607,9 @@ int ai_is_card_related_for_wid(int card_no, int wid)
  */
 int ai_is_fixed_wid(int wid)
 {
+    if (ai_is_disabled_wid_by_rules(wid)) {
+        return OFF;
+    }
     switch (wid) {
         case WID_GOKOU:
         case WID_SHIKOU:
@@ -1662,7 +1703,7 @@ int ai_wid_missing_count(int player, int wid)
 {
     int owned_by_key[48];
 
-    if (player < 0 || player > 1) {
+    if (player < 0 || player > 1 || ai_is_disabled_wid_by_rules(wid)) {
         return 99;
     }
     build_owned_requirement_map(player, owned_by_key);
@@ -1735,6 +1776,9 @@ int ai_count_unrevealed_same_month(int player, int month)
     int count = 0;
     for (int i = 0; i < 48; i++) {
         if (!known[i] && g.cards[i].month == month) {
+            if (ai_is_no_sake_mode() && (i == 32 || i == 35)) {
+                continue;
+            }
             count++;
         }
     }
@@ -2084,6 +2128,9 @@ static int can_complete_by_counts(int wid, const StrategyCounts* counts)
     if (!counts) {
         return OFF;
     }
+    if (ai_is_disabled_wid_by_rules(wid)) {
+        return OFF;
+    }
     switch (wid) {
         case WID_GOKOU:
             return counts->gokou >= 5 ? ON : OFF;
@@ -2119,7 +2166,7 @@ static int can_complete_by_counts(int wid, const StrategyCounts* counts)
 
 static int calc_role_score(int wid, const StrategyCounts* counts)
 {
-    if (!counts || !can_complete_by_counts(wid, counts)) {
+    if (!counts || ai_is_disabled_wid_by_rules(wid) || !can_complete_by_counts(wid, counts)) {
         return 0;
     }
     switch (wid) {
@@ -2725,7 +2772,7 @@ static int estimate_risk_7plus_distance(const StrategyData* data, int opp_curren
 
     int best = 99;
     for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
-        if (data->risk_reach_estimate[wid] <= 0 || data->risk_delay[wid] >= 99) {
+        if (ai_is_disabled_wid_by_rules(wid) || data->risk_reach_estimate[wid] <= 0 || data->risk_delay[wid] >= 99) {
             continue;
         }
         if (opp_current_score + winning_hands[wid].base_score < 7) {
@@ -2786,7 +2833,7 @@ static int estimate_opp_exact_7plus_threat(const StrategyData* data, int opp_cur
     }
 
     for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
-        if (opp_current_score + winning_hands[wid].base_score < 7) {
+        if (ai_is_disabled_wid_by_rules(wid) || opp_current_score + winning_hands[wid].base_score < 7) {
             continue;
         }
         if (data->risk_score[wid] > best_risk_ev) {
@@ -3279,6 +3326,9 @@ static void strategy_self_best_metrics(const StrategyData* data, StrategySelfBes
     out_metrics->self_best_delay = STRATEGY_DELAY_INVALID;
 
     for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
+        if (ai_is_disabled_wid_by_rules(wid)) {
+            continue;
+        }
         int reach = data->reach[wid];
         int score = data->score[wid];
         int delay = data->delay[wid];
@@ -3307,6 +3357,9 @@ static void strategy_opp_best_metrics(const StrategyData* data, StrategyOppBestM
     out_metrics->opp_best_risk_delay = STRATEGY_DELAY_INVALID;
 
     for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
+        if (ai_is_disabled_wid_by_rules(wid)) {
+            continue;
+        }
         int risk_ev = data->risk_score[wid];
         int risk_delay = data->risk_delay[wid];
         if (risk_ev > out_metrics->opp_best_risk_ev) {
@@ -3333,6 +3386,9 @@ static void strategy_calc_mode(StrategyData* data)
 
     strategy_self_best_metrics(data, &self_metrics);
     for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
+        if (ai_is_disabled_wid_by_rules(wid)) {
+            continue;
+        }
         if (data->score[wid] > best_self_score) {
             best_self_score = data->score[wid];
         }
@@ -3700,6 +3756,9 @@ void ai_think_strategy_mode(int player, StrategyData* data, int mode, const Stra
             if (completed_own_flags[wid]) {
                 continue;
             }
+            if (ai_is_disabled_wid_by_rules(wid)) {
+                continue;
+            }
             if (tan_blocked && wid == WID_TAN) {
                 continue;
             }
@@ -3752,6 +3811,12 @@ void ai_think_strategy_mode(int player, StrategyData* data, int mode, const Stra
         }
 
         for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
+            if (ai_is_disabled_wid_by_rules(wid)) {
+                data->reach[wid] = 0;
+                data->delay[wid] = 99;
+                data->score[wid] = 0;
+                continue;
+            }
             if (completed_own_flags[wid]) {
                 data->reach[wid] = 0;
                 data->delay[wid] = 0;
@@ -3811,6 +3876,12 @@ void ai_think_strategy_mode(int player, StrategyData* data, int mode, const Stra
         build_counts_for_player_plus_floor(opp, &opp_counts_plus_floor);
         for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
             vsync();
+            if (ai_is_disabled_wid_by_rules(wid)) {
+                data->risk_delay[wid] = 99;
+                data->risk_reach_estimate[wid] = 0;
+                data->risk_score[wid] = 0;
+                continue;
+            }
             if (can_complete_by_counts(wid, &opp_counts_fixed)) {
                 data->risk_delay[wid] = 99;
                 data->risk_reach_estimate[wid] = 0;

@@ -89,6 +89,19 @@ static int ai_should_force_stenv_sake_koikoi(int player);
 static int ai_should_force_stenv_sake_select_drop(int player);
 static int ai_should_cancel_sake_drop_fallback(int player);
 
+int ai_is_no_sake_mode(void)
+{
+    return (g.no_sake || g_no_sake_latched) ? ON : OFF;
+}
+
+int ai_is_disabled_wid_by_rules(int wid)
+{
+    if (!ai_is_no_sake_mode()) {
+        return OFF;
+    }
+    return (wid == WID_HANAMI || wid == WID_TSUKIMI) ? ON : OFF;
+}
+
 int ai_env_category_from_card(int card_index)
 {
     int month;
@@ -103,7 +116,7 @@ int ai_env_category_from_card(int card_index)
 
     if (type == CARD_TYPE_GOKOU) {
         if (month == 2 || month == 7) {
-            return ENV_CAT_1;
+            return ai_is_no_sake_mode() ? ENV_CAT_3 : ENV_CAT_1;
         }
         if (month == 0 || month == 11) {
             return ENV_CAT_3;
@@ -116,7 +129,7 @@ int ai_env_category_from_card(int card_index)
 
     if (type == CARD_TYPE_TANE) {
         if (month == 8) {
-            return ENV_CAT_2;
+            return ai_is_no_sake_mode() ? ENV_CAT_9 : ENV_CAT_2;
         }
         if (month == 5 || month == 6 || month == 9) {
             return ENV_CAT_7;
@@ -178,6 +191,9 @@ static int ai_has_sake_fallback_base(int player)
     return OFF;
 #else
     if (player < 0 || player > 1) {
+        return OFF;
+    }
+    if (ai_is_no_sake_mode()) {
         return OFF;
     }
     return g.ai_model[player] == AI_MODEL_HARD && ai_debug_has_initial_sake(player);
@@ -414,10 +430,10 @@ void ai_watch_log_begin(void)
 #endif
     }
 
+    ai_putlog("Watch Start: P1=%s CPU=%s rounds=%d no_sake=%d", ai_model_name(g.ai_model[0]), ai_model_name(g.ai_model[1]), g.round_max,
+              ai_is_no_sake_mode());
     if (seed) {
-        ai_putlog("Watch Start: P1=%s CPU=%s rounds=%d seed=%d", ai_model_name(g.ai_model[0]), ai_model_name(g.ai_model[1]), g.round_max, seed);
-    } else {
-        ai_putlog("Watch Start: P1=%s CPU=%s rounds=%d", ai_model_name(g.ai_model[0]), ai_model_name(g.ai_model[1]), g.round_max);
+        ai_putlog("Watch Seed: %d", seed);
     }
     ai_watch_log_card_index_legend();
 }
@@ -1842,7 +1858,7 @@ int ai_env_effective_category_for_player(int player, int card_index)
         if (!card) {
             continue;
         }
-        if (card->month == 8) {
+        if (!ai_is_no_sake_mode() && card->month == 8) {
             has_sake = ON;
         }
     }
@@ -1867,10 +1883,10 @@ int ai_env_effective_category_for_player(int player, int card_index)
         card_types[card_index] == CARD_TYPE_GOKOU) {
         return ENV_CAT_NA;
     }
-    if (cat == ENV_CAT_1 && has_sake) {
+    if (!ai_is_no_sake_mode() && cat == ENV_CAT_1 && has_sake) {
         return ENV_CAT_3;
     }
-    if (cat == ENV_CAT_2) {
+    if (!ai_is_no_sake_mode() && cat == ENV_CAT_2) {
         if (has_sakura && has_moon) {
             return ENV_CAT_12;
         }
@@ -1878,7 +1894,7 @@ int ai_env_effective_category_for_player(int player, int card_index)
             return ENV_CAT_11;
         }
     }
-    if (cat == ENV_CAT_11 && has_sakura && has_moon) {
+    if (!ai_is_no_sake_mode() && cat == ENV_CAT_11 && has_sakura && has_moon) {
         return ENV_CAT_12;
     }
     if (cat == ENV_CAT_4 && ai_env_opponent_has_combo_blocker(player, ENV_CAT_4)) {

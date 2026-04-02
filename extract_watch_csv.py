@@ -3,7 +3,9 @@ import re
 import csv
 import sys
 
-WATCH_START_RE = re.compile(r'^Watch Start: P1=(\S+) CPU=(\S+) rounds=\d+ seed=\d+$')
+WATCH_START_RE = re.compile(
+    r'^Watch Start: P1=(\S+) CPU=(\S+) rounds=\d+(?: seed=\d+| no_sake=[01])?$'
+)
 
 def extract_data_from_filename(filename):
     """
@@ -79,12 +81,13 @@ def extract_round_diffs(log_path):
 
 def extract_models(log_path):
     with open(log_path, encoding="utf-8") as f:
-        first_line = f.readline().rstrip("\n")
+        for raw_line in f:
+            line = raw_line.rstrip("\n")
+            match = WATCH_START_RE.match(line)
+            if match:
+                return match.group(1), match.group(2)
 
-    match = WATCH_START_RE.match(first_line)
-    if not match:
-        raise ValueError(f"watch start header not found: {log_path}")
-    return match.group(1), match.group(2)
+    raise ValueError(f"watch start header not found: {log_path}")
 
 
 def process_directory(input_dir):
@@ -130,7 +133,7 @@ def process_directory(input_dir):
     rows.sort(key=lambda row: (row["count"], row["filename"]))
 
     writer = csv.writer(sys.stdout)
-    header = ["count", "P1:Model", "CPU:Model", "diff", "winner"]
+    header = ["count", "score0", "score1", "diff", "winner"]
     header.extend(f"round{i}" for i in range(1, max_round + 1))
     writer.writerow(header)
 

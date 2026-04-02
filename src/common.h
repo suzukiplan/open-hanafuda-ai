@@ -56,6 +56,9 @@ enum AI_MODEL {
 #define OUT_LB_UGC_INDEX 0xE80040      // UGCデータの読み込みインデックス
 #define IN_LB_UGC_READY 0xE80044       // UGCデータの読み込み完了チェック
 #define IN_IS_NOT_STEAM_DECK 0xE80048  // SteamDeck以外の環境かチェック (SteamDeck=0, それ以外=1, 未定義=255)
+#define OUT_WATCH_LOG_ADDR 0xE8004C    // watch.log 文字列アドレス
+#define OUT_WATCH_LOG_CONTROL 0xE80050 // watch.log 制御/長さ
+#define IN_LB_DATA_READY 0xE80054      // リーダーボードが読み込み済みかチェック (0: まだ読み込まれていない(reload中), 1: 読み込み済み)
 
 // ユーザー定義I/O (オンライン系)
 #define OUT_MATCHING_START 0xE81000           // マッチングリクエスト
@@ -111,15 +114,27 @@ enum TROPHY {
     TROPHY_KOIKOI_ED,      // B: 「こいこい」された
     TROPHY_DOUBLE_UP,      // S: 「こいこい」されて 6点以下 であがり返した (x2)
     TROPHY_QUAD_UP,        // G: 「こいこい」されて 7点以上 であがり返した (x4)
-    TROPHY_WIN_VERYSHORT,  // B: 2 rounds の CPU 戦 (0 == g.online) で初勝利
-    TROPHY_WIN_SHORT,      // B: 4 rounds の CPU 戦 (0 == g.online) で初勝利
-    TROPHY_WIN_HALF,       // B: 6 rounds の CPU 戦 (0 == g.online) で初勝利
-    TROPHY_WIN_FULL,       // S: 12 rounds の CPU 戦 (0 == g.online) で初勝利
+    TROPHY_WIN_VERYSHORT,  // B: 2 rounds の CPU 戦 (0 == g.online, 0 == g.model, 0 == g.no_sake) で初勝利
+    TROPHY_WIN_SHORT,      // B: 4 rounds の CPU 戦 (0 == g.online, 0 == g.model, 0 == g.no_sake) で初勝利
+    TROPHY_WIN_HALF,       // B: 6 rounds の CPU 戦 (0 == g.online, 0 == g.model, 0 == g.no_sake) で初勝利
+    TROPHY_WIN_FULL,       // S: 12 rounds の CPU 戦 (0 == g.online, 0 == g.model, 0 == g.no_sake) で初勝利
     TROPHY_WIN_ONLINE,     // S: オンラインモード (1 == g.online) で初勝利
     TROPHY_WIN_S50,        // B: 50点以上獲得して勝利
     TROPHY_WIN_S80,        // S: 80点以上獲得して勝利
     TROPHY_WIN_S100,       // S: 100点以上獲得して勝利
     TROPHY_WIN_S150,       // G: 150点以上獲得して勝利
+    TROPHY_WIN2_VERYSHORT, // B: 2 rounds の CPU 戦 (0 == g.online, 1 == g.model, 0 == g.no_sake) で初勝利
+    TROPHY_WIN2_SHORT,     // B: 4 rounds の CPU 戦 (0 == g.online, 1 == g.model, 0 == g.no_sake) で初勝利
+    TROPHY_WIN2_HALF,      // S: 6 rounds の CPU 戦 (0 == g.online, 1 == g.model, 0 == g.no_sake) で初勝利
+    TROPHY_WIN2_FULL,      // G: 12 rounds の CPU 戦 (0 == g.online, 1 == g.model, 0 == g.no_sake) で初勝利
+    TROPHY_WIN3_VERYSHORT, // B: 2 rounds の CPU 戦 (0 == g.online, 0 == g.model, 1 == g.no_sake) で初勝利
+    TROPHY_WIN3_SHORT,     // B: 4 rounds の CPU 戦 (0 == g.online, 0 == g.model, 1 == g.no_sake) で初勝利
+    TROPHY_WIN3_HALF,      // B: 6 rounds の CPU 戦 (0 == g.online, 0 == g.model, 1 == g.no_sake) で初勝利
+    TROPHY_WIN3_FULL,      // S: 12 rounds の CPU 戦 (0 == g.online, 0 == g.model, 1 == g.no_sake) で初勝利
+    TROPHY_WIN4_VERYSHORT, // B: 2 rounds の CPU 戦 (0 == g.online, 1 == g.model, 1 == g.no_sake) で初勝利
+    TROPHY_WIN4_SHORT,     // B: 4 rounds の CPU 戦 (0 == g.online, 1 == g.model, 1 == g.no_sake) で初勝利
+    TROPHY_WIN4_HALF,      // S: 6 rounds の CPU 戦 (0 == g.online, 1 == g.model, 1 == g.no_sake) で初勝利
+    TROPHY_WIN4_FULL,      // G: 12 rounds の CPU 戦 (0 == g.online, 1 == g.model, 1 == g.no_sake) で初勝利
     TROPHY_SIZE
 };
 
@@ -574,10 +589,12 @@ typedef struct {
     int ai_think_end;                // AI思考終了フラグ
     int auto_play;                   // Player操作をAIに委譲する (debug)
     int open_mode;                   // 相手の手札をオープン状態にする (debug)
+    int no_sake;                     // 盃OFFモード
     StrategyData strategy[2];        // AI思考結果（前回）
 } GlobalVariables;
 
 extern GlobalVariables g;
+extern int g_no_sake_latched;
 extern int card_target_deck_map[48];
 
 #define ONLINE_RESULT_DRAW 1

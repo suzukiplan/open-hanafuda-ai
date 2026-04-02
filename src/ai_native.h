@@ -8,8 +8,8 @@
 #define OUT_NATIVE_AI_COMMAND 0xE82010
 #define IN_NATIVE_AI_STATUS 0xE82014
 #define IN_NATIVE_AI_RESULT 0xE82018
-#define OUT_WATCH_LOG_ADDR 0xE80048
-#define OUT_WATCH_LOG_CONTROL 0xE8004C
+#define OUT_WATCH_LOG_ADDR 0xE8004C
+#define OUT_WATCH_LOG_CONTROL 0xE80050
 
 enum NATIVE_AI_COMMAND {
     NATIVE_AI_COMMAND_NONE = 0,
@@ -116,6 +116,7 @@ typedef struct {
     int32_t oya;
     int32_t current_player;
     int32_t auto_play;
+    int32_t no_sake;
     int32_t ai_model[2];
     NativeAiStrategySnapshot strategy[2];
     int8_t watch_min_action[2][256];
