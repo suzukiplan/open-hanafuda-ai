@@ -5735,6 +5735,7 @@ int ai_hard_drop(int player)
         int visible_sake_light_setup_wid = -1;
         int visible_sake_followup_bonus = 0;
         int visible_sake_followup_wid = -1;
+        int sake_cup_capture_bonus = 0;
         AiSevenLine seven_line;
         AiSevenLineBonus seven_line_bonus;
 #if PHASE2A_PLAN_DOMAIN_SCALING_ENABLE
@@ -5808,6 +5809,7 @@ int ai_hard_drop(int player)
             hot_material_bonus += calc_hot_material_bonus(card->id, &after);
             hot_material_bonus += calc_hot_material_bonus(capture_eval.chosen_take_card_no, &after);
             five_point_block_bonus = calc_opp_five_point_block_bonus(player, capture_eval.chosen_take_card_no, &str);
+            sake_cup_capture_bonus = calc_sake_cup_capture_material_bonus(player, card->id, capture_eval.chosen_take_card_no, &str);
 #if PHASE2A_PLAN_DOMAIN_SCALING_ENABLE
             domain_hot_bonus = calc_domain_hot_bonus(player, card->id, &after);
             if (phase2a_should_neutralize_hot_override(after.domain)) {
@@ -5841,6 +5843,17 @@ int ai_hard_drop(int player)
         visible_sake_light_setup_bonus = calc_visible_sake_light_setup_bonus(player, card->id, &str, &capture_eval, &visible_sake_light_setup_wid);
         visible_sake_followup_bonus =
             calc_visible_sake_followup_bonus(player, card->id, &str, &after, immediate_gain, completion_base, &visible_sake_followup_wid);
+        if (keep_fatal && capture_eval.capture_possible && capture_eval.chosen_take_card_no == 35 &&
+            (five_point_block_bonus > 0 ||
+             visible_light_finish_bonus > 0 ||
+             visible_sake_light_setup_bonus > 0 ||
+             visible_sake_followup_bonus > 0 ||
+             (ai_is_card_critical_for_wid(card->id, WID_AOTAN) && str.reach[WID_AOTAN] >= 40 && str.delay[WID_AOTAN] <= 3) ||
+             sake_cup_capture_bonus > 0 ||
+             str.risk_reach_estimate[WID_HANAMI] > 0 ||
+             str.risk_reach_estimate[WID_TSUKIMI] > 0)) {
+            keep_fatal = OFF;
+        }
         if (opp_koikoi_win_bonus <= 0 &&
             is_exposing_keycard_capture_target(player, card->id, &str, &keytarget_expose_wid, &keytarget_expose_month, &keytarget_expose_penalty)) {
             any_keytarget_expose_triggered = ON;
