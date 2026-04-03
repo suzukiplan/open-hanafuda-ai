@@ -58,6 +58,7 @@ typedef struct {
     int32_t score[WINNING_HAND_MAX];
     int32_t risk_reach_estimate[WINNING_HAND_MAX];
     int32_t risk_delay[WINNING_HAND_MAX];
+    int32_t risk_completion_score[WINNING_HAND_MAX];
     int32_t risk_score[WINNING_HAND_MAX];
     int32_t priority_speed[WINNING_HAND_MAX];
     int32_t priority_score[WINNING_HAND_MAX];

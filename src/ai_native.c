@@ -48,6 +48,7 @@ static void snapshot_strategy(NativeAiStrategySnapshot* dst, const StrategyData*
         dst->score[i] = src->score[i];
         dst->risk_reach_estimate[i] = src->risk_reach_estimate[i];
         dst->risk_delay[i] = src->risk_delay[i];
+        dst->risk_completion_score[i] = src->risk_completion_score[i];
         dst->risk_score[i] = src->risk_score[i];
         dst->priority_speed[i] = src->priority_speed[i];
         dst->priority_score[i] = src->priority_score[i];
@@ -106,6 +107,7 @@ static void restore_strategy(StrategyData* dst, const NativeAiStrategySnapshot* 
         dst->score[i] = src->score[i];
         dst->risk_reach_estimate[i] = src->risk_reach_estimate[i];
         dst->risk_delay[i] = src->risk_delay[i];
+        dst->risk_completion_score[i] = src->risk_completion_score[i];
         dst->risk_score[i] = src->risk_score[i];
         dst->priority_speed[i] = src->priority_speed[i];
         dst->priority_score[i] = src->priority_score[i];

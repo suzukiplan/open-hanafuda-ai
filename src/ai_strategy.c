@@ -58,6 +58,7 @@ static int calc_fixed_role_near_completion_threat(int wid, int player, const Str
 static int calc_risk_delay(int wid, int player, const StrategyCounts* counts_opp_fixed);
 static int calc_risk_reach_estimate(int wid, int player, const StrategyCounts* counts_opp_fixed, const StrategyCounts* counts_opp_plus_floor, int risk_delay);
 static int calc_risk_score(int wid, int base_score, int risk_reach_estimate);
+static int calc_risk_completion_score(int wid, const StrategyCounts* counts);
 static int estimate_risk_7plus_distance(const StrategyData* data, int opp_current_score);
 static int estimate_opp_coarse_threat(const StrategyData* data, int opp_current_score);
 static int estimate_opp_exact_7plus_threat(const StrategyData* data, int opp_current_score);
@@ -2738,6 +2739,63 @@ static int calc_risk_score(int wid, int base_score, int risk_reach_estimate)
     return score < 0 ? 0 : score;
 }
 
+static int calc_risk_completion_score(int wid, const StrategyCounts* counts)
+{
+    int akatan_need;
+    int aotan_need;
+    int isc_need;
+    int total_tan_after;
+    int total_tane_after;
+
+    if (!counts || ai_is_disabled_wid_by_rules(wid)) {
+        return 0;
+    }
+    if (can_complete_by_counts(wid, counts)) {
+        return calc_role_score(wid, counts);
+    }
+
+    switch (wid) {
+        case WID_ISC:
+            isc_need = 3 - counts->isc;
+            if (isc_need < 0) {
+                isc_need = 0;
+            }
+            total_tane_after = counts->tane + isc_need;
+            return 5 + (total_tane_after - 3);
+        case WID_DBTAN:
+            akatan_need = 3 - counts->akatan;
+            aotan_need = 3 - counts->aotan;
+            if (akatan_need < 0) {
+                akatan_need = 0;
+            }
+            if (aotan_need < 0) {
+                aotan_need = 0;
+            }
+            total_tan_after = counts->tan + akatan_need + aotan_need;
+            return 10 + (total_tan_after - 6);
+        case WID_AKATAN:
+            akatan_need = 3 - counts->akatan;
+            if (akatan_need < 0) {
+                akatan_need = 0;
+            }
+            total_tan_after = counts->tan + akatan_need;
+            return 5 + (total_tan_after - 3);
+        case WID_AOTAN:
+            aotan_need = 3 - counts->aotan;
+            if (aotan_need < 0) {
+                aotan_need = 0;
+            }
+            total_tan_after = counts->tan + aotan_need;
+            return 5 + (total_tan_after - 3);
+        case WID_TANE:
+        case WID_TAN:
+        case WID_KASU:
+            return winning_hands[wid].base_score;
+        default:
+            return winning_hands[wid].base_score;
+    }
+}
+
 static int estimate_risk_7plus_distance(const StrategyData* data, int opp_current_score)
 {
     if (!data) {
@@ -2752,7 +2810,7 @@ static int estimate_risk_7plus_distance(const StrategyData* data, int opp_curren
         if (ai_is_disabled_wid_by_rules(wid) || data->risk_reach_estimate[wid] <= 0 || data->risk_delay[wid] >= 99) {
             continue;
         }
-        if (opp_current_score + winning_hands[wid].base_score < 7) {
+        if (opp_current_score + data->risk_completion_score[wid] < 7) {
             continue;
         }
         if (data->risk_delay[wid] < best) {
@@ -2810,7 +2868,7 @@ static int estimate_opp_exact_7plus_threat(const StrategyData* data, int opp_cur
     }
 
     for (int wid = 0; wid < WINNING_HAND_MAX; wid++) {
-        if (ai_is_disabled_wid_by_rules(wid) || opp_current_score + winning_hands[wid].base_score < 7) {
+        if (ai_is_disabled_wid_by_rules(wid) || opp_current_score + data->risk_completion_score[wid] < 7) {
             continue;
         }
         if (data->risk_score[wid] > best_risk_ev) {
@@ -3648,6 +3706,7 @@ void ai_think_strategy_mode(int player, StrategyData* data, int mode, const Stra
     for (int i = 0; i < WINNING_HAND_MAX; i++) {
         data->delay[i] = 99;
         data->risk_delay[i] = 99;
+        data->risk_completion_score[i] = 0;
     }
     for (int t = 0; t < 4; t++) {
         fill_location_by_set(loc_by_key, &opp_invent[t], SLOC_OPP);
@@ -3856,12 +3915,14 @@ void ai_think_strategy_mode(int player, StrategyData* data, int mode, const Stra
             if (ai_is_disabled_wid_by_rules(wid)) {
                 data->risk_delay[wid] = 99;
                 data->risk_reach_estimate[wid] = 0;
+                data->risk_completion_score[wid] = 0;
                 data->risk_score[wid] = 0;
                 continue;
             }
             if (can_complete_by_counts(wid, &opp_counts_fixed)) {
                 data->risk_delay[wid] = 99;
                 data->risk_reach_estimate[wid] = 0;
+                data->risk_completion_score[wid] = 0;
                 data->risk_score[wid] = 0;
                 continue;
             }
@@ -3870,17 +3931,20 @@ void ai_think_strategy_mode(int player, StrategyData* data, int mode, const Stra
             if (risk_delay >= 99 || risk_reach <= 0) {
                 data->risk_delay[wid] = 99;
                 data->risk_reach_estimate[wid] = 0;
+                data->risk_completion_score[wid] = 0;
                 data->risk_score[wid] = 0;
                 continue;
             }
-            int base_score = calc_first_completion_score(wid, OFF);
+            int base_score = calc_risk_completion_score(wid, &opp_counts_fixed);
             data->risk_delay[wid] = risk_delay;
             data->risk_reach_estimate[wid] = risk_reach;
+            data->risk_completion_score[wid] = base_score;
             data->risk_score[wid] = calc_risk_score(wid, base_score, risk_reach);
         }
     } else if (cache) {
         vgs_memcpy(data->risk_reach_estimate, cache->risk_reach_estimate, sizeof(data->risk_reach_estimate));
         vgs_memcpy(data->risk_delay, cache->risk_delay, sizeof(data->risk_delay));
+        vgs_memcpy(data->risk_completion_score, cache->risk_completion_score, sizeof(data->risk_completion_score));
         vgs_memcpy(data->risk_score, cache->risk_score, sizeof(data->risk_score));
     }
 

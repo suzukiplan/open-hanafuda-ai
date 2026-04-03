@@ -410,6 +410,7 @@ typedef struct {
     int score[WINNING_HAND_MAX];               // 役 (WID) 毎の期待スコア
     int risk_reach_estimate[WINNING_HAND_MAX]; // 相手の役の危険度 [%]（スタティック推定）
     int risk_delay[WINNING_HAND_MAX];          // 相手の役の最短成立手数（小さいほど危険）
+    int risk_completion_score[WINNING_HAND_MAX]; // 相手がその役を初回成立した時の公開情報ベース見込み点
     int risk_score[WINNING_HAND_MAX];          // 相手の役の期待損失（Expected Loss）
     int priority_speed[WINNING_HAND_MAX];      // 狙うべき役のプライオリティ <速度重視>
     int priority_score[WINNING_HAND_MAX];      // 狙うべき役のプライオリティ <得点重視>
