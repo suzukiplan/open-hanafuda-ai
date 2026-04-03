@@ -73,7 +73,8 @@ This implementation strictly follows the official Koi-Koi rules defined by Ninte
   - <s>If 3 matching cards are on the table, all are captured.</s> → _Auto-Reshuffle_
   - <s>If all 4 cards of a month are present, all are captured.</s> → _Auto-Reshuffle_
 - **Sake Cup (酒)**
-  - <s>Always enabled (not optional).</s> → _Can-Optional_
+  - Always enabled (not optional).
+    - _An option to disable it is provided in this implementation, but its use is **Not Recommended**_.
   - Counts as both:
     - a **Tane (10-point card)**, and
     - a **Kasu (junk card)**.
@@ -112,31 +113,31 @@ As a general rule, this repository only accepts changes that improve the win rat
 % make run1k
 ./ai_sim -0 0 -1 1 -r 12 -l 1000 --seed=1772851247
 SUMMARY games=1000 seed=1772851247 rounds=12
-P1 model=Normal wins=389 avg_diff=-9.176 reason_7plus=1427 reason_opponent_koikoi=801 koikoi=4037 koikoi_success=2549 koikoi_success_rate=63.14%
-CPU model=Hard wins=608 avg_diff=9.176 reason_7plus=1605 reason_opponent_koikoi=1296 koikoi=2676 koikoi_success=1790 koikoi_success_rate=66.89%
+P1 model=Normal wins=388 avg_diff=-9.386 reason_7plus=1422 reason_opponent_koikoi=728 koikoi=4029 koikoi_success=2545 koikoi_success_rate=63.17%
+CPU model=Hard wins=609 avg_diff=9.386 reason_7plus=1568 reason_opponent_koikoi=1292 koikoi=2438 koikoi_success=1638 koikoi_success_rate=67.19%
 DRAW draws=3
-Sake round summary: 1P=2043, CPU=1995
- - 1P detail: win=977 (47.82%), average=9.92pts koikoi-cnt=998 koikoi-win=642 koikoi-up=7.96pts
- - CPU detail: win=1227 (61.50%), average=10.01pts koikoi-cnt=887 koikoi-win=607 koikoi-up=9.70pts
-KOIKOI_BASE6_PUSH P1=0/0/0 CPU=118/118/6
-KOIKOI_LOCKED_THRESHOLD P1=0/0 CPU=6/1
-WIN_RATE P1=38.90%(59.52pts) CPU=60.80%(60.44pts)
-- Round 1: P1=42.20%(7.88pts) CPU=53.80%(7.71pts)
-- Round 2: P1=40.70%(8.32pts) CPU=55.30%(7.17pts)
-- Round 3: P1=39.10%(7.85pts) CPU=56.40%(7.36pts)
-- Round 4: P1=43.40%(8.06pts) CPU=52.40%(7.56pts)
-- Round 5: P1=42.90%(7.62pts) CPU=53.00%(7.63pts)
-- Round 6: P1=42.20%(7.90pts) CPU=53.50%(7.88pts)
-- Round 7: P1=41.00%(8.13pts) CPU=55.00%(7.43pts)
-- Round 8: P1=40.70%(7.36pts) CPU=55.20%(7.08pts)
-- Round 9: P1=42.20%(7.14pts) CPU=53.80%(7.54pts)
-- Round 10: P1=42.90%(7.94pts) CPU=52.60%(6.73pts)
-- Round 11: P1=43.00%(7.70pts) CPU=54.00%(7.88pts)
-- Round 12: P1=42.80%(6.95pts) CPU=53.00%(7.09pts)
+Sake round summary: 1P=2048, CPU=1997
+ - 1P detail: win=972 (47.46%), average=9.86pts koikoi-cnt=992 koikoi-win=638 koikoi-up=7.93pts
+ - CPU detail: win=1284 (64.30%), average=9.39pts koikoi-cnt=736 koikoi-win=518 koikoi-up=10.39pts
+KOIKOI_BASE6_PUSH P1=0/0/0 CPU=146/146/8
+KOIKOI_LOCKED_THRESHOLD P1=0/0 CPU=10/3
+WIN_RATE P1=38.80%(58.27pts) CPU=60.90%(59.92pts)
+- Round 1: P1=41.20%(7.95pts) CPU=54.90%(7.65pts)
+- Round 2: P1=40.40%(8.13pts) CPU=55.60%(7.03pts)
+- Round 3: P1=38.70%(7.92pts) CPU=57.00%(7.26pts)
+- Round 4: P1=42.70%(7.93pts) CPU=53.10%(7.21pts)
+- Round 5: P1=42.20%(7.55pts) CPU=53.80%(7.38pts)
+- Round 6: P1=41.80%(7.82pts) CPU=53.90%(7.73pts)
+- Round 7: P1=40.40%(7.99pts) CPU=55.70%(7.19pts)
+- Round 8: P1=40.60%(7.50pts) CPU=55.40%(7.21pts)
+- Round 9: P1=41.80%(6.97pts) CPU=54.60%(7.22pts)
+- Round 10: P1=42.10%(7.77pts) CPU=53.80%(6.78pts)
+- Round 11: P1=42.20%(7.86pts) CPU=54.70%(7.62pts)
+- Round 12: P1=42.90%(7.03pts) CPU=53.10%(6.92pts)
 Per Bias:
-- GREEDY: win=1880 (63.5%), lose=1010 (34.1%), draw=72 (2.4%)
-- DEFENSIVE: win=3922 (48.5%), lose=3779 (46.7%), draw=393 (4.9%)
-- BALANCED: win=678 (71.8%), lose=242 (25.6%), draw=24 (2.5%)
+- GREEDY: win=1911 (64.6%), lose=984 (33.3%), draw=61 (2.1%)
+- DEFENSIVE: win=3922 (48.6%), lose=3758 (46.6%), draw=392 (4.9%)
+- BALANCED: win=723 (74.4%), lose=228 (23.5%), draw=21 (2.2%)
 ```
 
 > Most Important: `CPU`'s `WIN_RATE`

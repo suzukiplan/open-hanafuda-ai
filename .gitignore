@@ -5,3 +5,4 @@ build/*
 __pycache__/*
 run100.log/*
 run100_ns.log/*
+run100_ns.*

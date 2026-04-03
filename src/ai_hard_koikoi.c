@@ -1,9 +1,6 @@
 #include "ai.h"
 // KOIKOI 判断ログを出して continue/stop の理由を追えるようにする。
 
-#define HARD_RAPACIOUS_FALLBACK_ENABLE 1
-#define HARD_RAPACIOUS_FALLBACK_BEHIND_THRESHOLD 32
-
 // live out を強めに見る最低得点ライン。
 #define LIVE_OUT_SCORE_THRESHOLD 5
 // GREEDY で KOIKOI を許す最低到達率。
@@ -379,34 +376,6 @@ static int should_stop_small_base_last_card_koikoi(const StrategyData* s, int ro
     }
     return ON;
 }
-
-#if HARD_RAPACIOUS_FALLBACK_ENABLE == 1
-static int hard_should_force_rapacious_fallback_behind(const StrategyData* s)
-{
-    return (s && s->match_score_diff <= -HARD_RAPACIOUS_FALLBACK_BEHIND_THRESHOLD) ? ON : OFF;
-}
-
-static int hard_has_rapacious_fallback_sake_base(int player)
-{
-    return player >= 0 && player <= 1 && g.ai_model[player] == AI_MODEL_HARD && ai_debug_has_initial_sake(player);
-}
-
-static int hard_should_disable_rapacious_fallback_sake(const StrategyData* s)
-{
-    if (!s) {
-        return ON;
-    }
-    return s->opponent_win_x2 == ON || s->opp_coarse_threat >= 85 || s->left_rounds <= 2;
-}
-
-static int hard_should_force_rapacious_fallback_sake_koikoi(int player, const StrategyData* s)
-{
-    if (!hard_has_rapacious_fallback_sake_base(player) || hard_should_disable_rapacious_fallback_sake(s)) {
-        return OFF;
-    }
-    return ON;
-}
-#endif
 
 static int calc_followup_pressure_value(const int* reach, const int* delay)
 {
@@ -1462,12 +1431,6 @@ int ai_hard_koikoi(int player, int round_score)
     vgs_memcpy(&g.strategy[player], &strategy_work, sizeof(StrategyData));
     s = &g.strategy[player];
     forced_stop_reason = forced_big_hand_stop_reason(player);
-
-#if HARD_RAPACIOUS_FALLBACK_ENABLE == 1
-    if (!forced_stop_reason && (hard_should_force_rapacious_fallback_behind(s) || hard_should_force_rapacious_fallback_sake_koikoi(player, s))) {
-        return ai_hard_rapacious_fallback_koikoi(player, round_score);
-    }
-#endif
 
     live_out_est = s->best_additional_1pt_reach;
     live_out_delay = s->best_additional_1pt_delay;

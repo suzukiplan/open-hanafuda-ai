@@ -79,7 +79,6 @@ run100-ns: ai_sim
 test:
 	make all
 	make run100
-	make run100-ns
 	make run1k
 	python3 update_requirements_from_run1k.py
 
