@@ -41,6 +41,8 @@ This implementation strictly follows the official Koi-Koi rules defined by Ninte
 
 - **Rounds**
   - A game consists of 12 rounds (January–December).
+    - _This implementation allows the number of rounds to be defined as a variable, but a **multiple of 6 rounds (especially 12)** is strongly recommended._
+    - _Using a multiple of 6 rounds helps flatten the expected deal distribution, making the outcome depend more on **"Skill"** than on **"Luck"**._
 - **Initial Setup**
   - Each player is dealt 8 cards.
   - 8 cards are placed on the table.
