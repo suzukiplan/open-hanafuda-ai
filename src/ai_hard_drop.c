@@ -5843,16 +5843,32 @@ int ai_hard_drop(int player)
         visible_sake_light_setup_bonus = calc_visible_sake_light_setup_bonus(player, card->id, &str, &capture_eval, &visible_sake_light_setup_wid);
         visible_sake_followup_bonus =
             calc_visible_sake_followup_bonus(player, card->id, &str, &after, immediate_gain, completion_base, &visible_sake_followup_wid);
-        if (keep_fatal && capture_eval.capture_possible && capture_eval.chosen_take_card_no == 35 &&
-            (five_point_block_bonus > 0 ||
-             visible_light_finish_bonus > 0 ||
-             visible_sake_light_setup_bonus > 0 ||
-             visible_sake_followup_bonus > 0 ||
-             (ai_is_card_critical_for_wid(card->id, WID_AOTAN) && str.reach[WID_AOTAN] >= 40 && str.delay[WID_AOTAN] <= 3) ||
-             sake_cup_capture_bonus > 0 ||
-             str.risk_reach_estimate[WID_HANAMI] > 0 ||
-             str.risk_reach_estimate[WID_TSUKIMI] > 0)) {
-            keep_fatal = OFF;
+        if (keep_fatal && capture_eval.capture_possible) {
+            int visible_keep_comp = 0;
+
+            visible_keep_comp += five_point_block_bonus;
+            visible_keep_comp += visible_light_finish_bonus;
+            visible_keep_comp += visible_sake_light_setup_bonus;
+            visible_keep_comp += visible_sake_followup_bonus;
+            if (sake_cup_capture_bonus > 0) {
+                visible_keep_comp += sake_cup_capture_bonus;
+            }
+            if (ai_is_card_critical_for_wid(card->id, WID_AOTAN) && str.reach[WID_AOTAN] >= 40 && str.delay[WID_AOTAN] <= 3) {
+                visible_keep_comp += 24000;
+            }
+            for (int risk_wid = 0; risk_wid < WINNING_HAND_MAX; risk_wid++) {
+                if (!is_dangerous_risk_wid(&str, risk_wid)) {
+                    continue;
+                }
+                if (ai_is_card_critical_for_wid(capture_eval.chosen_take_card_no, risk_wid)) {
+                    visible_keep_comp += str.risk_delay[risk_wid] <= 2 ? 24000 : 12000;
+                    break;
+                }
+            }
+
+            if (visible_keep_comp >= (-keep_term) * 40) {
+                keep_fatal = OFF;
+            }
         }
         if (opp_koikoi_win_bonus <= 0 &&
             is_exposing_keycard_capture_target(player, card->id, &str, &keytarget_expose_wid, &keytarget_expose_month, &keytarget_expose_penalty)) {
