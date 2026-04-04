@@ -532,6 +532,8 @@ static int count_owned_type(int player, int type);
 static int count_owned_kasu_total(int player);
 static int hand_has_same_month_card_type_except(int player, int month, int type, int exclude_card_no);
 static int calc_sake_cup_capture_material_bonus(int player, int drop_card_no, int taken_card_no, const StrategyData* before);
+static int capture_advances_role_without_completion(int player, int wid, int drop_card_no, int taken_card_no);
+static int should_skip_keep_penalty_on_capture_progress(int player, int card_no, int taken_card_no, const StrategyData* before);
 static void calc_drop_top2_feed(int player, int card_no, int taken_card_no, int* out_flag, int* out_month, int* out_recap);
 static void emit_drop_trace(int player, const StrategyData* before, const DropCandidateScore* candidates, const AiSevenLine* sevenlines,
                             const AiSevenLineBonus* sevenline_bonuses, int count, int fallback_index, const DropTraceDecision* decision);
@@ -1830,6 +1832,7 @@ static int calc_visible_sake_light_setup_bonus(int player, int drop_card_no, con
 {
     int bonus = 0;
     int wid = -1;
+    int light_ready_after = OFF;
 
     if (out_wid) {
         *out_wid = -1;
@@ -1844,11 +1847,16 @@ static int calc_visible_sake_light_setup_bonus(int player, int drop_card_no, con
         return 0;
     }
 
-    if (drop_card_no == 30 && capture_eval->chosen_take_card_no == 31 && !hard_player_invent_has_card_id(player, 31)) {
+    light_ready_after = hard_player_invent_has_card_id(player, 31) || drop_card_no == 31 || capture_eval->chosen_take_card_no == 31;
+    if (drop_card_no == 30 && capture_eval->chosen_take_card_no == 31 && light_ready_after) {
         wid = WID_TSUKIMI;
-    } else if (drop_card_no == 10 && capture_eval->chosen_take_card_no == 11 && !hard_player_invent_has_card_id(player, 11)) {
-        wid = WID_HANAMI;
     } else {
+        light_ready_after = hard_player_invent_has_card_id(player, 11) || drop_card_no == 11 || capture_eval->chosen_take_card_no == 11;
+        if (drop_card_no == 10 && capture_eval->chosen_take_card_no == 11 && light_ready_after) {
+            wid = WID_HANAMI;
+        }
+    }
+    if (wid < 0) {
         return 0;
     }
 
@@ -4249,10 +4257,16 @@ static int clamp_keep_term(int raw_keep_term)
     return raw_keep_term;
 }
 
-static int calc_drop_keep_term(int player, int card, const StrategyData* before)
+static int calc_drop_keep_term(int player, int card, const StrategyData* before, const DropCaptureEval* capture_eval)
 {
     int penalty = 0;
     int seen[WINNING_HAND_MAX];
+
+    if (capture_eval && capture_eval->capture_possible && capture_eval->chosen_take_card_no >= 0 &&
+        should_skip_keep_penalty_on_capture_progress(player, card, capture_eval->chosen_take_card_no, before)) {
+        return 0;
+    }
+
     vgs_memset(seen, 0, sizeof(seen));
 
     for (int i = 0; i < 3; i++) {
@@ -4681,7 +4695,8 @@ static int calc_visible_sankou_reach_setup_bonus(int player, int drop_card_no, i
 {
     int delayed_hand_finisher = OFF;
     int delayed_sake_synergy = OFF;
-    int captured_light_already = OFF;
+    int visible_light_after = 0;
+    Card* drop;
     Card* taken;
 
     if (player < 0 || player > 1 || !before || drop_card_no < 0 || drop_card_no >= 48 || taken_card_no < 0 || taken_card_no >= 48) {
@@ -4693,16 +4708,28 @@ static int calc_visible_sankou_reach_setup_bonus(int player, int drop_card_no, i
     if (before->left_own >= 8) {
         return 0;
     }
+    drop = &g.cards[drop_card_no];
     taken = &g.cards[taken_card_no];
-    if (taken->type != CARD_TYPE_GOKOU || taken->month == 10) {
+    if (drop->type != CARD_TYPE_GOKOU && taken->type != CARD_TYPE_GOKOU) {
         return 0;
     }
-    if (!ai_is_card_critical_for_wid(taken_card_no, WID_SANKOU) || is_secured_role_card_for_player(player, taken_card_no)) {
+    if (!capture_advances_role_without_completion(player, WID_SANKOU, drop_card_no, taken_card_no)) {
         return 0;
     }
-    captured_light_already = hard_player_invent_has_card_id(player, 3) || hard_player_invent_has_card_id(player, 11) ||
-                             hard_player_invent_has_card_id(player, 31) || hard_player_invent_has_card_id(player, 47);
-    if (!captured_light_already) {
+    if (ai_would_complete_wid_by_taking_card(player, WID_SANKOU, drop_card_no) || ai_would_complete_wid_by_taking_card(player, WID_SANKOU, taken_card_no)) {
+        return 0;
+    }
+    visible_light_after += hard_player_invent_has_card_id(player, 3) ? 1 : 0;
+    visible_light_after += hard_player_invent_has_card_id(player, 11) ? 1 : 0;
+    visible_light_after += hard_player_invent_has_card_id(player, 31) ? 1 : 0;
+    visible_light_after += hard_player_invent_has_card_id(player, 47) ? 1 : 0;
+    if (ai_is_card_critical_for_wid(drop_card_no, WID_SANKOU) && !hard_player_invent_has_card_id(player, drop_card_no)) {
+        visible_light_after++;
+    }
+    if (taken->type == CARD_TYPE_GOKOU && ai_is_card_critical_for_wid(taken_card_no, WID_SANKOU) && !hard_player_invent_has_card_id(player, taken_card_no)) {
+        visible_light_after++;
+    }
+    if (visible_light_after < 2) {
         return 0;
     }
 
@@ -4726,6 +4753,84 @@ static int calc_visible_sankou_reach_setup_bonus(int player, int drop_card_no, i
 
     return DROP_VISIBLE_SANKOU_REACH_SETUP_BONUS + before->reach[WID_SANKOU] * 80 + DROP_VISIBLE_SANKOU_HAND_FINISHER_BONUS +
            (delayed_sake_synergy ? DROP_VISIBLE_SANKOU_SAKE_SYNERGY_BONUS : 0);
+}
+
+static int capture_advances_role_without_completion(int player, int wid, int drop_card_no, int taken_card_no)
+{
+    Card* drop;
+    Card* taken;
+    int before_missing;
+    int after_missing;
+
+    if (player < 0 || player > 1 || wid < 0 || wid >= WINNING_HAND_MAX || drop_card_no < 0 || drop_card_no >= 48 || taken_card_no < 0 || taken_card_no >= 48) {
+        return OFF;
+    }
+
+    drop = &g.cards[drop_card_no];
+    taken = &g.cards[taken_card_no];
+    if (drop->month != taken->month) {
+        return OFF;
+    }
+
+    before_missing = ai_wid_missing_count(player, wid);
+    if (before_missing <= 1) {
+        return OFF;
+    }
+
+    after_missing = before_missing;
+    if (ai_is_card_critical_for_wid(drop_card_no, wid)) {
+        after_missing--;
+    }
+    if (ai_is_card_critical_for_wid(taken_card_no, wid) && taken_card_no != drop_card_no) {
+        after_missing--;
+    }
+
+    return after_missing >= 1 && after_missing < before_missing ? ON : OFF;
+}
+
+static int should_skip_keep_penalty_on_capture_progress(int player, int card_no, int taken_card_no, const StrategyData* before)
+{
+    int seen[WINNING_HAND_MAX];
+
+    if (player < 0 || player > 1 || card_no < 0 || card_no >= 48 || taken_card_no < 0 || taken_card_no >= 48 || !before) {
+        return OFF;
+    }
+
+    vgs_memset(seen, 0, sizeof(seen));
+    for (int i = 0; i < 3; i++) {
+        int wid = before->priority_speed[i];
+        if (wid < 0 || wid >= WINNING_HAND_MAX || seen[wid]) {
+            continue;
+        }
+        seen[wid] = ON;
+        if (!ai_is_card_critical_for_wid(card_no, wid)) {
+            continue;
+        }
+        if (ai_would_complete_wid_by_taking_card(player, wid, card_no) || ai_would_complete_wid_by_taking_card(player, wid, taken_card_no)) {
+            continue;
+        }
+        if (capture_advances_role_without_completion(player, wid, card_no, taken_card_no)) {
+            return ON;
+        }
+    }
+    for (int i = 0; i < 3; i++) {
+        int wid = before->priority_score[i];
+        if (wid < 0 || wid >= WINNING_HAND_MAX || seen[wid]) {
+            continue;
+        }
+        seen[wid] = ON;
+        if (!ai_is_card_critical_for_wid(card_no, wid)) {
+            continue;
+        }
+        if (ai_would_complete_wid_by_taking_card(player, wid, card_no) || ai_would_complete_wid_by_taking_card(player, wid, taken_card_no)) {
+            continue;
+        }
+        if (capture_advances_role_without_completion(player, wid, card_no, taken_card_no)) {
+            return ON;
+        }
+    }
+
+    return OFF;
 }
 
 static int calc_capture_quality(int player, int drop_card_no, int taken_card_no, const StrategyData* before)
@@ -5705,7 +5810,7 @@ int ai_hard_drop(int player)
         // 危険札を直接切るリスクの抑制。
         int safety_term = calc_safety_term(player, card->id, &str);
         // 優先役の必須札を切る損失を、bias に依存しない独立項で反映。
-        int keep_term = calc_drop_keep_term(player, card->id, &str);
+        int keep_term = calc_drop_keep_term(player, card->id, &str, &capture_eval);
         keep_term -= calc_unlocked_rainman_hold_penalty(player, card->id, &str, capture_eval.capture_possible);
         int no_take_gokou_penalty = calc_drop_no_take_gokou_penalty(player, card->id, &str, &after, capture_eval.capture_possible);
         int completion_base = completion_wid >= 0 ? winning_hands[completion_wid].base_score : 0;

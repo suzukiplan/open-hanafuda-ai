@@ -5,24 +5,61 @@
 static NativeAiSnapshot native_ai_snapshot;
 static int native_ai_enabled = -1;
 
+static int is_snapshot_card_ptr_valid(Card* card)
+{
+    unsigned long addr;
+    unsigned long base;
+    unsigned long end;
+
+    if (!card) {
+        return OFF;
+    }
+    addr = (unsigned long)card;
+    base = (unsigned long)&g.cards[0];
+    end = (unsigned long)&g.cards[48];
+    if (addr < base || addr >= end) {
+        return OFF;
+    }
+    if (((addr - base) % sizeof(Card)) != 0u) {
+        return OFF;
+    }
+    if (card->id < 0 || card->id >= 48) {
+        return OFF;
+    }
+    return &g.cards[card->id] == card ? ON : OFF;
+}
+
 static int32_t snapshot_card_id(Card* card)
 {
-    return card ? card->id : -1;
+    return is_snapshot_card_ptr_valid(card) ? card->id : -1;
 }
 
 static int32_t snapshot_winning_hand_id(WinningHand* hand)
 {
-    return hand ? hand->id : -1;
+    if (!hand) {
+        return -1;
+    }
+    if (hand < &winning_hands[0] || hand >= &winning_hands[WINNING_HAND_MAX]) {
+        return -1;
+    }
+    if (hand->id < 0 || hand->id >= WINNING_HAND_MAX) {
+        return -1;
+    }
+    return hand->id;
 }
 
 static void snapshot_card_set48(NativeAiCardSet48Snapshot* dst, const CardSet* src)
 {
     int i;
+    int count = 0;
     for (i = 0; i < 48; i++) {
         dst->cards[i] = snapshot_card_id(src->cards[i]);
+        if (dst->cards[i] >= 0) {
+            count++;
+        }
     }
     dst->start = src->start;
-    dst->num = src->num;
+    dst->num = count;
 }
 
 static void snapshot_card_set8(NativeAiCardSet8Snapshot* dst, const CardSet* src)
@@ -88,12 +125,16 @@ static void snapshot_strategy(NativeAiStrategySnapshot* dst, const StrategyData*
 static void snapshot_stats(NativeAiInventStatsSnapshot* dst, const InventStats* src)
 {
     int i;
+    int wh_count = 0;
     for (i = 0; i < WINNING_HAND_MAX; i++) {
         dst->wh[i] = snapshot_winning_hand_id(src->wh[i]);
+        if (dst->wh[i] >= 0) {
+            wh_count++;
+        }
         dst->base_up[i] = src->base_up[i];
         snapshot_card_set48(&dst->wcs[i], &src->wcs[i]);
     }
-    dst->wh_count = src->wh_count;
+    dst->wh_count = wh_count;
     dst->score = src->score;
     snapshot_card_set48(&dst->want, &src->want);
 }
