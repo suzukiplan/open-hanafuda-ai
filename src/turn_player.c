@@ -9,7 +9,7 @@ static Card* g_player_floor_log_card2;
 
 static const char* player_log_prefix(void)
 {
-    return ai_log_is_play_mode() ? "[CPU]" : "[P1]";
+    return "[P1]";
 }
 
 static void set_player_cursor(int next_cursor, int play_se)
