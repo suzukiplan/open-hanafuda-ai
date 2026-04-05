@@ -7,7 +7,7 @@ static Card* g_enemy_floor_log_card2;
 
 static void log_take_cards(const char* phase, Card* card1, Card* card2)
 {
-    if (g.auto_play == OFF) {
+    if (!ai_log_enabled()) {
         return;
     }
     if (!card1 || !card2) {
@@ -60,7 +60,7 @@ int enemy_think_resolve_target_deck(Card* card)
 
     {
         int targetDeck = ai_select(1, card);
-        if (g.auto_play != OFF) {
+        if (ai_log_enabled()) {
             ai_putlog_env("[CPU] think select: %d%s", targetDeck, ai_get_last_think_extra(1));
         }
         return targetDeck;
@@ -203,7 +203,7 @@ void enemy_turn(void)
 
     // 場に出す手札をオープン
     Card* dropCard = g.own[1].cards[dropIndex];
-    if (g.auto_play != OFF) {
+    if (ai_log_enabled()) {
         ai_putlog_env("[CPU] think drop: %d%s", dropCard ? dropCard->id : -1, ai_get_last_think_extra(1));
         ai_watch_begin_after_opp_window(1);
     }

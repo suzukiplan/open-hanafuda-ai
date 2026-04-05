@@ -26,7 +26,10 @@ typedef struct {
 static int parse_ai_model(const char* name)
 {
     if (!name) {
-        return AI_MODEL_HARD;
+        return -1;
+    }
+    if (strcmp(name, "Human") == 0) {
+        return -1;
     }
     if (strcmp(name, "Normal") == 0) {
         return AI_MODEL_NORMAL;
@@ -40,7 +43,7 @@ static int parse_ai_model(const char* name)
     if (strcmp(name, "Mcenv") == 0) {
         return AI_MODEL_MCENV;
     }
-    return AI_MODEL_HARD;
+    return -1;
 }
 
 static const char* ai_name_local(int model)
@@ -128,6 +131,10 @@ static int parse_watch_log(const char* path, ReplaySpec* out)
         if (sscanf(line, "Watch Start: P1=%31s CPU=%31s rounds=%d no_sake=%d", p1_model, cpu_model, &out->round_max, &no_sake) == 4) {
             out->ai_model[0] = parse_ai_model(p1_model);
             out->ai_model[1] = parse_ai_model(cpu_model);
+            if (out->ai_model[0] < 0 || out->ai_model[1] < 0) {
+                fclose(fp);
+                return OFF;
+            }
             out->no_sake = no_sake ? ON : OFF;
             continue;
         }
@@ -135,6 +142,10 @@ static int parse_watch_log(const char* path, ReplaySpec* out)
         if (sscanf(line, "Watch Start: P1=%31s CPU=%31s rounds=%d seed=%d", p1_model, cpu_model, &out->round_max, &seed) == 4) {
             out->ai_model[0] = parse_ai_model(p1_model);
             out->ai_model[1] = parse_ai_model(cpu_model);
+            if (out->ai_model[0] < 0 || out->ai_model[1] < 0) {
+                fclose(fp);
+                return OFF;
+            }
             out->seed = seed;
             out->has_seed = ON;
             continue;
@@ -143,6 +154,10 @@ static int parse_watch_log(const char* path, ReplaySpec* out)
         if (sscanf(line, "Watch Start: P1=%31s CPU=%31s rounds=%d", p1_model, cpu_model, &out->round_max) == 3) {
             out->ai_model[0] = parse_ai_model(p1_model);
             out->ai_model[1] = parse_ai_model(cpu_model);
+            if (out->ai_model[0] < 0 || out->ai_model[1] < 0) {
+                fclose(fp);
+                return OFF;
+            }
             continue;
         }
 

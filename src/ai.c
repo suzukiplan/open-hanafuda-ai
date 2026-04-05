@@ -88,6 +88,14 @@ static int ai_should_disable_sake_fallback(int player);
 static int ai_should_force_stenv_sake_koikoi(int player);
 static int ai_should_force_stenv_sake_select_drop(int player);
 static int ai_should_cancel_sake_drop_fallback(int player);
+static int ai_log_is_watch_mode(void);
+static uint32_t ai_log_addr_port(void);
+static uint32_t ai_log_control_port(void);
+static uint32_t ai_log_write_command(void);
+static uint32_t ai_log_begin_command(void);
+static uint32_t ai_log_end_command(void);
+static const char* ai_log_kind_name(void);
+static const char* ai_log_model_name(int player);
 
 int ai_is_no_sake_mode(void)
 {
@@ -300,6 +308,59 @@ static const char* ai_model_name(int model)
     }
 }
 
+int ai_log_is_play_mode(void)
+{
+    return (!g.auto_play && !g.online_mode) ? ON : OFF;
+}
+
+static int ai_log_is_watch_mode(void)
+{
+    return g.auto_play ? ON : OFF;
+}
+
+int ai_log_enabled(void)
+{
+    return (ai_log_is_watch_mode() || ai_log_is_play_mode()) ? ON : OFF;
+}
+
+static uint32_t ai_log_addr_port(void)
+{
+    return ai_log_is_watch_mode() ? OUT_WATCH_LOG_ADDR : OUT_PLAY_LOG_ADDR;
+}
+
+static uint32_t ai_log_control_port(void)
+{
+    return ai_log_is_watch_mode() ? OUT_WATCH_LOG_CONTROL : OUT_PLAY_LOG_CONTROL;
+}
+
+static uint32_t ai_log_write_command(void)
+{
+    return ai_log_is_watch_mode() ? WATCH_LOG_COMMAND_WRITE : PLAY_LOG_COMMAND_WRITE;
+}
+
+static uint32_t ai_log_begin_command(void)
+{
+    return ai_log_is_watch_mode() ? WATCH_LOG_COMMAND_BEGIN : PLAY_LOG_COMMAND_BEGIN;
+}
+
+static uint32_t ai_log_end_command(void)
+{
+    return ai_log_is_watch_mode() ? WATCH_LOG_COMMAND_END : PLAY_LOG_COMMAND_END;
+}
+
+static const char* ai_log_kind_name(void)
+{
+    return ai_log_is_watch_mode() ? "Watch" : "Play";
+}
+
+static const char* ai_log_model_name(int player)
+{
+    if (player == 0 && ai_log_is_play_mode()) {
+        return "Human";
+    }
+    return ai_model_name(g.ai_model[player]);
+}
+
 static const char* ai_card_type_name(int type)
 {
     switch (type) {
@@ -346,7 +407,7 @@ void ai_putlog_raw(const char* s)
 {
     int len;
 
-    if (!s) {
+    if (!s || !ai_log_enabled()) {
         return;
     }
 
@@ -370,8 +431,8 @@ void ai_putlog_raw(const char* s)
     }
 
 #ifndef VGS_HOST_SIM
-    *((volatile uint32_t*)OUT_WATCH_LOG_ADDR) = (uint32_t)g_ai_log_buffer;
-    *((volatile uint32_t*)OUT_WATCH_LOG_CONTROL) = (uint32_t)((WATCH_LOG_COMMAND_WRITE << 16) | (len & 0xFFFF));
+    *((volatile uint32_t*)ai_log_addr_port()) = (uint32_t)g_ai_log_buffer;
+    *((volatile uint32_t*)ai_log_control_port()) = (uint32_t)((ai_log_write_command() << 16) | (len & 0xFFFF));
 #endif
 }
 
@@ -405,7 +466,7 @@ void ai_watch_log_begin(void)
 {
     const int seed = ai_debug_current_seed();
 
-    if (!g.auto_play) {
+    if (!ai_log_enabled()) {
         return;
     }
 
@@ -421,14 +482,14 @@ void ai_watch_log_begin(void)
 
     if (native_ai_available()) {
 #ifndef VGS_HOST_SIM
-        *((volatile uint32_t*)OUT_WATCH_LOG_CONTROL) = (uint32_t)(WATCH_LOG_COMMAND_BEGIN << 16);
+        *((volatile uint32_t*)ai_log_control_port()) = (uint32_t)(ai_log_begin_command() << 16);
 #endif
     }
 
-    ai_putlog("Watch Start: P1=%s CPU=%s rounds=%d no_sake=%d", ai_model_name(g.ai_model[0]), ai_model_name(g.ai_model[1]), g.round_max,
+    ai_putlog("%s Start: P1=%s CPU=%s rounds=%d no_sake=%d", ai_log_kind_name(), ai_log_model_name(0), ai_log_model_name(1), g.round_max,
               ai_is_no_sake_mode());
     if (seed) {
-        ai_putlog("Watch Seed: %d", seed);
+        ai_putlog("%s Seed: %d", ai_log_kind_name(), seed);
     }
     ai_watch_log_card_index_legend();
 }
@@ -440,7 +501,7 @@ void ai_watch_log_end(void)
     const char* winner = "Draw";
     int winner_index = -1;
 
-    if (!g.auto_play) {
+    if (!ai_log_enabled()) {
         return;
     }
 
@@ -455,14 +516,24 @@ void ai_watch_log_end(void)
     ai_putlog("============================");
     ai_putlog("Game Finished: rounds=%d", g.round_max);
     ai_putlog("Final Score: P1=%d CPU=%d", p1, cpu);
-    ai_putlog("Winner: %s <%s>", winner, winner_index < 0 ? "n/a" : ai_model_name(g.ai_model[winner_index]));
+    ai_putlog("Winner: %s <%s>", winner, winner_index < 0 ? "n/a" : ai_log_model_name(winner_index));
     ai_putlog("============================");
 
     if (native_ai_available()) {
 #ifndef VGS_HOST_SIM
-        *((volatile uint32_t*)OUT_WATCH_LOG_CONTROL) = (uint32_t)(WATCH_LOG_COMMAND_END << 16);
+        *((volatile uint32_t*)ai_log_control_port()) = (uint32_t)(ai_log_end_command() << 16);
 #endif
     }
+}
+
+void ai_play_log_flush_round(void)
+{
+    if (!ai_log_is_play_mode() || !native_ai_available()) {
+        return;
+    }
+#ifndef VGS_HOST_SIM
+    *((volatile uint32_t*)OUT_PLAY_LOG_CONTROL) = (uint32_t)(PLAY_LOG_COMMAND_FLUSH_ROUND << 16);
+#endif
 }
 
 void ai_watch_min_set_action(int player, const char* fmt, ...)
@@ -1594,7 +1665,7 @@ void ai_watch_begin_after_opp_window(int player)
 {
     AiWatchAfterOppPending* pending;
 
-    if (!g.auto_play || player < 0 || player > 1) {
+    if (!ai_log_enabled() || player < 0 || player > 1) {
         return;
     }
     pending = &g_ai_watch_after_opp[player];
@@ -1633,7 +1704,7 @@ void ai_watch_note_after_opp_none(int opponent)
 {
     int actor = 1 - opponent;
 
-    if (!g.auto_play) {
+    if (!ai_log_enabled()) {
         return;
     }
     ai_watch_emit_after_opp(actor, opponent, "none", 0, 0, -1);
@@ -1644,7 +1715,7 @@ void ai_watch_note_after_opp_koikoi(int player, int round_score)
     int actor = 1 - player;
     int x2 = g.koikoi[1 - player] ? 1 : 0;
 
-    if (!g.auto_play) {
+    if (!ai_log_enabled()) {
         return;
     }
     ai_watch_emit_after_opp(actor, player, "koikoi", round_score, x2, g.stats[player].wh_count > 0 && g.stats[player].wh[0] ? g.stats[player].wh[0]->id : -1);
@@ -1655,7 +1726,7 @@ void ai_watch_note_after_opp_win(int player, int round_score)
     int actor = 1 - player;
     int x2 = ((g.stats[player].score >= 7) ? 1 : 0) + (g.koikoi[1 - player] ? 1 : 0);
 
-    if (!g.auto_play) {
+    if (!ai_log_enabled()) {
         return;
     }
     ai_watch_emit_after_opp(actor, player, "win", round_score, x2, g.stats[player].wh_count > 0 && g.stats[player].wh[0] ? g.stats[player].wh[0]->id : -1);

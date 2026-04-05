@@ -59,6 +59,8 @@ enum AI_MODEL {
 #define OUT_WATCH_LOG_ADDR 0xE8004C    // watch.log 文字列アドレス
 #define OUT_WATCH_LOG_CONTROL 0xE80050 // watch.log 制御/長さ
 #define IN_LB_DATA_READY 0xE80054      // リーダーボードが読み込み済みかチェック (0: まだ読み込まれていない(reload中), 1: 読み込み済み)
+#define OUT_PLAY_LOG_ADDR 0xE80058     // play.log 文字列アドレス
+#define OUT_PLAY_LOG_CONTROL 0xE8005C  // play.log 制御/長さ
 
 // ユーザー定義I/O (オンライン系)
 #define OUT_MATCHING_START 0xE81000           // マッチングリクエスト

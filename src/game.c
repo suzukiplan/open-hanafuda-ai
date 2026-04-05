@@ -97,7 +97,7 @@ static void log_card_ids_env(const char* label, Card* const* cards, int count)
 
 static void log_initial_cards(void)
 {
-    if (g.auto_play == OFF) {
+    if (!ai_log_enabled()) {
         return;
     }
     ai_putlog("[Initial] Round %d", g.round + 1);
@@ -317,6 +317,7 @@ void game(int round_max)
                 }
             }
         } while (show_result(g.current_player));
+        ai_play_log_flush_round();
 
         // 次ラウンドへ進む
         const int finished_round = g.round;
