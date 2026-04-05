@@ -7,6 +7,11 @@ static void player_on_floor_open(Card* card, int x, int y);
 static Card* g_player_floor_log_card1;
 static Card* g_player_floor_log_card2;
 
+static const char* player_log_prefix(void)
+{
+    return ai_log_is_play_mode() ? "[CPU]" : "[P1]";
+}
+
 static void set_player_cursor(int next_cursor, int play_se)
 {
     if (next_cursor < 0 || g.own[0].num <= next_cursor || g.cursor == next_cursor) {
@@ -148,14 +153,14 @@ choose_done:
 
 static void log_take_cards(const char* phase, Card* card1, Card* card2)
 {
-    if (g.auto_play == OFF) {
+    if (!ai_log_enabled()) {
         return;
     }
     if (!card1 || !card2) {
-        ai_putlog_env("[P1] %s take: n/a", phase);
+        ai_putlog_env("%s %s take: n/a", player_log_prefix(), phase);
         return;
     }
-    ai_putlog_env("[P1] %s take: %d,%d", phase, card1->id, card2->id);
+    ai_putlog_env("%s %s take: %d,%d", player_log_prefix(), phase, card1->id, card2->id);
 }
 
 static int player_think_resolve_target_deck(Card* card, int allowCancel, int* canceled)
@@ -189,6 +194,9 @@ static int player_think_resolve_target_deck(Card* card, int allowCancel, int* ca
         if (allowCancel && canceled && *canceled) {
             return -1;
         }
+        if (ai_log_enabled() && 0 <= targetDeck) {
+            ai_putlog_env("%s think select: %d", player_log_prefix(), targetDeck);
+        }
         return targetDeck;
     }
     if (canceled) {
@@ -207,8 +215,8 @@ static int player_think_resolve_target_deck(Card* card, int allowCancel, int* ca
     }
 
     int targetDeck = ai_select(0, card);
-    if (g.auto_play != OFF) {
-        ai_putlog_env("[P1] think select: %d%s", targetDeck, ai_get_last_think_extra(0));
+    if (ai_log_enabled()) {
+        ai_putlog_env("%s think select: %d%s", player_log_prefix(), targetDeck, ai_get_last_think_extra(0));
     }
     int valid = OFF;
     for (int i = 0; i < targetDeckCount; i++) {
@@ -570,8 +578,8 @@ void player_turn(void)
     }
 
     Card* drop = g.own[0].cards[g.cursor];
-    if (g.auto_play != OFF) {
-        ai_putlog_env("[P1] think drop: %d%s", drop ? drop->id : -1, ai_get_last_think_extra(0));
+    if (ai_log_enabled()) {
+        ai_putlog_env("%s think drop: %d%s", player_log_prefix(), drop ? drop->id : -1, ai_get_last_think_extra(0));
         ai_watch_begin_after_opp_window(0);
     }
     Card* takenDrop = (0 <= targetDeck && targetDeck < 48) ? g.deck.cards[targetDeck] : NULL;
@@ -625,8 +633,8 @@ void player_turn(void)
     add_move_fopen(c, 0, 80, player_on_floor_open);
     g.floor.start++;
     g.floor.num--;
-    if (g.auto_play != OFF) {
-        ai_putlog_env("[P1] floor open: %d", c ? c->id : -1);
+    if (ai_log_enabled()) {
+        ai_putlog_env("%s floor open: %d", player_log_prefix(), c ? c->id : -1);
     }
     // vgs_putlog("Closed floor cards left: %d", g.floor.num);
     while (g.move_count) {
