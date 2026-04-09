@@ -229,7 +229,8 @@ enum TROPHY {
 #define PTN_MOUSE (PTN_LOGO_HIBANA + 8)
 #define PTN_ONLINE_WAIT (PTN_MOUSE + 4)
 #define PTN_ONLINE_READY (PTN_ONLINE_WAIT + 8)
-#define PTN_SIZE (PTN_ONLINE_READY + 3)
+#define PTN_FM (PTN_ONLINE_READY + 3)
+#define PTN_SIZE (PTN_FM + 8)
 
 // エイリアス
 #define PTN_MENU_CURSOR (PTN_FONT + 0x0F)
@@ -407,40 +408,40 @@ typedef enum {
 
 /// @brief AI 戦略分析テーブル
 typedef struct {
-    int reach[WINNING_HAND_MAX];               // 役毎の新規成立確率 [%] (決定化MC近似)
-    int delay[WINNING_HAND_MAX];               // 役 (WID) 毎のあがりまで速度（小さいほど早くあがれる）
-    int score[WINNING_HAND_MAX];               // 役 (WID) 毎の期待スコア
-    int risk_reach_estimate[WINNING_HAND_MAX]; // 相手の役の危険度 [%]（スタティック推定）
-    int risk_delay[WINNING_HAND_MAX];          // 相手の役の最短成立手数（小さいほど危険）
+    int reach[WINNING_HAND_MAX];                 // 役毎の新規成立確率 [%] (決定化MC近似)
+    int delay[WINNING_HAND_MAX];                 // 役 (WID) 毎のあがりまで速度（小さいほど早くあがれる）
+    int score[WINNING_HAND_MAX];                 // 役 (WID) 毎の期待スコア
+    int risk_reach_estimate[WINNING_HAND_MAX];   // 相手の役の危険度 [%]（スタティック推定）
+    int risk_delay[WINNING_HAND_MAX];            // 相手の役の最短成立手数（小さいほど危険）
     int risk_completion_score[WINNING_HAND_MAX]; // 相手がその役を初回成立した時の公開情報ベース見込み点
-    int risk_score[WINNING_HAND_MAX];          // 相手の役の期待損失（Expected Loss）
-    int priority_speed[WINNING_HAND_MAX];      // 狙うべき役のプライオリティ <速度重視>
-    int priority_score[WINNING_HAND_MAX];      // 狙うべき役のプライオリティ <得点重視>
-    int risk_7plus_distance;                   // 相手が 7点以上へ到達するまでの推定距離
-    int opponent_win_x2;                       // 相手が倍化窓（7点到達見込み or 攻勢局面）にいるなら ON
-    int left_own;                              // 戦況: 自分の残り手札数
-    int left_rounds;                           // 戦況: 残りラウンド数
-    int round_max;                             // 戦況: 対局の総ラウンド数
-    int match_score_diff;                      // 戦況: 総合点差 (自分 total_score - 相手 total_score)
-    int koikoi_opp;                            // 戦況: 相手が「こいこい」中なら ON
-    int koikoi_mine;                           // 戦況: 自分が「こいこい」中なら ON
-    int opp_coarse_threat;                     // 相手脅威の粗い集約値 0..100
-    int opp_exact_7plus_threat;                // 相手の厳密な7点到達脅威 0..100
-    int risk_mult_pct;                         // risk_score へ掛けた倍率[%]
-    int greedy_need;                           // 貪欲モード要求度 0..100
-    int defensive_need;                        // 防御モード要求度 0..100
-    int base_now;                              // 現在の成立済み基礎点
-    int best_additional_1pt_reach;             // 次の +1 成立筋の最大到達率
-    int best_additional_1pt_delay;             // 次の +1 成立筋の最短 delay
-    int can_overpay_akatan;                    // 赤短を 6点以上で成立させやすいなら ON
-    int can_overpay_aotan;                     // 青短を 6点以上で成立させやすいなら ON
-    int can_overpay_ino;                       // 猪鹿蝶を 6点以上で成立させやすいなら ON
-    int env_total;                             // 自分視点 Env total
-    int env_diff;                              // 自分 Env - 相手 Env
-    int env_cat_sum[ENV_CAT_MAX];              // 自分視点カテゴリ別 Env 寄与合計
-    AiEnvDomain domain;                        // Env が高い理由の主ドメイン
-    AiPlan plan;                               // Env から見た暫定戦型
-    int mode;                                  // enum StrategyMode
+    int risk_score[WINNING_HAND_MAX];            // 相手の役の期待損失（Expected Loss）
+    int priority_speed[WINNING_HAND_MAX];        // 狙うべき役のプライオリティ <速度重視>
+    int priority_score[WINNING_HAND_MAX];        // 狙うべき役のプライオリティ <得点重視>
+    int risk_7plus_distance;                     // 相手が 7点以上へ到達するまでの推定距離
+    int opponent_win_x2;                         // 相手が倍化窓（7点到達見込み or 攻勢局面）にいるなら ON
+    int left_own;                                // 戦況: 自分の残り手札数
+    int left_rounds;                             // 戦況: 残りラウンド数
+    int round_max;                               // 戦況: 対局の総ラウンド数
+    int match_score_diff;                        // 戦況: 総合点差 (自分 total_score - 相手 total_score)
+    int koikoi_opp;                              // 戦況: 相手が「こいこい」中なら ON
+    int koikoi_mine;                             // 戦況: 自分が「こいこい」中なら ON
+    int opp_coarse_threat;                       // 相手脅威の粗い集約値 0..100
+    int opp_exact_7plus_threat;                  // 相手の厳密な7点到達脅威 0..100
+    int risk_mult_pct;                           // risk_score へ掛けた倍率[%]
+    int greedy_need;                             // 貪欲モード要求度 0..100
+    int defensive_need;                          // 防御モード要求度 0..100
+    int base_now;                                // 現在の成立済み基礎点
+    int best_additional_1pt_reach;               // 次の +1 成立筋の最大到達率
+    int best_additional_1pt_delay;               // 次の +1 成立筋の最短 delay
+    int can_overpay_akatan;                      // 赤短を 6点以上で成立させやすいなら ON
+    int can_overpay_aotan;                       // 青短を 6点以上で成立させやすいなら ON
+    int can_overpay_ino;                         // 猪鹿蝶を 6点以上で成立させやすいなら ON
+    int env_total;                               // 自分視点 Env total
+    int env_diff;                                // 自分 Env - 相手 Env
+    int env_cat_sum[ENV_CAT_MAX];                // 自分視点カテゴリ別 Env 寄与合計
+    AiEnvDomain domain;                          // Env が高い理由の主ドメイン
+    AiPlan plan;                                 // Env から見た暫定戦型
+    int mode;                                    // enum StrategyMode
 
     // 戦略判断変数
     struct Bias {
@@ -750,3 +751,7 @@ int pushing_ff(void);
 int mouse_shown(void);
 int mouse_in_rect(int x, int y, int width, int height);
 int position_in_rect(int pos_x, int pos_y, int x, int y, int width, int height);
+void music_init(void);
+void music_render(int bx);
+void music(void (*frame_proc)(void));
+void piano_render(int bx, int by);

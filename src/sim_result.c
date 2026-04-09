@@ -5,6 +5,10 @@
 typedef struct {
     int wins[2];
     int draws;
+    int dealer_rounds[2];
+    int dealer_wins[2];
+    int player_rounds[2];
+    int player_wins[2];
     int score_diff_sum[2];
     int win_score_sum[2];
     int round_wins[2][12];
@@ -103,6 +107,10 @@ static int is_draw_state(void)
 int show_result(int current_player)
 {
     if (is_draw_state()) {
+        if (g.oya >= 0 && g.oya <= 1) {
+            g_sim_metrics.dealer_rounds[g.oya]++;
+            g_sim_metrics.player_rounds[1 - g.oya]++;
+        }
         g.round_score[0][g.round] = 0;
         g.round_score[1][g.round] = 0;
         note_bias_round_result(0, BIAS_RESULT_DRAW);
@@ -134,6 +142,15 @@ int show_result(int current_player)
 
     int mul = round_multiplier(player);
     int score = base * mul;
+    if (g.oya >= 0 && g.oya <= 1) {
+        g_sim_metrics.dealer_rounds[g.oya]++;
+        g_sim_metrics.player_rounds[1 - g.oya]++;
+        if (g.oya == player) {
+            g_sim_metrics.dealer_wins[player]++;
+        } else {
+            g_sim_metrics.player_wins[player]++;
+        }
+    }
     note_bias_round_result(player, BIAS_RESULT_WIN);
     note_bias_round_result(1 - player, BIAS_RESULT_LOSE);
     g_sim_metrics.round_wins[player][g.round]++;

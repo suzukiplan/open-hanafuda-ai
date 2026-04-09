@@ -9,6 +9,10 @@
 typedef struct {
     int wins[2];
     int draws;
+    int dealer_rounds[2];
+    int dealer_wins[2];
+    int player_rounds[2];
+    int player_wins[2];
     int score_diff_sum[2];
     int win_score_sum[2];
     int round_wins[2][12];
@@ -321,6 +325,10 @@ int main(int argc, char** argv)
     const AiDebugMetrics* debug_metrics = ai_debug_metrics_get();
     double p1_win_rate = (metrics->wins[0] * 100.0) / loops;
     double cpu_win_rate = (metrics->wins[1] * 100.0) / loops;
+    double p1_dealer_win_rate = metrics->dealer_rounds[0] ? (metrics->dealer_wins[0] * 100.0) / metrics->dealer_rounds[0] : 0.0;
+    double cpu_dealer_win_rate = metrics->dealer_rounds[1] ? (metrics->dealer_wins[1] * 100.0) / metrics->dealer_rounds[1] : 0.0;
+    double p1_player_win_rate = metrics->player_rounds[0] ? (metrics->player_wins[0] * 100.0) / metrics->player_rounds[0] : 0.0;
+    double cpu_player_win_rate = metrics->player_rounds[1] ? (metrics->player_wins[1] * 100.0) / metrics->player_rounds[1] : 0.0;
     double p1_avg_win_score = metrics->wins[0] ? metrics->win_score_sum[0] / (double)metrics->wins[0] : 0.0;
     double cpu_avg_win_score = metrics->wins[1] ? metrics->win_score_sum[1] / (double)metrics->wins[1] : 0.0;
     double p1_avg_diff = metrics->score_diff_sum[0] / (double)loops;
@@ -374,6 +382,13 @@ int main(int argc, char** argv)
            ai_name(ai_model[1]), metrics->wins[1], cpu_avg_diff, metrics->reason_7plus[1], metrics->reason_opponent_koikoi[1],
            metrics->koikoi_count[1], metrics->koikoi_success[1], cpu_koikoi_success);
     printf("DRAW draws=%d\n", metrics->draws);
+    if (loops >= 2) {
+        printf("Round Win Ratio:\n");
+        printf("- P1: Dealer = %d/%d (%.2f%%), Player = %d/%d (%.2f%%)\n", metrics->dealer_wins[0], metrics->dealer_rounds[0], p1_dealer_win_rate,
+               metrics->player_wins[0], metrics->player_rounds[0], p1_player_win_rate);
+        printf("- CPU: Dealer = %d/%d (%.2f%%), Player = %d/%d (%.2f%%)\n", metrics->dealer_wins[1], metrics->dealer_rounds[1], cpu_dealer_win_rate,
+               metrics->player_wins[1], metrics->player_rounds[1], cpu_player_win_rate);
+    }
     printf("Sake round summary: 1P=%d, CPU=%d\n", debug_metrics->initial_sake_round_count[0], debug_metrics->initial_sake_round_count[1]);
     printf(" - 1P detail: win=%d (%.2f%%), average=%.2fpts koikoi-cnt=%d koikoi-win=%d koikoi-up=%.2fpts\n", metrics->initial_sake_round_win_count[0],
            debug_metrics->initial_sake_round_count[0] > 0

@@ -2,6 +2,9 @@ SUMMARY games=100 seed=1772851247 rounds=12
 P1 model=Normal wins=30 avg_diff=-15.760 reason_7plus=122 reason_opponent_koikoi=61 koikoi=402 koikoi_success=250 koikoi_success_rate=62.19%
 CPU model=Hard wins=68 avg_diff=15.760 reason_7plus=160 reason_opponent_koikoi=126 koikoi=225 koikoi_success=158 koikoi_success_rate=70.22%
 DRAW draws=2
+Round Win Ratio:
+- P1: Dealer = 226/505 (44.75%), Player = 238/695 (34.24%)
+- CPU: Dealer = 432/695 (62.16%), Player = 254/505 (50.30%)
 Sake round summary: 1P=215, CPU=184
  - 1P detail: win=99 (46.05%), average=9.06pts koikoi-cnt=104 koikoi-win=67 koikoi-up=6.61pts
  - CPU detail: win=126 (68.48%), average=9.38pts koikoi-cnt=53 koikoi-win=43 koikoi-up=9.47pts
