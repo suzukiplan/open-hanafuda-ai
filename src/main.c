@@ -28,6 +28,8 @@ typedef struct {
     int initial_sake_round_koikoi_win_count[2];
     int initial_sake_round_koikoi_up_sum[2];
     int bias_round_result[3][3];
+    int yaku_counts[WINNING_HAND_MAX];
+    int yaku_total_count;
 } SimMetrics;
 
 typedef struct {
@@ -388,6 +390,11 @@ int main(int argc, char** argv)
                metrics->player_wins[0], metrics->player_rounds[0], p1_player_win_rate);
         printf("- CPU: Dealer = %d/%d (%.2f%%), Player = %d/%d (%.2f%%)\n", metrics->dealer_wins[1], metrics->dealer_rounds[1], cpu_dealer_win_rate,
                metrics->player_wins[1], metrics->player_rounds[1], cpu_player_win_rate);
+        printf("Yaku Ratio:\n");
+        for (int i = 0; i < WINNING_HAND_MAX; i++) {
+            double yaku_ratio = metrics->yaku_total_count ? (metrics->yaku_counts[i] * 100.0) / metrics->yaku_total_count : 0.0;
+            printf("- %s: %d (%.2f%%)\n", winning_hands[i].nameJ, metrics->yaku_counts[i], yaku_ratio);
+        }
     }
     printf("Sake round summary: 1P=%d, CPU=%d\n", debug_metrics->initial_sake_round_count[0], debug_metrics->initial_sake_round_count[1]);
     printf(" - 1P detail: win=%d (%.2f%%), average=%.2fpts koikoi-cnt=%d koikoi-win=%d koikoi-up=%.2fpts\n", metrics->initial_sake_round_win_count[0],

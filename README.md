@@ -121,6 +121,20 @@ DRAW draws=5
 Round Win Ratio:
 - P1: Dealer = 2301/5133 (44.83%), Player = 2529/6867 (36.83%)
 - CPU: Dealer = 4083/6867 (59.46%), Player = 2631/5133 (51.26%)
+Yaku Ratio:
+- Five Brights: 20 (0.12%)
+- Four Brights: 98 (0.59%)
+- Rainy Four Brights: 443 (2.65%)
+- Three Brights: 1117 (6.69%)
+- Hanami - A Cup Under the Blossoms: 1827 (10.95%)
+- Tsukimi - A Cup Under the Moon: 1814 (10.87%)
+- Ino-shika-cho - Boar, Deer, and Butterfly: 520 (3.12%)
+- Crimson and Azure Verses: 1 (0.01%)
+- Red Poetry Ribbons: 503 (3.01%)
+- Blue Poetry Ribbons: 525 (3.15%)
+- Animal Set: 1789 (10.72%)
+- Ribbon Set: 2709 (16.23%)
+- Plain Set: 5322 (31.89%)
 Sake round summary: 1P=2043, CPU=2002
  - 1P detail: win=948 (46.40%), average=9.63pts koikoi-cnt=985 koikoi-win=619 koikoi-up=7.72pts
  - CPU detail: win=1327 (66.28%), average=9.13pts koikoi-cnt=661 koikoi-win=478 koikoi-up=10.22pts

@@ -24,6 +24,8 @@ typedef struct {
     int initial_sake_round_koikoi_win_count[2];
     int initial_sake_round_koikoi_up_sum[2];
     int bias_round_result[3][3];
+    int yaku_counts[WINNING_HAND_MAX];
+    int yaku_total_count;
 } SimMetrics;
 
 const char* ai_name(int model);
@@ -86,6 +88,21 @@ static int round_multiplier(int player)
         mul *= 2;
     }
     return mul;
+}
+
+static void note_yaku_counts(int player)
+{
+    for (int i = 0; i < g.stats[player].wh_count; i++) {
+        WinningHand* wh = g.stats[player].wh[i];
+        if (!wh) {
+            continue;
+        }
+        if (wh->id < 0 || wh->id >= WINNING_HAND_MAX) {
+            continue;
+        }
+        g_sim_metrics.yaku_counts[wh->id]++;
+        g_sim_metrics.yaku_total_count++;
+    }
 }
 
 static int is_draw_state(void)
@@ -153,6 +170,7 @@ int show_result(int current_player)
     }
     note_bias_round_result(player, BIAS_RESULT_WIN);
     note_bias_round_result(1 - player, BIAS_RESULT_LOSE);
+    note_yaku_counts(player);
     g_sim_metrics.round_wins[player][g.round]++;
     g_sim_metrics.round_win_score_sum[player][g.round] += score;
     if (ai_debug_has_initial_sake(player)) {
